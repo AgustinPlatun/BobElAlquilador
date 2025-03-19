@@ -1,7 +1,7 @@
 import React from 'react';
-import Card from '../Components/Navbar/Card/Card';
+import Card from '../../Components/Card/Card';
 import './Servicios.css';
-import Navbar from '../Components/Navbar/Navbar';
+import Navbar from '../../Components/Navbar/Navbar';
 const Servicios: React.FC = () => {
   const servicios = [
     {

@@ -15,6 +15,10 @@ const Navbar: React.FC = () => {
     navigate('/login');
   };
 
+  const handleLoginClickRegister = () => {
+    navigate('/register');
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-logo">MiLogo</div>
@@ -25,7 +29,7 @@ const Navbar: React.FC = () => {
       </div>
       <div className="navbar-actions">
         <button onClick={handleLoginClick}>Iniciar sesión</button>
-        <button>Registrarse</button>
+        <button onClick={handleLoginClickRegister}>Registrarse</button>
       </div>
       <div className="navbar-toggle" onClick={toggleMenu}>
         <span className="bar"></span>
