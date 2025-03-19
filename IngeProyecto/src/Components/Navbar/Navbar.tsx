@@ -1,12 +1,18 @@
+// src/components/Navbar.tsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Importa useNavigate
 import './Navbar.css';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate(); // Usa el hook useNavigate
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleLoginClick = () => {
+    navigate('/login');
   };
 
   return (
@@ -14,11 +20,11 @@ const Navbar: React.FC = () => {
       <div className="navbar-logo">MiLogo</div>
       <div className={`navbar-links ${isOpen ? 'active' : ''}`}>
         <Link to="/">Inicio</Link>
-        <Link to="/Servicios">Servicios</Link>
-        <Link to="/">Contacto</Link>
+        <Link to="/servicios">Servicios</Link>
+        <Link to="/contacto">Contacto</Link>
       </div>
       <div className="navbar-actions">
-        <button>Iniciar sesión</button>
+        <button onClick={handleLoginClick}>Iniciar sesión</button>
         <button>Registrarse</button>
       </div>
       <div className="navbar-toggle" onClick={toggleMenu}>
