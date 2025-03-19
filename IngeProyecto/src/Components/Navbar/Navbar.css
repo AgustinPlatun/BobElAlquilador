@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ff3333; 
+  padding: 1.5rem 1rem;
+  color: black;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  font-family: 'Roboto', sans-serif;
+  box-sizing: border-box; 
+}
+
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: black;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1.5rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.navbar-links a {
+  color: black;
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.navbar-links a:hover {
+  color: white;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+
+.navbar-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.navbar-actions button {
+  background-color: transparent;
+  border: 2px solid black;
+  color: black;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.navbar-actions button:hover {
+  background-color: black;
+  color: white;
+}
+
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.bar {
+  width: 25px;
+  height: 3px;
+  background-color: black;
+  margin: 4px 0;
+}
+
+@media (max-width: 768px) {
+  .navbar-links {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background-color: #ff3333;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    display: none;
+    transform: none;
+  }
+
+  .navbar-links.active {
+    display: flex;
+  }
+
+  .navbar-actions {
+    display: none;
+  }
+
+  .navbar-toggle {
+    display: flex;
+  }
+}
