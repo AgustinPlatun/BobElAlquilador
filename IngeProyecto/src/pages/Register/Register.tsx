@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './Register.css';
 import Navbar from '../../Components/Navbar/Navbar';
 
@@ -8,6 +9,7 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isChecked, setIsChecked] = useState(false);
+  const [error, setError] = useState(''); // Estado para los mensajes de error
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
@@ -17,13 +19,34 @@ const Register: React.FC = () => {
     return nombre && apellido && email && password && isChecked;
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); // Evita que el formulario recargue la página
+    setError(''); // Limpiar el mensaje de error antes de intentar el envío
+
+    try {
+      // Enviar datos al backend
+      const response = await axios.post('http://localhost:5000/register', {
+        nombre,
+        apellido,
+        email,
+        password
+      });
+
+      // Si la respuesta es exitosa, muestra un mensaje
+      alert(response.data.message); // Mensaje que viene del backend
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      setError('Hubo un problema con el registro.'); // Mostrar mensaje de error
+    }
+  };
+
   return (
     <div>
       <Navbar />
       <div className="register-container">
         <div className="register-box">
           <h2 className="register-title">Registro</h2>
-          <form className="register-form">
+          <form className="register-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="nombre" className="form-label">Nombre:</label>
               <input
@@ -75,6 +98,7 @@ const Register: React.FC = () => {
                 Confirmo que soy mayor de 18 años
               </label>
             </div>
+            {error && <p style={{ color: 'red' }}>{error}</p>} {/* Mostrar mensaje de error */}
             <button
               type="submit"
               className="register-button"
