@@ -1,11 +1,16 @@
+import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 CORS(app)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, "Usuarios.db")
+
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
@@ -34,7 +39,9 @@ def register():
         if Usuario.query.filter_by(email=email).first():
             return jsonify({"message": "El email ya está registrado"}), 400
 
-        nuevo_usuario = Usuario(nombre=nombre, apellido=apellido, email=email, password=password)
+        hashed_password = generate_password_hash(password)
+
+        nuevo_usuario = Usuario(nombre=nombre, apellido=apellido, email=email, password=hashed_password)
         db.session.add(nuevo_usuario)
         db.session.commit()
 
@@ -52,8 +59,8 @@ def login():
 
         usuario = Usuario.query.filter_by(email=email).first()
 
-        if usuario and usuario.password == password:
-            return jsonify({"message": "Inicio de sesión exitoso"}), 200
+        if usuario and check_password_hash(usuario.password, password):
+            return jsonify({"message": "Inicio de sesión exitoso", "nombre": usuario.nombre}), 200
         else:
             return jsonify({"message": "Datos incorrectos"}), 401
 

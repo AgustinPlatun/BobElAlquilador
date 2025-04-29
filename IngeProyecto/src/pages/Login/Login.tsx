@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import './Login.css';
 import Navbar from '../../Components/Navbar/Navbar';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -18,9 +20,8 @@ const Login: React.FC = () => {
       });
 
       if (response.status === 200) {
-        // Aquí puedes redirigir al usuario a otra página, por ejemplo:
-        // window.location.href = '/dashboard';
-        console.log('Inicio de sesión exitoso');
+        localStorage.setItem('usuarioNombre', response.data.nombre);
+        navigate('/');
       }
     } catch (error) {
       setError('Datos incorrectos');
