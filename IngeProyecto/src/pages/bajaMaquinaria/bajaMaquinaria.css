@@ -1,0 +1,61 @@
+body {
+  margin-top: 10%;
+}
+
+.baja-maquinaria-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.baja-maquinaria-container h1 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.baja-maquinaria-input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 300px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.baja-maquinaria-input:focus {
+  outline: none;
+  border-color: #ff3333;
+  box-shadow: 0 0 5px rgba(255, 51, 51, 0.5);
+}
+
+.baja-maquinaria-button {
+  padding: 0.5rem 1rem;
+  background-color: #ff3333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.baja-maquinaria-button:hover {
+  background-color: #e62e2e;
+}
+
+.baja-maquinaria-message {
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+.baja-maquinaria-message.success {
+  color: green;
+}
+
+.baja-maquinaria-message.error {
+  color: red;
+}

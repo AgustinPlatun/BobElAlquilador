@@ -8,6 +8,7 @@ import Register from './pages/Register/Register.tsx';
 import MiCuenta from './pages/myAccount/myAccount.tsx';
 import AltaMaquinaria from './pages/altaMaquinaria/altaMaquinaria.tsx';
 import Contacto from './pages/contacto/contacto.tsx';
+import BajaMaquinaria from './pages/bajaMaquinaria/bajaMaquinaria.tsx';
 
 
 const router = createBrowserRouter([
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
   {
     path:"/contacto",
     element:<Contacto></Contacto>
+  },
+  {
+    path:"/baja-maquinaria",
+    element:<BajaMaquinaria></BajaMaquinaria>
   }
 
 ])

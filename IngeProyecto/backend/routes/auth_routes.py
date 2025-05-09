@@ -103,3 +103,25 @@ def obtener_maquinarias():
         return jsonify(resultado), 200
     except Exception as e:
         return jsonify({"message": "Hubo un problema al obtener las maquinarias", "error": str(e)}), 500
+
+@auth_bp.route("/baja-maquinaria", methods=["DELETE"])
+def baja_maquinaria():
+    try:
+        data = request.json
+        nombre = data.get("nombre")
+
+        if not nombre:
+            return jsonify({"message": "El nombre de la maquinaria es obligatorio"}), 400
+
+        maquinaria = Maquinaria.query.filter_by(nombre=nombre).first()
+
+        if not maquinaria:
+            return jsonify({"message": "La maquinaria no existe"}), 404
+
+        db.session.delete(maquinaria)
+        db.session.commit()
+
+        return jsonify({"message": "Maquinaria eliminada correctamente"}), 200
+
+    except Exception as e:
+        return jsonify({"message": "Hubo un problema al eliminar la maquinaria", "error": str(e)}), 500

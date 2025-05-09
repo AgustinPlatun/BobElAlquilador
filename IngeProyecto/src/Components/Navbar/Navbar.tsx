@@ -17,6 +17,7 @@ const Navbar: React.FC = () => {
     }
     if (rolGuardado) {
       setRol(rolGuardado);
+      console.log(rolGuardado);
     }
   }, []);
 
@@ -43,6 +44,7 @@ const Navbar: React.FC = () => {
 
     if (rol === 'administrador') {
       options.push({ label: 'Alta de maquinaria', path: '/alta-maquinaria' });
+      options.push({ label: 'Baja de maquinaria', path: '/baja-maquinaria' });
     }
 
     options.push({ label: 'Cerrar sesión', action: handleLogout });
