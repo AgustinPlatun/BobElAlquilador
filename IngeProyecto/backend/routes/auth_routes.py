@@ -70,12 +70,10 @@ def alta_maquinaria():
         if not nombre or not descripcion or not foto:
             return jsonify({"message": "Todos los campos son obligatorios"}), 400
 
-        # Guardar la foto en el servidor
         filename = secure_filename(foto.filename)
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         foto.save(filepath)
 
-        # Crear una nueva maquinaria en la base de datos
         nueva_maquinaria = Maquinaria(
             nombre=nombre,
             descripcion=descripcion,

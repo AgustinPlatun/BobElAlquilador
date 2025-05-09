@@ -5,13 +5,13 @@ import './Navbar.css';
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [usuario, setUsuario] = useState<string | null>(null);
-  const [rol, setRol] = useState<string | null>(null); // Estado para el rol del usuario
+  const [rol, setRol] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const nombreGuardado = localStorage.getItem('usuarioNombre');
-    const rolGuardado = localStorage.getItem('usuarioRol'); // Obtener el rol del usuario
+    const rolGuardado = localStorage.getItem('usuarioRol');
     if (nombreGuardado) {
       setUsuario(nombreGuardado);
     }

@@ -51,9 +51,9 @@
 }
 
 textarea.form-input {
-  height: 150px; /* Altura fija para el campo de descripción */
-  resize: none; /* Deshabilitar el redimensionamiento del campo */
-  overflow-y: auto; /* Agregar scroll si el contenido excede la altura */
+  height: 150px;
+  resize: none; 
+  overflow-y: auto;
 }
 
 .alta-maquinaria-button {

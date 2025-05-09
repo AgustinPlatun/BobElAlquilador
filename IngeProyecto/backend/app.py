@@ -8,13 +8,10 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# Configuración de la base de datos
 app.config.from_object("config.Config")
 
-# Inicializar la base de datos
 db.init_app(app)
 
-# Registrar blueprints
 register_blueprints(app)
 
 @app.route('/uploads/<path:filename>')

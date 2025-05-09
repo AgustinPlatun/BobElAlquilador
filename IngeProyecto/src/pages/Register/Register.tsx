@@ -9,7 +9,7 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isChecked, setIsChecked] = useState(false);
-  const [error, setError] = useState(''); // Estado para los mensajes de error
+  const [error, setError] = useState('');
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
@@ -20,11 +20,9 @@ const Register: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Evita que el formulario recargue la página
-    setError(''); // Limpiar el mensaje de error antes de intentar el envío
+    e.preventDefault();
 
     try {
-      // Enviar datos al backend
       const response = await axios.post('http://localhost:5000/register', {
         nombre,
         apellido,
@@ -32,11 +30,10 @@ const Register: React.FC = () => {
         password
       });
 
-      // Si la respuesta es exitosa, muestra un mensaje
-      alert(response.data.message); // Mensaje que viene del backend
+      alert(response.data.message);
     } catch (error) {
       console.error("Error en el registro:", error);
-      setError('Hubo un problema con el registro.'); // Mostrar mensaje de error
+      setError('Hubo un problema con el registro.');
     }
   };
 
