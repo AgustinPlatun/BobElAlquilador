@@ -1,57 +1,54 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from '../../Components/Card/Card';
 import './Servicios.css';
 import Navbar from '../../Components/Navbar/Navbar';
+
+interface Maquinaria {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  foto: string;
+}
+
 const Servicios: React.FC = () => {
-  const servicios = [
-    {
-      id: 1,
-      name: 'Servicio 1',
-      description: 'Descripción del servicio 1. Este es un ejemplo de descripción.',
-      image: 'https://via.placeholder.com/300',
-    },
-    {
-      id: 2,
-      name: 'Servicio 2',
-      description: 'Descripción del servicio 2. Este es un ejemplo de descripción.',
-      image: 'https://via.placeholder.com/300',
-    },
-    {
-      id: 3,
-      name: 'Servicio 3',
-      description: 'Descripción del servicio 3. Este es un ejemplo de descripción.',
-      image: 'https://via.placeholder.com/300',
-    },
-    {
-      id: 4,
-      name: 'Servicio 4',
-      description: 'Descripción del servicio 4. Este es un ejemplo de descripción.',
-      image: 'https://via.placeholder.com/300',
-    },
-    {
-      id: 5,
-      name: 'Servicio 5',
-      description: 'Descripción del servicio 5. Este es un ejemplo de descripción.',
-      image: 'https://via.placeholder.com/300',
-    },
-  ];
+  const [maquinarias, setMaquinarias] = useState<Maquinaria[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMaquinarias = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/maquinarias');
+        if (!response.ok) {
+          throw new Error('Error al obtener las maquinarias');
+        }
+        const data = await response.json();
+        setMaquinarias(data);
+      } catch (err) {
+        setError('Hubo un problema al cargar las maquinarias.');
+        console.error(err);
+      }
+    };
+
+    fetchMaquinarias();
+  }, []);
 
   return (
     <div>
-      <Navbar></Navbar>
+      <Navbar />
       <div className="servicios-container">
-      <h1>Nuestros Servicios</h1>
-      <div className="cards-container">
-        {servicios.map((servicio) => (
-          <Card
-            key={servicio.id}
-            image={servicio.image}
-            name={servicio.name}
-            description={servicio.description}
-          />
-        ))}
+        <h1>Nuestras Maquinarias</h1>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <div className="cards-container">
+          {maquinarias.map((maquinaria) => (
+            <Card
+              key={maquinaria.id}
+              image={`http://localhost:5000/uploads/${maquinaria.foto}`}
+              name={maquinaria.nombre}
+              description={maquinaria.descripcion}
+            />
+          ))}
+        </div>
       </div>
-    </div>
     </div>
   );
 };

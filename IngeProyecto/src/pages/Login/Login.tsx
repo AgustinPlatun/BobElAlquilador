@@ -21,6 +21,7 @@ const Login: React.FC = () => {
 
       if (response.status === 200) {
         localStorage.setItem('usuarioNombre', response.data.nombre);
+        localStorage.setItem('usuarioRol', 'administrador');
         navigate('/');
       }
     } catch (error) {

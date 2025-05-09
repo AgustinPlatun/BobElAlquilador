@@ -5,12 +5,18 @@ import './Navbar.css';
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [usuario, setUsuario] = useState<string | null>(null);
+  const [rol, setRol] = useState<string | null>(null); // Estado para el rol del usuario
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const nombreGuardado = localStorage.getItem('usuarioNombre');
+    const rolGuardado = localStorage.getItem('usuarioRol'); // Obtener el rol del usuario
     if (nombreGuardado) {
       setUsuario(nombreGuardado);
+    }
+    if (rolGuardado) {
+      setRol(rolGuardado);
     }
   }, []);
 
@@ -18,18 +24,30 @@ const Navbar: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleLoginClick = () => {
-    navigate('/login');
-  };
-
-  const handleLoginClickRegister = () => {
-    navigate('/register');
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('usuarioNombre');
+    localStorage.removeItem('usuarioRol');
     setUsuario(null);
+    setRol(null);
     navigate('/');
+  };
+
+  const getMenuOptions = () => {
+    const options: { label: string; path?: string; action?: () => void }[] = [
+      { label: 'Mis datos', path: '/mis-datos' },
+    ];
+
+    if (rol === 'administrador') {
+      options.push({ label: 'Alta de maquinaria', path: '/alta-maquinaria' });
+    }
+
+    options.push({ label: 'Cerrar sesión', action: handleLogout });
+
+    return options;
   };
 
   return (
@@ -48,14 +66,35 @@ const Navbar: React.FC = () => {
       </div>
       <div className="navbar-actions">
         {usuario ? (
-          <>
-            <span style={{ marginRight: '1rem' }}>{usuario}</span>
-            <button onClick={handleLogout}>Cerrar sesión</button>
-          </>
+          <div className="user-dropdown">
+            <span onClick={toggleDropdown} className="user-name">
+              {usuario.toUpperCase()} <span className="dropdown-arrow">▼</span>
+            </span>
+            {dropdownOpen && (
+              <div className="dropdown-menu">
+                {getMenuOptions().map((option, index) =>
+                  option.path ? (
+                    <Link key={index} to={option.path} className="dropdown-item">
+                      {option.label}
+                    </Link>
+                  ) : (
+                    <span
+                      key={index}
+                      onClick={option.action}
+                      className="dropdown-item"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {option.label}
+                    </span>
+                  )
+                )}
+              </div>
+            )}
+          </div>
         ) : (
           <>
-            <button onClick={handleLoginClick}>Iniciar sesión</button>
-            <button onClick={handleLoginClickRegister}>Registrarse</button>
+            <button onClick={() => navigate('/login')}>Iniciar sesión</button>
+            <button onClick={() => navigate('/register')}>Registrarse</button>
           </>
         )}
       </div>

@@ -5,6 +5,9 @@ import App from './App';
 import Servicios from './pages/Services/Servicios';
 import Login from './pages/Login/Login.tsx';
 import Register from './pages/Register/Register.tsx';
+import MiCuenta from './pages/myAccount/myAccount.tsx';
+import AltaMaquinaria from './pages/altaMaquinaria/altaMaquinaria.tsx';
+import Contacto from './pages/contacto/contacto.tsx';
 
 
 const router = createBrowserRouter([
@@ -23,7 +26,20 @@ const router = createBrowserRouter([
   {
     path:"/register",
     element:<Register></Register>
+  },
+  {
+    path:"/mis-datos",
+    element:<MiCuenta></MiCuenta>
+  },
+  {
+    path:"/alta-maquinaria",
+    element:<AltaMaquinaria></AltaMaquinaria>
+  },
+  {
+    path:"/contacto",
+    element:<Contacto></Contacto>
   }
+
 ])
 
 ReactDOM.render(

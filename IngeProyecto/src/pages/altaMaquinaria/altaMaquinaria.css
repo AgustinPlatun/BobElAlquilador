@@ -1,0 +1,73 @@
+.alta-maquinaria-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 80px;
+  background-color: #f0f0f0;
+  box-sizing: border-box;
+}
+
+.alta-maquinaria-box {
+  border: 2px solid #ff3333;
+  border-radius: 10px;
+  padding: 30px;
+  background-color: #ffffff;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  width: 400px;
+}
+
+.alta-maquinaria-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.alta-maquinaria-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.form-label {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 16px;
+  display: block;
+  text-align: left;
+}
+
+.form-input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+textarea.form-input {
+  height: 150px; /* Altura fija para el campo de descripción */
+  resize: none; /* Deshabilitar el redimensionamiento del campo */
+  overflow-y: auto; /* Agregar scroll si el contenido excede la altura */
+}
+
+.alta-maquinaria-button {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #ff3333;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.alta-maquinaria-button:hover {
+  background-color: #e62e2e;
+}
