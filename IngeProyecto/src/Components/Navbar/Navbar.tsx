@@ -12,12 +12,12 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     const nombreGuardado = localStorage.getItem('usuarioNombre');
     const rolGuardado = localStorage.getItem('usuarioRol');
+    console.log('Rol guardado en localStorage:', rolGuardado);
     if (nombreGuardado) {
       setUsuario(nombreGuardado);
     }
     if (rolGuardado) {
       setRol(rolGuardado);
-      console.log(rolGuardado);
     }
   }, []);
 

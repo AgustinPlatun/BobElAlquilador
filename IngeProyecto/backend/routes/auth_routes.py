@@ -53,7 +53,11 @@ def login():
         usuario = Usuario.query.filter_by(email=email).first()
 
         if usuario and check_password_hash(usuario.password, password):
-            return jsonify({"message": "Inicio de sesión exitoso", "nombre": usuario.nombre}), 200
+            return jsonify({
+                "message": "Inicio de sesión exitoso",
+                "nombre": usuario.nombre,
+                "rol": usuario.rol  # Incluir el rol en la respuesta
+            }), 200
         else:
             return jsonify({"message": "Datos incorrectos"}), 401
 
