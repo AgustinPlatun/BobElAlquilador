@@ -1,61 +1,115 @@
 body {
-  margin-top: 10%;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .baja-maquinaria-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  padding: 2rem;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 80px;
+  background-color: #f0f0f0;
+  box-sizing: border-box;
+}
+
+.baja-maquinaria-box {
+  border: 2px solid #ff3333;
+  border-radius: 10px;
+  padding: 30px;
+  background-color: #ffffff;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  width: 400px;
+}
+
+.baja-maquinaria-title {
   text-align: center;
-}
-
-.baja-maquinaria-container h1 {
-  font-size: 2rem;
   color: #333;
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
 }
 
-.baja-maquinaria-input {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
+.baja-maquinaria-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.form-label {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 16px;
+  display: block;
+  text-align: left;
+}
+
+.form-input {
+  padding: 10px;
   border-radius: 5px;
-  width: 300px;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.baja-maquinaria-input:focus {
-  outline: none;
-  border-color: #ff3333;
-  box-shadow: 0 0 5px rgba(255, 51, 51, 0.5);
+textarea.form-input {
+  height: 150px;
+  resize: none;
+  overflow-y: auto;
 }
 
 .baja-maquinaria-button {
-  padding: 0.5rem 1rem;
-  background-color: #ff3333;
-  color: white;
-  border: none;
+  padding: 10px;
   border-radius: 5px;
-  font-size: 1rem;
+  border: none;
+  background-color: #ff3333;
+  color: #ffffff;
+  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  width: 100%;
+  margin-top: 20px;
 }
 
 .baja-maquinaria-button:hover {
   background-color: #e62e2e;
 }
 
-.baja-maquinaria-message {
-  margin-top: 1rem;
-  font-size: 1rem;
-}
+@media (max-width: 768px) {
+  body {
+    margin-top: 0px;
+  }
 
-.baja-maquinaria-message.success {
-  color: green;
-}
+  .baja-maquinaria-container {
+    padding-top: 0px;
+    margin-top: -10%;
+  }
 
-.baja-maquinaria-message.error {
-  color: red;
+  .baja-maquinaria-box {
+    width: 320px;
+    padding: 25px; 
+  }
+
+  .baja-maquinaria-title {
+    font-size: 1.5rem;
+  }
+
+  .form-input {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .baja-maquinaria-button {
+    font-size: 15px;
+    padding: 10px;
+  }
 }

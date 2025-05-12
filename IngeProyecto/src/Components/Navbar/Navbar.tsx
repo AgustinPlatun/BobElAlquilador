@@ -69,8 +69,9 @@ const Navbar: React.FC = () => {
       <div className="navbar-actions">
         {usuario ? (
           <div className="user-dropdown">
+            <span onClick={toggleDropdown} className="user-icon"></span>
             <span onClick={toggleDropdown} className="user-name">
-              {usuario.toUpperCase()} <span className="dropdown-arrow">▼</span>
+              {usuario && usuario.toUpperCase()} <span className="dropdown-arrow">▼</span>
             </span>
             {dropdownOpen && (
               <div className="dropdown-menu">

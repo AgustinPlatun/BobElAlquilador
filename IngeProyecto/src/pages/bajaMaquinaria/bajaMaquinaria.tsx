@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from '../../Components/Navbar/Navbar';
+import './bajaMaquinaria.css';
 
 const BajaMaquinaria: React.FC = () => {
   const [nombre, setNombre] = useState('');
@@ -36,36 +37,27 @@ const BajaMaquinaria: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <h1>Baja de Maquinaria</h1>
-        <div style={{ marginBottom: '1rem' }}>
-          <input
-            type="text"
-            placeholder="Nombre de la maquinaria"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '5px',
-              border: '1px solid #ccc',
-              width: '300px',
-            }}
-          />
+      <div className="baja-maquinaria-container">
+        <div className="baja-maquinaria-box">
+          <h1 className="baja-maquinaria-title">Baja de Maquinaria</h1>
+          <div className="form-group">
+            <label className="form-label" htmlFor="nombre">
+              Nombre de la maquinaria
+            </label>
+            <input
+              id="nombre"
+              type="text"
+              className="form-input"
+              placeholder="Nombre de la maquinaria"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            />
+          </div>
+          <button className="baja-maquinaria-button" onClick={handleEliminar}>
+            Eliminar
+          </button>
+          {mensaje && <p className="baja-maquinaria-message">{mensaje}</p>}
         </div>
-        <button
-          onClick={handleEliminar}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#ff3333',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-        >
-          Eliminar
-        </button>
-        {mensaje && <p style={{ marginTop: '1rem', color: 'red' }}>{mensaje}</p>}
       </div>
     </div>
   );

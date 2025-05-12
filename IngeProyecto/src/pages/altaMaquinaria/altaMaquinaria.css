@@ -71,3 +71,29 @@ textarea.form-input {
 .alta-maquinaria-button:hover {
   background-color: #e62e2e;
 }
+
+@media (max-width: 768px) {
+  .alta-maquinaria-container {
+
+    margin-bottom: 0;
+  }
+
+  .alta-maquinaria-box {
+    width: 80%;
+    padding: 5%;
+  }
+
+  .alta-maquinaria-title {
+    font-size: 1.4rem;
+  }
+
+  .form-input {
+    font-size: 14px;
+    padding: 5%;
+  }
+
+  .alta-maquinaria-button {
+    font-size: 14px;
+    padding: 5%;
+  }
+}
