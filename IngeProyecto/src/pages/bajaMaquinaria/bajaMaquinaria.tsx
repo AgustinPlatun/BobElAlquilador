@@ -41,9 +41,6 @@ const BajaMaquinaria: React.FC = () => {
         <div className="baja-maquinaria-box">
           <h1 className="baja-maquinaria-title">Baja de Maquinaria</h1>
           <div className="form-group">
-            <label className="form-label" htmlFor="nombre">
-              Nombre de la maquinaria
-            </label>
             <input
               id="nombre"
               type="text"
