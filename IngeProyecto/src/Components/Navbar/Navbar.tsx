@@ -55,11 +55,13 @@ const Navbar: React.FC = () => {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
+        <a href="/">
         <img
           src="/images/Completo.png"
           alt="Logo"
           style={{ height: '50px' }}
         />
+        </a>
       </div>
       <div className={`navbar-links ${isOpen ? 'active' : ''}`}>
         <Link to="/">Inicio</Link>
