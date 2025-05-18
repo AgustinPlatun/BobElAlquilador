@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import './Login.css';
-import Navbar from '../../Components/Navbar/Navbar';
+import Navbar from '../Components/Navbar';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -33,32 +32,43 @@ const Login: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="login-container">
-        <div className="login-box">
-          <h2 className="login-title">Iniciar Sesión</h2>
-          <form className="login-form" onSubmit={handleLogin}>
-            <div className="form-group">
+      <div className="container d-flex justify-content-center align-items-center min-vh-100 pt-5">
+        <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '100%' }}>
+          <h2 className="text-center mb-4 text-danger">Iniciar Sesión</h2>
+          <form onSubmit={handleLogin}>
+            <div className="mb-3">
               <label htmlFor="email" className="form-label">Email</label>
               <input
                 type="email"
                 id="email"
-                className="form-input"
+                className="form-control"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
-            <div className="form-group">
+
+            <div className="mb-3">
               <label htmlFor="password" className="form-label">Contraseña</label>
               <input
                 type="password"
                 id="password"
-                className="form-input"
+                className="form-control"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <button type="submit" className="login-button">Ingresar</button>
+
+            {error && (
+              <div className="alert alert-danger text-center p-2" role="alert">
+                {error}
+              </div>
+            )}
+
+            <button type="submit" className="btn btn-danger w-100">
+              Ingresar
+            </button>
           </form>
         </div>
       </div>

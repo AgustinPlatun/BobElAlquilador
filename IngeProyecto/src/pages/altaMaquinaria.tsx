@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Navbar from '../../Components/Navbar/Navbar';
-import './AltaMaquinaria.css';
+import Navbar from '../Components/Navbar';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AltaMaquinaria: React.FC = () => {
   const [nombre, setNombre] = useState('');
@@ -29,7 +29,6 @@ const AltaMaquinaria: React.FC = () => {
       formData.append('descripcion', descripcion);
       formData.append('foto', foto);
 
-      // Enviar datos al backend
       const response = await fetch('http://localhost:5000/alta-maquinaria', {
         method: 'POST',
         body: formData,
@@ -52,40 +51,41 @@ const AltaMaquinaria: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="alta-maquinaria-container">
-        <div className="alta-maquinaria-box">
-          <h2 className="alta-maquinaria-title">Alta de Maquinaria</h2>
-          <form className="alta-maquinaria-form" onSubmit={handleSubmit}>
-            <div className="form-group">
+      <div className="container d-flex justify-content-center align-items-center min-vh-100 pt-5">
+        <div className="bg-white border border-danger rounded shadow p-4" style={{ maxWidth: '400px', width: '100%' }}>
+          <h2 className="text-center text-dark mb-4">Alta de Maquinaria</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
               <label htmlFor="nombre" className="form-label">Nombre:</label>
               <input
                 type="text"
                 id="nombre"
-                className="form-input"
+                className="form-control"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
               />
             </div>
-            <div className="form-group">
+            <div className="mb-3">
               <label htmlFor="descripcion" className="form-label">Descripción:</label>
               <textarea
                 id="descripcion"
-                className="form-input"
+                className="form-control"
+                rows={5}
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
               />
             </div>
-            <div className="form-group">
+            <div className="mb-3">
               <label htmlFor="foto" className="form-label">Foto:</label>
               <input
                 type="file"
                 id="foto"
-                className="form-input"
+                className="form-control"
                 onChange={handleFileChange}
               />
             </div>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <button type="submit" className="alta-maquinaria-button">Dar Alta Maquinaria</button>
+            {error && <p className="text-danger">{error}</p>}
+            <button type="submit" className="btn btn-danger w-100 mt-3">Dar Alta Maquinaria</button>
           </form>
         </div>
       </div>

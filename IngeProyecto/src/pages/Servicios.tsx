@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import Card from '../../Components/Card/Card';
-import './Servicios.css';
-import Navbar from '../../Components/Navbar/Navbar';
+import Card from '../Components/Card';
+import Navbar from '../Components/Navbar';
 
 interface Maquinaria {
   id: number;
@@ -35,17 +34,21 @@ const Servicios: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="servicios-container">
-        <h1>Nuestras Maquinarias</h1>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <div className="cards-container">
+      <div className="container py-5 mt-5 text-center">
+        <h1 className="mb-4">Nuestras Maquinarias</h1>
+        {error && <div className="alert alert-danger">{error}</div>}
+        <div className="row gx-4 gy-4 justify-content-center">
           {maquinarias.map((maquinaria) => (
-            <Card
+            <div
+              className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 px-2"
               key={maquinaria.id}
-              image={`http://localhost:5000/uploads/${maquinaria.foto}`}
-              name={maquinaria.nombre}
-              description={maquinaria.descripcion}
-            />
+            >
+              <Card
+                image={`http://localhost:5000/uploads/${maquinaria.foto}`}
+                name={maquinaria.nombre}
+                description={maquinaria.descripcion}
+              />
+            </div>
           ))}
         </div>
       </div>

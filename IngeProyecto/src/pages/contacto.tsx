@@ -1,5 +1,5 @@
 import React from 'react';
-import Navbar from '../../Components/Navbar/Navbar';
+import Navbar from '../Components/Navbar';
 
 const Contacto: React.FC = () => {
   return (

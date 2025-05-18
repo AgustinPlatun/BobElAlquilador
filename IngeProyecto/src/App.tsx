@@ -1,14 +1,15 @@
 import React from 'react';
-import Navbar from './Components/Navbar/Navbar.tsx';
-import './App.css';
+import Navbar from './Components/Navbar';
 
 const App: React.FC = () => {
   return (
-    <div className="App">
+    <div>
       <Navbar />
-      <main>
-      <div>ESTO ES EL INICIO</div>
-      </main>
+      <div></div>
+        <main>
+          <h1>Este es el Inicio</h1>
+          <p>Aca va un poco de viri viri de la empresa</p>
+        </main>
     </div>
   );
 };

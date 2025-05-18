@@ -2,13 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App';
-import Servicios from './pages/Services/Servicios';
-import Login from './pages/Login/Login.tsx';
-import Register from './pages/Register/Register.tsx';
-import MiCuenta from './pages/myAccount/myAccount.tsx';
-import AltaMaquinaria from './pages/altaMaquinaria/altaMaquinaria.tsx';
-import Contacto from './pages/contacto/contacto.tsx';
-import BajaMaquinaria from './pages/bajaMaquinaria/bajaMaquinaria.tsx';
+import Servicios from './pages/Servicios.tsx';
+import Login from './pages/Login.tsx';
+import Register from './pages/Register.tsx';
+import MiCuenta from './pages/myAccount.tsx';
+import AltaMaquinaria from './pages/altaMaquinaria.tsx';
+import Contacto from './pages/contacto.tsx';
+import BajaMaquinaria from './pages/bajaMaquinaria.tsx';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.css';
 
 
 const router = createBrowserRouter([
