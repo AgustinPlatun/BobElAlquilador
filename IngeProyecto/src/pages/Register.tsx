@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Navbar from '../Components/Navbar';
+import Navbar from '../Components/NavBar/Navbar';
 
 const Register: React.FC = () => {
   const [nombre, setNombre] = useState('');

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Navbar from '../Components/Navbar';
+import Navbar from '../Components/NavBar/Navbar';
 
 const BajaMaquinaria: React.FC = () => {
   const [nombre, setNombre] = useState('');
