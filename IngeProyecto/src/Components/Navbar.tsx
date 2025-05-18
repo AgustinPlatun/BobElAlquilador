@@ -65,23 +65,21 @@ const Navbar: React.FC = () => {
           </Link>
         </div>
 
-        {/* Botón hamburguesa */}
-        <button
-          className="navbar-toggler me-2"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-label="Toggle navigation"
-          style={{ marginLeft: '42px' }}
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        {/* Usuario en mobile */}
-        <div className="d-flex d-lg-none align-items-center">
+        {/* Botón hamburguesa + usuario/login en mobile */}
+        <div className="d-flex d-lg-none align-items-center" style={{ marginLeft: '42px' }}>
+          <button
+            className="navbar-toggler border border"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-label="Toggle navigation"
+            // Sin me-2 para que quede pegado
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
           {usuario ? (
-            <div className="dropdown">
+            <div className="dropdown ms-1">
               <button
                 className="btn btn-outline-light rounded-circle dropdown-toggle"
                 type="button"
@@ -111,7 +109,7 @@ const Navbar: React.FC = () => {
               </ul>
             </div>
           ) : (
-            <div className="d-flex flex-column gap-2">
+            <div className="d-flex flex-column gap-2 ms-1">
               <button className="btn btn-outline-light btn-sm" onClick={() => navigate('/login')}>
                 Iniciar sesión
               </button>
@@ -124,15 +122,47 @@ const Navbar: React.FC = () => {
 
         {/* Menú principal y usuario en desktop */}
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav mx-auto">
-            <li className="nav-item">
-              <Link className="nav-link text-dark mx-1 rounded" to="/">Inicio</Link>
+          <ul className="navbar-nav mx-auto justify-content-center w-100">
+            {/* Escritorio: ancho fijo */}
+            <li className="nav-item d-none d-lg-block" style={{ width: '110px', textAlign: 'center' }}>
+              <Link
+                className="nav-link fs-5 fw-semibold text-dark link-light mx-1 rounded"
+                to="/"
+              >
+                Inicio
+              </Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link text-dark mx-1 rounded" to="/servicios">Servicios</Link>
+            <li className="nav-item d-none d-lg-block" style={{ width: '110px', textAlign: 'center' }}>
+              <Link
+                className="nav-link fs-5 fw-semibold text-dark link-light mx-1 rounded"
+                to="/servicios"
+              >
+                Servicios
+              </Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link text-dark mx-1 rounded" to="/contacto">Contacto</Link>
+            <li className="nav-item d-none d-lg-block" style={{ width: '110px', textAlign: 'center' }}>
+              <Link
+                className="nav-link fs-5 fw-semibold text-dark link-light mx-1 rounded"
+                to="/contacto"
+              >
+                Contacto
+              </Link>
+            </li>
+            {/* Mobile: centrado */}
+            <li className="nav-item d-block d-lg-none text-center">
+              <Link className="nav-link fs-5 fw-semibold text-dark link-light mx-1 rounded" to="/">
+                Inicio
+              </Link>
+            </li>
+            <li className="nav-item d-block d-lg-none text-center">
+              <Link className="nav-link fs-5 fw-semibold text-dark link-light mx-1 rounded" to="/servicios">
+                Servicios
+              </Link>
+            </li>
+            <li className="nav-item d-block d-lg-none text-center">
+              <Link className="nav-link fs-5 fw-semibold text-dark link-light mx-1 rounded" to="/contacto">
+                Contacto
+              </Link>
             </li>
           </ul>
 

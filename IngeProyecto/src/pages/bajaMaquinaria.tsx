@@ -36,8 +36,14 @@ const BajaMaquinaria: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="container d-flex justify-content-center align-items-center min-vh-100 pt-5">
-        <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '100%' }}>
+      <div
+        className="baja-maquinaria-page d-flex justify-content-center align-items-center min-vh-100 pt-5"
+        style={{ width: '100vw', height: '100vh', display: 'block' }}
+      >
+        <div
+          className="card p-4 shadow"
+          style={{ maxWidth: '500px', width: '90%', border: '1px solid red' }}
+        >
           <h2 className="text-center mb-4">Baja de Maquinaria</h2>
 
           <div className="mb-3">

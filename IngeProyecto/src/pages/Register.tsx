@@ -39,8 +39,11 @@ const Register: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="container d-flex justify-content-center align-items-center min-vh-100 pt-5">
-        <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '100%' }}>
+      <div className="register-page-container d-flex justify-content-center align-items-center min-vh-100 pt-5" style={{ width: '100vw', height: '100vh' }}>
+        <div
+          className="card p-4 shadow"
+          style={{ maxWidth: '400px', width: '90%', border: '1px solid red' }}
+        >
           <h2 className="text-center mb-4 text-danger">Registro</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
