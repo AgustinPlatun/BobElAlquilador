@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './Register.css';
-import Navbar from '../../Components/Navbar/Navbar';
+import Navbar from '../Components/NavBar/Navbar';
 
 const Register: React.FC = () => {
   const [nombre, setNombre] = useState('');
@@ -27,12 +26,12 @@ const Register: React.FC = () => {
         nombre,
         apellido,
         email,
-        password
+        password,
       });
 
       alert(response.data.message);
     } catch (error) {
-      console.error("Error en el registro:", error);
+      console.error('Error en el registro:', error);
       setError('Hubo un problema con el registro.');
     }
   };
@@ -40,65 +39,79 @@ const Register: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="register-container">
-        <div className="register-box">
-          <h2 className="register-title">Registro</h2>
-          <form className="register-form" onSubmit={handleSubmit}>
-            <div className="form-group">
+      <div className="register-page-container d-flex justify-content-center align-items-center min-vh-100 pt-5" style={{ width: '100vw', height: '100vh' }}>
+        <div
+          className="card p-4 shadow"
+          style={{ maxWidth: '400px', width: '90%', border: '1px solid red' }}
+        >
+          <h2 className="text-center mb-4 text-danger">Registro</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
               <label htmlFor="nombre" className="form-label">Nombre:</label>
               <input
                 type="text"
                 id="nombre"
-                className="form-input"
+                className="form-control"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
               />
             </div>
-            <div className="form-group">
+
+            <div className="mb-3">
               <label htmlFor="apellido" className="form-label">Apellido:</label>
               <input
                 type="text"
                 id="apellido"
-                className="form-input"
+                className="form-control"
                 value={apellido}
                 onChange={(e) => setApellido(e.target.value)}
               />
             </div>
-            <div className="form-group">
+
+            <div className="mb-3">
               <label htmlFor="email" className="form-label">Email:</label>
               <input
                 type="email"
                 id="email"
-                className="form-input"
+                className="form-control"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <div className="form-group">
+
+            <div className="mb-3">
               <label htmlFor="password" className="form-label">Contraseña:</label>
               <input
                 type="password"
                 id="password"
-                className="form-input"
+                className="form-control"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <div className="form-group checkbox-group">
+
+            <div className="form-check mb-3">
               <input
+                className="form-check-input"
                 type="checkbox"
                 id="age-checkbox"
                 checked={isChecked}
                 onChange={handleCheckboxChange}
               />
-              <label htmlFor="age-checkbox" className="checkbox-label">
+              <label className="form-check-label" htmlFor="age-checkbox">
                 Confirmo que soy mayor de 18 años
               </label>
             </div>
-            {error && <p style={{ color: 'red' }}>{error}</p>} {/* Mostrar mensaje de error */}
+
+            {error && (
+              <div className="alert alert-danger text-center p-2" role="alert">
+                {error}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="register-button"
+              className="btn btn-danger w-100"
               disabled={!isFormValid()}
             >
               Registrarse

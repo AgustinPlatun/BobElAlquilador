@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import Navbar from '../../Components/Navbar/Navbar';
-import './bajaMaquinaria.css';
+import Navbar from '../Components/NavBar/Navbar';
 
 const BajaMaquinaria: React.FC = () => {
   const [nombre, setNombre] = useState('');
@@ -37,23 +36,36 @@ const BajaMaquinaria: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="baja-maquinaria-container">
-        <div className="baja-maquinaria-box">
-          <h1 className="baja-maquinaria-title">Baja de Maquinaria</h1>
-          <div className="form-group">
+      <div
+        className="baja-maquinaria-page d-flex justify-content-center align-items-center min-vh-100 pt-5"
+        style={{ width: '100vw', height: '100vh', display: 'block' }}
+      >
+        <div
+          className="card p-4 shadow"
+          style={{ maxWidth: '500px', width: '90%', border: '1px solid red' }}
+        >
+          <h2 className="text-center mb-4">Baja de Maquinaria</h2>
+
+          <div className="mb-3">
             <input
               id="nombre"
               type="text"
-              className="form-input"
+              className="form-control"
               placeholder="Nombre de la maquinaria"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
             />
           </div>
-          <button className="baja-maquinaria-button" onClick={handleEliminar}>
+
+          <button className="btn btn-danger w-100 mb-3" onClick={handleEliminar}>
             Eliminar
           </button>
-          {mensaje && <p className="baja-maquinaria-message">{mensaje}</p>}
+
+          {mensaje && (
+            <div className="alert alert-info text-center p-2" role="alert">
+              {mensaje}
+            </div>
+          )}
         </div>
       </div>
     </div>
