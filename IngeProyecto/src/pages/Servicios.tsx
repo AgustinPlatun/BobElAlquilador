@@ -40,11 +40,11 @@ const Servicios: React.FC = () => {
         <div className="row gx-4 gy-4 justify-content-center">
           {maquinarias.map((maquinaria) => (
             <div
-              className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 px-2"
+              className="col-12 col-sm-6 col-md-4 col-lg-8 mb-4 px-2"
               key={maquinaria.id}
             >
               <Card
-                image={`http://localhost:5000/uploads/${maquinaria.foto}`}
+                image={`http://localhost:5000/uploads/maquinarias_fotos/${maquinaria.foto}`}
                 name={maquinaria.nombre}
                 description={maquinaria.descripcion}
               />

@@ -7,26 +7,40 @@ const Register: React.FC = () => {
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isChecked, setIsChecked] = useState(false);
+  const [fechaNacimiento, setFechaNacimiento] = useState('');
+  const [dniFoto, setDniFoto] = useState<File | null>(null);
   const [error, setError] = useState('');
 
-  const handleCheckboxChange = () => {
-    setIsChecked(!isChecked);
+  const isFormValid = () => {
+    return nombre && apellido && email && password && fechaNacimiento && dniFoto;
   };
 
-  const isFormValid = () => {
-    return nombre && apellido && email && password && isChecked;
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setDniFoto(event.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
+    if (!isFormValid()) {
+      setError('Todos los campos son obligatorios.');
+      return;
+    }
 
     try {
-      const response = await axios.post('http://localhost:5000/register', {
-        nombre,
-        apellido,
-        email,
-        password,
+      const formData = new FormData();
+      formData.append('nombre', nombre);
+      formData.append('apellido', apellido);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('fecha_nacimiento', fechaNacimiento);
+      if (dniFoto) formData.append('dni_foto', dniFoto);
+
+      const response = await axios.post('http://localhost:5000/register', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       alert(response.data.message);
@@ -90,17 +104,26 @@ const Register: React.FC = () => {
               />
             </div>
 
-            <div className="form-check mb-3">
+            <div className="mb-3">
+              <label htmlFor="fecha_nacimiento" className="form-label">Fecha de nacimiento:</label>
               <input
-                className="form-check-input"
-                type="checkbox"
-                id="age-checkbox"
-                checked={isChecked}
-                onChange={handleCheckboxChange}
+                type="date"
+                id="fecha_nacimiento"
+                className="form-control"
+                value={fechaNacimiento}
+                onChange={(e) => setFechaNacimiento(e.target.value)}
               />
-              <label className="form-check-label" htmlFor="age-checkbox">
-                Confirmo que soy mayor de 18 años
-              </label>
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="dni_foto" className="form-label">Foto del DNI:</label>
+              <input
+                type="file"
+                id="dni_foto"
+                className="form-control"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
             </div>
 
             {error && (

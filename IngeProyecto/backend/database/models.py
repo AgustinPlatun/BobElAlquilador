@@ -8,6 +8,8 @@ class Usuario(db.Model):
     password = db.Column(db.String(255), nullable=False)
     rol = db.Column(db.String(50), nullable=False, default="usuario")
     estado = db.Column(db.String(80), nullable=False, default="Pendiente")
+    fecha_nacimiento = db.Column(db.String(10), nullable=False)
+    dni_foto = db.Column(db.String(255), nullable=False)
 
 class Maquinaria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
