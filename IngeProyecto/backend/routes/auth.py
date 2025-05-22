@@ -17,6 +17,7 @@ def register():
         fecha_nacimiento = request.form.get("fecha_nacimiento")
         dni_foto = request.files.get("dni_foto")
         rol = "cliente"
+        estado = "pendiente"
 
         if not nombre or not apellido or not email or not password or not fecha_nacimiento or not dni_foto:
             return jsonify({"message": "Faltan datos"}), 400
@@ -37,9 +38,10 @@ def register():
             apellido=apellido,
             email=email,
             password=hashed_password,
+            estado=estado,
             rol=rol,
             fecha_nacimiento=fecha_nacimiento,
-            dni_foto=dni_filename
+            dni_foto=dni_filename,
         )
         db.session.add(nuevo_usuario)
         db.session.commit()
@@ -80,6 +82,7 @@ def registrar_empleado():
         password = data.get("password")
         fecha_nacimiento = data.get("fecha_nacimiento")
         rol = "empleado"
+        estado = "activo"
 
         if not nombre or not apellido or not email or not password or not fecha_nacimiento:
             return jsonify({"message": "Faltan datos"}), 400
@@ -94,6 +97,7 @@ def registrar_empleado():
             apellido=apellido,
             email=email,
             password=hashed_password,
+            estado=estado,
             rol=rol,
             fecha_nacimiento=fecha_nacimiento,
             dni_foto=None 
