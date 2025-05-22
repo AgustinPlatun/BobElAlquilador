@@ -16,7 +16,7 @@ def register():
         password = request.form.get("password")
         fecha_nacimiento = request.form.get("fecha_nacimiento")
         dni_foto = request.files.get("dni_foto")
-        rol = "administrador"  # Siempre por defecto
+        rol = "cliente"
 
         if not nombre or not apellido or not email or not password or not fecha_nacimiento or not dni_foto:
             return jsonify({"message": "Faltan datos"}), 400
@@ -69,3 +69,42 @@ def login():
 
     except Exception as e:
         return jsonify({"message": "Hubo un problema con el inicio de sesión", "error": str(e)}), 500
+
+@auth_bp.route("/registrar-empleado", methods=["POST"])
+def registrar_empleado():
+    try:
+        data = request.json
+        nombre = data.get("nombre")
+        apellido = data.get("apellido")
+        email = data.get("email")
+        password = data.get("password")
+        fecha_nacimiento = data.get("fecha_nacimiento")
+        rol = "empleado"
+
+        if not nombre or not apellido or not email or not password or not fecha_nacimiento:
+            return jsonify({"message": "Faltan datos"}), 400
+
+        if Usuario.query.filter_by(email=email).first():
+            return jsonify({"message": "El email ya está registrado"}), 400
+
+        hashed_password = generate_password_hash(password)
+
+        nuevo_empleado = Usuario(
+            nombre=nombre,
+            apellido=apellido,
+            email=email,
+            password=hashed_password,
+            rol=rol,
+            fecha_nacimiento=fecha_nacimiento,
+            dni_foto=None 
+        )
+        db.session.add(nuevo_empleado)
+        db.session.commit()
+
+        return jsonify({"message": "Empleado registrado correctamente"}), 201
+
+    except Exception as e:
+        print("Error al registrar empleado:", e)
+        return jsonify({"message": "Hubo un problema con el registro del empleado", "error": str(e)}), 500
+
+

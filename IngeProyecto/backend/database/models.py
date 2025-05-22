@@ -6,10 +6,10 @@ class Usuario(db.Model):
     apellido = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    rol = db.Column(db.String(50), nullable=False, default="usuario")
-    estado = db.Column(db.String(80), nullable=False, default="Pendiente")
+    rol = db.Column(db.String(50), nullable=False)
+    estado = db.Column(db.String(80), nullable=False)
     fecha_nacimiento = db.Column(db.String(10), nullable=False)
-    dni_foto = db.Column(db.String(255), nullable=False)
+    dni_foto = db.Column(db.String(255), nullable=True)
 
 class Maquinaria(db.Model):
     id = db.Column(db.Integer, primary_key=True)

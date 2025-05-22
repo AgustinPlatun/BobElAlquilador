@@ -7,6 +7,8 @@ import MiCuenta from './pages/myAccount';
 import AltaMaquinaria from './pages/altaMaquinaria';
 import Contacto from './pages/contacto';
 import BajaMaquinaria from './pages/bajaMaquinaria';
+import RegistrarEmpleado from './pages/registrarEmpleado';
+import UsuariosPendientes from './pages/verificarCuentas';
 
 const router = createBrowserRouter([
   {
@@ -40,6 +42,15 @@ const router = createBrowserRouter([
   {
     path: "/baja-maquinaria",
     element: <BajaMaquinaria />
+  }
+  ,
+  {
+    path: "/registrar-empleado",
+    element: <RegistrarEmpleado />
+  },
+  {
+    path: "/verificar-cuentas",
+    element: <UsuariosPendientes />
   }
 ]);
 

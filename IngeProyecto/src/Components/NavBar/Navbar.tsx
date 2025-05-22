@@ -38,6 +38,9 @@ const Navbar: React.FC = () => {
     if (rol === 'administrador') {
       options.push({ label: 'Alta de maquinaria', path: '/alta-maquinaria' });
       options.push({ label: 'Baja de maquinaria', path: '/baja-maquinaria' });
+      options.push({ label: 'Registrar empleado', path: '/registrar-empleado' });
+    }else if (rol === 'empleado') {
+      options.push({ label: 'Verificar cuentas', path: '/verificar-cuentas' });
     }
     options.push({ label: 'Cerrar sesión', action: handleLogout });
     return options;
