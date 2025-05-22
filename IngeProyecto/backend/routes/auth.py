@@ -60,17 +60,29 @@ def login():
 
         usuario = Usuario.query.filter_by(email=email).first()
 
-        if usuario and check_password_hash(usuario.password, password):
-            return jsonify({
-                "message": "Inicio de sesión exitoso",
-                "nombre": usuario.nombre,
-                "rol": usuario.rol
-            }), 200
-        else:
+        if not usuario:
             return jsonify({"message": "Datos incorrectos"}), 401
+
+        # Verificar la contraseña primero
+        if not check_password_hash(usuario.password, password):
+            return jsonify({"message": "Datos incorrectos"}), 401
+
+        # Verificar si la cuenta está pendiente
+        if usuario.estado.lower() == "pendiente":
+            return jsonify({"message": "Tu cuenta aún no ha sido activada."}), 403
+
+        # Si todo está bien, iniciar sesión
+        return jsonify({
+            "message": "Inicio de sesión exitoso",
+            "nombre": usuario.nombre,
+            "rol": usuario.rol
+        }), 200
 
     except Exception as e:
         return jsonify({"message": "Hubo un problema con el inicio de sesión", "error": str(e)}), 500
+
+
+
 
 @auth_bp.route("/registrar-empleado", methods=["POST"])
 def registrar_empleado():

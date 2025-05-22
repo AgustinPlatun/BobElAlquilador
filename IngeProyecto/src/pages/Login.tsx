@@ -23,8 +23,23 @@ const Login: React.FC = () => {
         localStorage.setItem('usuarioRol', response.data.rol);
         navigate('/');
       }
-    } catch (error) {
-      setError('Datos incorrectos');
+    } catch (error: any) {
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message;
+
+        // Mostrar el mensaje adecuado según el status
+        if (status === 403) {
+          setError(message || 'Tu cuenta aún no ha sido activada.');
+        } else if (status === 401) {
+          setError(message || 'Datos incorrectos');
+        } else {
+          setError('Error al iniciar sesión');
+        }
+      } else {
+        setError('No se pudo conectar al servidor');
+      }
+
       console.log(error);
     }
   };
