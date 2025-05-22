@@ -1,24 +1,49 @@
+# Node/Vite
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.egg-info/
+.env
+.venv/
+venv/
+BaseDeDatos.db
+
+# Uploads y archivos generados por la app
+backend/uploads/
+!backend/uploads/.gitkeep
+
+# Editor config
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
+# Sistema
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Otros
+coverage/
