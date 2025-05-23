@@ -2,23 +2,16 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import Navbar from '../Components/NavBar/Navbar';
 
-const Register: React.FC = () => {
+const RegistrarCliente: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
-  const [dniFoto, setDniFoto] = useState<File | null>(null);
   const [error, setError] = useState('');
 
   const isFormValid = () => {
-    return nombre && apellido && email && password && fechaNacimiento && dniFoto;
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      setDniFoto(event.target.files[0]);
-    }
+    return nombre && apellido && email && password && fechaNacimiento;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,18 +24,15 @@ const Register: React.FC = () => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append('nombre', nombre);
-      formData.append('apellido', apellido);
-      formData.append('email', email);
-      formData.append('password', password);
-      formData.append('fecha_nacimiento', fechaNacimiento);
-      if (dniFoto) formData.append('dni_foto', dniFoto);
+      const data = {
+        nombre,
+        apellido,
+        email,
+        password,
+        fecha_nacimiento: fechaNacimiento,
+      };
 
-      const response = await axios.post('http://localhost:5000/register', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
+      const response = await axios.post('http://localhost:5000/registrar-cliente', data);
       alert(response.data.message);
     } catch (error) {
       console.error('Error en el registro:', error);
@@ -51,14 +41,14 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="d-flex flex-column min-vh-100">
       <Navbar />
-      <div className="register-page-container d-flex justify-content-center align-items-center min-vh-100 pt-5" style={{ width: '100vw', height: '100vh' }}>
+      <main className="flex-grow-1 d-flex justify-content-center align-items-center py-5">
         <div
           className="card p-4 shadow"
           style={{ maxWidth: '400px', width: '90%', border: '1px solid red' }}
         >
-          <h2 className="text-center mb-4 text-danger">Registro</h2>
+          <h2 className="text-center mb-4 text-danger">Registrar Cliente</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="nombre" className="form-label">Nombre:</label>
@@ -115,17 +105,6 @@ const Register: React.FC = () => {
               />
             </div>
 
-            <div className="mb-3">
-              <label htmlFor="dni_foto" className="form-label">Foto del DNI:</label>
-              <input
-                type="file"
-                id="dni_foto"
-                className="form-control"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-            </div>
-
             {error && (
               <div className="alert alert-danger text-center p-2" role="alert">
                 {error}
@@ -137,13 +116,13 @@ const Register: React.FC = () => {
               className="btn btn-danger w-100"
               disabled={!isFormValid()}
             >
-              Registrarse
+              Registrar Cliente
             </button>
           </form>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-export default Register;
+export default RegistrarCliente;

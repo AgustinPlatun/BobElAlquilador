@@ -9,6 +9,7 @@ import Contacto from './pages/contacto';
 import BajaMaquinaria from './pages/bajaMaquinaria';
 import RegistrarEmpleado from './pages/registrarEmpleado';
 import UsuariosPendientes from './pages/verificarCuentas';
+import RegistrarCliente from './pages/registrarClientePorEmpleado';
 
 const router = createBrowserRouter([
   {
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
   {
     path: "/verificar-cuentas",
     element: <UsuariosPendientes />
+  },
+  {
+    path: "/registrar-cliente",
+    element: <RegistrarCliente />
   }
 ]);
 
