@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Navbar from '../Components/NavBar/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 const Register: React.FC = () => {
   const [nombre, setNombre] = useState('');
@@ -10,6 +11,7 @@ const Register: React.FC = () => {
   const [fechaNacimiento, setFechaNacimiento] = useState('');
   const [dniFoto, setDniFoto] = useState<File | null>(null);
   const [error, setError] = useState('');
+  const navigate = useNavigate(); // <-- Hook de navegación
 
   const isFormValid = () => {
     return nombre && apellido && email && password && fechaNacimiento && dniFoto;
@@ -33,11 +35,11 @@ const Register: React.FC = () => {
       formData.append('fecha_nacimiento', fechaNacimiento);
       if (dniFoto) formData.append('dni_foto', dniFoto);
 
-      const response = await axios.post('http://localhost:5000/register', formData, {
+      await axios.post('http://localhost:5000/register', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      alert(response.data.message);
+      navigate('/login'); // Redireccionar al inicio
     } catch (error) {
       console.error('Error al registrar cliente:', error);
       setError('Hubo un problema al registrar el cliente.');
@@ -48,7 +50,7 @@ const Register: React.FC = () => {
     <div>
       <Navbar />
       <div className="register-page-container d-flex justify-content-center align-items-center min-vh-100 pt-5" style={{ width: '100vw', height: '100vh' }}>
-        <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '90%' }}>
+        <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '90%', border: '1px solid red',}}>
           <h2 className="text-center mb-4 text-danger">Registrarse</h2>
           <form onSubmit={handleSubmit} encType="multipart/form-data">
             <div className="mb-3">

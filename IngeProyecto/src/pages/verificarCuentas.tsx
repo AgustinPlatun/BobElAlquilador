@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import Navbar from "../Components/NavBar/Navbar";
+import { Modal, Button } from "react-bootstrap";
 
 interface Usuario {
   id: number;
@@ -13,9 +14,14 @@ interface Usuario {
   fecha_nacimiento: string;
 }
 
+type AccionPendiente = "activar" | "eliminar" | null;
+
 const UsuariosPendientes: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [error, setError] = useState("");
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<Usuario | null>(null);
+  const [accion, setAccion] = useState<AccionPendiente>(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchUsuarios();
@@ -30,12 +36,28 @@ const UsuariosPendientes: React.FC = () => {
     }
   };
 
-  const activarUsuario = async (id: number) => {
+  const confirmarAccion = (usuario: Usuario, tipo: AccionPendiente) => {
+    setUsuarioSeleccionado(usuario);
+    setAccion(tipo);
+    setShowModal(true);
+  };
+
+  const ejecutarAccion = async () => {
+    if (!usuarioSeleccionado || !accion) return;
+
     try {
-      await axios.put(`http://localhost:5000/activar-usuario/${id}`);
-      setUsuarios((prev) => prev.filter((u) => u.id !== id));
+      if (accion === "activar") {
+        await axios.put(`http://localhost:5000/activar-usuario/${usuarioSeleccionado.id}`);
+      } else if (accion === "eliminar") {
+        await axios.delete(`http://localhost:5000/eliminar-usuario/${usuarioSeleccionado.id}`);
+      }
+      setUsuarios((prev) => prev.filter((u) => u.id !== usuarioSeleccionado.id));
+      setShowModal(false);
+      setUsuarioSeleccionado(null);
+      setAccion(null);
     } catch (err) {
-      console.error("Error al activar el usuario", err);
+      console.error("Error al procesar la acción", err);
+      setError("No se pudo procesar la acción.");
     }
   };
 
@@ -47,10 +69,7 @@ const UsuariosPendientes: React.FC = () => {
         {error && <div className="alert alert-danger">{error}</div>}
         <div className="list-group">
           {usuarios.map((usuario) => (
-            <div
-              key={usuario.id}
-              className="list-group-item mb-2"
-            >
+            <div key={usuario.id} className="list-group-item mb-2" style={{ border: "1px solid red", borderRadius: "8px" }}>
               <div className="row">
                 <div className="col-12 col-md-8">
                   <strong className="d-block">
@@ -65,7 +84,7 @@ const UsuariosPendientes: React.FC = () => {
                   {usuario.dni_foto && (
                     <a
                       className="btn btn-primary text-nowrap"
-                      style={{ minWidth: "100px" }}
+                      style={{ minWidth: "100px"}}
                       href={`http://localhost:5000/uploads/dni_clientes_fotos/${usuario.dni_foto}`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -75,11 +94,14 @@ const UsuariosPendientes: React.FC = () => {
                   )}
                   <button
                     className="btn btn-success"
-                    onClick={() => activarUsuario(usuario.id)}
+                    onClick={() => confirmarAccion(usuario, "activar")}
                   >
                     <FaCheck />
                   </button>
-                  <button className="btn btn-danger">
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => confirmarAccion(usuario, "eliminar")}
+                  >
                     <FaTimes />
                   </button>
                 </div>
@@ -91,6 +113,34 @@ const UsuariosPendientes: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Modal de confirmación */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {accion === "activar" ? "Confirmar Activación" : "Confirmar Rechazo"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Estás seguro que querés{" "}
+          {accion === "activar" ? "activar" : "rechazar"} al usuario{" "}
+          <strong>
+            {usuarioSeleccionado?.nombre} {usuarioSeleccionado?.apellido}
+          </strong>
+          ?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancelar
+          </Button>
+          <Button
+            variant={accion === "activar" ? "success" : "danger"}
+            onClick={ejecutarAccion}
+          >
+            {accion === "activar" ? "Activar Usuario" : "Rechazar Usuario"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

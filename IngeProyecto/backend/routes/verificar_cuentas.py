@@ -34,3 +34,20 @@ def activar_usuario(usuario_id):
     usuario.estado = "activa"
     db.session.commit()
     return jsonify({"message": "Usuario activado"}), 200
+
+@pendientes_bp.route("/eliminar-usuario/<int:usuario_id>", methods=["DELETE"])
+def eliminar_usuario(usuario_id):
+    usuario = Usuario.query.get(usuario_id)
+    if not usuario:
+        return jsonify({"message": "Usuario no encontrado"}), 404
+
+    if usuario.dni_foto:
+        dni_path = os.path.join(os.path.dirname(__file__), '../uploads/dni_clientes_fotos', usuario.dni_foto)
+        if os.path.exists(dni_path):
+            os.remove(dni_path)
+
+    db.session.delete(usuario)
+    db.session.commit()
+
+    return jsonify({"message": "Usuario eliminado"}), 200
+
