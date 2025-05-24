@@ -21,7 +21,7 @@ const UserDropdown = ({ usuario, menuOptions, isMobile = false }: Props) => {
         id={dropdownId}
         data-bs-toggle="dropdown"
         aria-expanded="false"
-        style={isMobile ? { width: '50px', height: '50px', padding: 0, fontSize: '1.2rem' } : {}}
+        style={isMobile ? { width: '50px', height: '50px', padding: 0, fontSize: '1.2rem', marginRight: '10px'} : {}}
       >
         {isMobile ? '👤' : usuario}
       </button>

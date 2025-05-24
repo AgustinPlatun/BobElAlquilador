@@ -39,7 +39,7 @@ const Navbar: React.FC = () => {
       options.push({ label: 'Alta de maquinaria', path: '/alta-maquinaria' });
       options.push({ label: 'Baja de maquinaria', path: '/baja-maquinaria' });
       options.push({ label: 'Registrar empleado', path: '/registrar-empleado' });
-    }else if (rol === 'empleado') {
+    } else if (rol === 'empleado') {
       options.push({ label: 'Verificar cuentas', path: '/verificar-cuentas' });
       options.push({ label: 'Registrar cliente', path: '/registrar-cliente' });
     }
@@ -48,8 +48,8 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-danger fixed-top">
-      <div className="container-fluid d-flex align-items-center justify-content-between">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-danger w-100">
+      <div className="container-fluid d-flex align-items-center justify-content-between px-0">
         <Logo isLargeScreen={isLargeScreen} />
 
         {/* Mobile: menú hamburguesa y usuario */}
@@ -78,7 +78,7 @@ const Navbar: React.FC = () => {
           </ul>
 
           <div
-            className="d-none d-lg-flex align-items-center justify-content-end"
+            className="d-none d-lg-flex align-items-center justify-content-end me-2"
             style={{ minWidth: isLargeScreen ? '260px' : undefined }}
           >
             {usuario ? (

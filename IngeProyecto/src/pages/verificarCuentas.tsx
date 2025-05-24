@@ -69,7 +69,12 @@ const UsuariosPendientes: React.FC = () => {
         {error && <div className="alert alert-danger">{error}</div>}
         <div className="list-group">
           {usuarios.map((usuario) => (
-            <div key={usuario.id} className="list-group-item mb-2" style={{ border: "1px solid red", borderRadius: "8px" }}>
+            <div key={usuario.id} className="list-group-item mb-2 mx-auto w-100" style={{     
+                border: "1px solid red",
+                borderRadius: "8px",
+                maxWidth: "800px",
+                margin: "0 auto",
+              }}>
               <div className="row">
                 <div className="col-12 col-md-8">
                   <strong className="d-block">

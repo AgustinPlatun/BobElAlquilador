@@ -12,7 +12,7 @@ const Card: React.FC<CardProps> = ({ image, name, description }) => {
       className="card border border-danger shadow-sm rounded-3 text-center p-3 d-flex flex-column"
       style={{
         width: '100%',
-        height: '100%', // altura fija para mantener consistencia
+        height: '100%', 
         transition: 'transform 0.3s ease, box-shadow 0.3s ease',
       }}
       onMouseEnter={(e) => {

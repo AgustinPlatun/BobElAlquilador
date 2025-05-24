@@ -49,7 +49,7 @@ const Register: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="register-page-container d-flex justify-content-center align-items-center min-vh-100 pt-5" style={{ width: '100vw', height: '100vh' }}>
+      <div className="register-page-container d-flex justify-content-center align-items-center min-vh-100 pt-5" style={{ width: '100vw'}}>
         <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '90%', border: '1px solid red',}}>
           <h2 className="text-center mb-4 text-danger">Registrarse</h2>
           <form onSubmit={handleSubmit} encType="multipart/form-data">

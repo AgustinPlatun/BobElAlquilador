@@ -34,13 +34,13 @@ const Servicios: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="container py-5 mt-5 text-center">
+      <div className="container py-5 mt-5 text-center" style={{ paddingLeft: '15px', paddingRight: '15px' }}>
         <h1 className="mb-4">Nuestras Maquinarias</h1>
         {error && <div className="alert alert-danger">{error}</div>}
         <div className="row gx-4 gy-4 justify-content-center">
           {maquinarias.map((maquinaria) => (
             <div
-              className="col-12 col-sm-6 col-md-4 col-lg-8 mb-4 px-2"
+              className="col-10 col-sm-4 col-md-3 col-lg-2 mb-2 px-1"
               key={maquinaria.id}
             >
               <Card

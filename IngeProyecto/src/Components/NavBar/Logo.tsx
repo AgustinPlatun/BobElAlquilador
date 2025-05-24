@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 const Logo = ({ isLargeScreen }: { isLargeScreen: boolean }) => (
   <div
-    className="d-flex align-items-center"
+    className="d-flex align-items-center ms-2"
     style={{
       flex: '0 0 auto',
       minWidth: isLargeScreen ? '260px' : undefined
