@@ -39,7 +39,7 @@ const Register: React.FC = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      navigate('/login'); // Redireccionar al inicio
+      navigate('/login');
     } catch (error) {
       console.error('Error al registrar cliente:', error);
       setError('Hubo un problema al registrar el cliente.');
