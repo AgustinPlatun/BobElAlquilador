@@ -7,6 +7,7 @@ interface Maquinaria {
   nombre: string;
   descripcion: string;
   foto: string;
+  precio: number;
 }
 
 const Servicios: React.FC = () => {
@@ -47,6 +48,7 @@ const Servicios: React.FC = () => {
                 image={`http://localhost:5000/uploads/maquinarias_fotos/${maquinaria.foto}`}
                 name={maquinaria.nombre}
                 description={maquinaria.descripcion}
+                precio={Number(maquinaria.precio)}
               />
             </div>
           ))}

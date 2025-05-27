@@ -1,12 +1,20 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface CardProps {
   image: string;
   name: string;
   description: string;
+  precio: number;
 }
 
-const Card: React.FC<CardProps> = ({ image, name, description }) => {
+const Card: React.FC<CardProps> = ({ image, name, description, precio }) => {
+  const navigate = useNavigate();
+
+  const handleAlquilar = () => {
+    navigate(`/detalle-maquinaria/${encodeURIComponent(name)}`);
+  };
+
   return (
     <div
       className="card border border-danger shadow-sm rounded-3 text-center p-3 d-flex flex-column"
@@ -36,7 +44,10 @@ const Card: React.FC<CardProps> = ({ image, name, description }) => {
       <p className="text-muted flex-grow-1 mb-3" style={{ overflow: 'hidden' }}>
         {description}
       </p>
-      <button className="btn btn-danger px-4 py-2 mt-auto">Alquilar</button>
+      <p className="fw-bold text-success mb-2">${precio.toFixed(2)}</p>
+      <button className="btn btn-danger px-4 py-2 mt-auto" onClick={handleAlquilar}>
+        Alquilar
+      </button>
     </div>
   );
 };

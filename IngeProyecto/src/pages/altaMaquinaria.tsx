@@ -6,6 +6,7 @@ const AltaMaquinaria: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [foto, setFoto] = useState<File | null>(null);
+  const [precio, setPrecio] = useState('');
   const [error, setError] = useState('');
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,8 +19,13 @@ const AltaMaquinaria: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (!nombre || !descripcion || !foto) {
+    if (!nombre || !descripcion || !foto || !precio) {
       setError('Todos los campos son obligatorios.');
+      return;
+    }
+
+    if (isNaN(Number(precio)) || Number(precio) <= 0) {
+      setError('El precio debe ser un número válido y mayor a 0.');
       return;
     }
 
@@ -28,6 +34,7 @@ const AltaMaquinaria: React.FC = () => {
       formData.append('nombre', nombre);
       formData.append('descripcion', descripcion);
       formData.append('foto', foto);
+      formData.append('precio', precio);
 
       const response = await fetch('http://localhost:5000/alta-maquinaria', {
         method: 'POST',
@@ -39,6 +46,7 @@ const AltaMaquinaria: React.FC = () => {
         setNombre('');
         setDescripcion('');
         setFoto(null);
+        setPrecio('');
       } else {
         setError('Hubo un problema al dar de alta la maquinaria.');
       }
@@ -73,6 +81,18 @@ const AltaMaquinaria: React.FC = () => {
                 rows={5}
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="precio" className="form-label">Precio:</label>
+              <input
+                type="number"
+                id="precio"
+                className="form-control"
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value)}
+                min="0"
+                step="0.01"
               />
             </div>
             <div className="mb-3">

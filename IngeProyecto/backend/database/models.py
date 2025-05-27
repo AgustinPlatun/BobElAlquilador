@@ -18,3 +18,4 @@ class Maquinaria(db.Model):
     foto = db.Column(db.String(255), nullable=True)
     estado = db.Column(db.Boolean, nullable=False, default=True)
     cantDisponible = db.Column(db.Integer, nullable=False, default=1)
+    precio = db.Column(db.Float, nullable=False)

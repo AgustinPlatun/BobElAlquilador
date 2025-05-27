@@ -14,9 +14,15 @@ def alta_maquinaria():
         nombre = request.form.get("nombre")
         descripcion = request.form.get("descripcion")
         foto = request.files.get("foto")
+        precio = request.form.get("precio")
 
-        if not nombre or not descripcion or not foto:
+        if not nombre or not descripcion or not foto or not precio:
             return jsonify({"message": "Todos los campos son obligatorios"}), 400
+
+        try:
+            precio = float(precio)
+        except ValueError:
+            return jsonify({"message": "El precio debe ser un número válido"}), 400
 
         filename = secure_filename(foto.filename)
         filepath = os.path.join(UPLOAD_FOLDER, filename)
@@ -25,7 +31,8 @@ def alta_maquinaria():
         nueva_maquinaria = Maquinaria(
             nombre=nombre,
             descripcion=descripcion,
-            foto=filename
+            foto=filename,
+            precio=precio
         )
         db.session.add(nueva_maquinaria)
         db.session.commit()
@@ -45,6 +52,7 @@ def obtener_maquinarias():
                 "nombre": maquinaria.nombre,
                 "descripcion": maquinaria.descripcion,
                 "foto": maquinaria.foto,
+                "precio": maquinaria.precio  # Incluir el precio en la respuesta
             }
             for maquinaria in maquinarias
         ]

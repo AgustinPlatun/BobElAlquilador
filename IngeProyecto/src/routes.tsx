@@ -10,6 +10,7 @@ import BajaMaquinaria from './pages/bajaMaquinaria';
 import RegistrarEmpleado from './pages/registrarEmpleado';
 import UsuariosPendientes from './pages/verificarCuentas';
 import RegistrarCliente from './pages/registrarClientePorEmpleado';
+import DetalleMaquinaria from './pages/DetalleMaquinaria';
 
 const router = createBrowserRouter([
   {
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
   {
     path: "/registrar-cliente",
     element: <RegistrarCliente />
+  },
+  {
+    path: "/detalle-maquinaria/:nombre",
+    element: <DetalleMaquinaria />
   }
 ]);
 
