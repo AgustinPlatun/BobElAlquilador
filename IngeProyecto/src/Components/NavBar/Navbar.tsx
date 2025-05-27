@@ -39,6 +39,7 @@ const Navbar: React.FC = () => {
       options.push({ label: 'Alta de maquinaria', path: '/alta-maquinaria' });
       options.push({ label: 'Baja de maquinaria', path: '/baja-maquinaria' });
       options.push({ label: 'Registrar empleado', path: '/registrar-empleado' });
+      options.push({ label: 'Desactivar una cuenta', path: '/desactivar-cuenta' });
     } else if (rol === 'empleado') {
       options.push({ label: 'Verificar cuentas', path: '/verificar-cuentas' });
       options.push({ label: 'Registrar cliente', path: '/registrar-cliente' });

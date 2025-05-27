@@ -16,8 +16,8 @@ def register():
         password = request.form.get("password")
         fecha_nacimiento = request.form.get("fecha_nacimiento")
         dni_foto = request.files.get("dni_foto")
-        rol = "administrador"
-        estado = "activo"
+        rol = "cliente"
+        estado = "pendiente"
 
         if not nombre or not apellido or not email or not password or not fecha_nacimiento or not dni_foto:
             return jsonify({"message": "Faltan datos"}), 400
@@ -60,10 +60,7 @@ def login():
 
         usuario = Usuario.query.filter_by(email=email).first()
 
-        if not usuario:
-            return jsonify({"message": "Datos incorrectos"}), 401
-
-        if not check_password_hash(usuario.password, password):
+        if not usuario or not check_password_hash(usuario.password, password) or usuario.estado.lower() == "desactivada":
             return jsonify({"message": "Datos incorrectos"}), 401
 
         if usuario.estado.lower() == "pendiente":
@@ -78,9 +75,6 @@ def login():
     except Exception as e:
         return jsonify({"message": "Hubo un problema con el inicio de sesión", "error": str(e)}), 500
 
-
-
-
 @auth_bp.route("/registrar-empleado", methods=["POST"])
 def registrar_empleado():
     try:
@@ -91,7 +85,7 @@ def registrar_empleado():
         password = data.get("password")
         fecha_nacimiento = data.get("fecha_nacimiento")
         rol = "empleado"
-        estado = "activo"
+        estado = "activa"
 
         if not nombre or not apellido or not email or not password or not fecha_nacimiento:
             return jsonify({"message": "Faltan datos"}), 400
@@ -130,7 +124,7 @@ def registrar_cliente():
         password = data.get("password")
         fecha_nacimiento = data.get("fecha_nacimiento")
         rol = "cliente"
-        estado = "activo"
+        estado = "activa"
 
         if not nombre or not apellido or not email or not password or not fecha_nacimiento:
             return jsonify({"message": "Faltan datos"}), 400
@@ -158,3 +152,33 @@ def registrar_cliente():
     except Exception as e:
         print("Error al registrar cliente:", e)
         return jsonify({"message": "Hubo un problema con el registro del cliente", "error": str(e)}), 500
+
+@auth_bp.route("/baja-cuenta", methods=["PUT"])
+def baja_usuario():
+    try:
+        data = request.json
+        email = data.get("email")
+
+        if not email:
+            return jsonify({"message": "Email requerido"}), 400
+
+        usuario = Usuario.query.filter_by(email=email).first()
+
+        if not usuario:
+            return jsonify({"message": "Cuenta no encontrada"}), 404
+
+        if usuario.rol.lower() == "administrador":
+            return jsonify({"message": "No se puede desactivar una cuenta de administrador"}), 403
+
+        if usuario.estado.lower() != "activa":
+            return jsonify({"message": "Solo se pueden desactivar cuentas activas"}), 400
+
+        usuario.estado = "desactivada"
+        db.session.commit()
+
+        return jsonify({"message": "Cuenta desactivada correctamente"}), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al desactivar cuenta", "error": str(e)}), 500
+
+

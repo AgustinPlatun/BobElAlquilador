@@ -10,7 +10,8 @@ import BajaMaquinaria from './pages/bajaMaquinaria';
 import RegistrarEmpleado from './pages/registrarEmpleado';
 import UsuariosPendientes from './pages/verificarCuentas';
 import RegistrarCliente from './pages/registrarClientePorEmpleado';
-import DetalleMaquinaria from './pages/DetalleMaquinaria';
+import DetalleMaquinaria from './pages/detalleMaquinaria';
+import BajaCuenta from './pages/bajaCuenta';
 
 const router = createBrowserRouter([
   {
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
   {
     path: "/detalle-maquinaria/:nombre",
     element: <DetalleMaquinaria />
+  },
+  {
+    path: "/desactivar-cuenta",
+    element: <BajaCuenta />
   }
 ]);
 
