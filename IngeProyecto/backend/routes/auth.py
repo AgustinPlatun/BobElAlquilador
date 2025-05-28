@@ -16,8 +16,8 @@ def register():
         password = request.form.get("password")
         fecha_nacimiento = request.form.get("fecha_nacimiento")
         dni_foto = request.files.get("dni_foto")
-        rol = "cliente"
-        estado = "pendiente"
+        rol = "administrador" 
+        estado = "activa"
 
         if not nombre or not apellido or not email or not password or not fecha_nacimiento or not dni_foto:
             return jsonify({"message": "Faltan datos"}), 400

@@ -1,8 +1,7 @@
-from flask import Flask,send_from_directory
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 from database import db
 from routes import register_blueprints
-from database.models import Usuario, Maquinaria
 import os
 
 app = Flask(__name__)

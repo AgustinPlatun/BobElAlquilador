@@ -12,6 +12,9 @@ import UsuariosPendientes from './pages/verificarCuentas';
 import RegistrarCliente from './pages/registrarClientePorEmpleado';
 import DetalleMaquinaria from './pages/detalleMaquinaria';
 import BajaCuenta from './pages/bajaCuenta';
+import PagoExitoso from './pages/pagos/pagoExitoso';
+import PagoFallido from './pages/pagos/pagoFallido';
+import PagoPendiente from './pages/pagos/pagoPendiente';
 
 const router = createBrowserRouter([
   {
@@ -66,6 +69,18 @@ const router = createBrowserRouter([
   {
     path: "/desactivar-cuenta",
     element: <BajaCuenta />
+  },
+  {
+    path: "/pago-exitoso",
+    element: <PagoExitoso />
+  },
+  {
+    path: "/pago-fallido",
+    element: <PagoFallido />
+  },
+  {
+    path: "/pago-pendiente",
+    element: <PagoPendiente />
   }
 ]);
 
