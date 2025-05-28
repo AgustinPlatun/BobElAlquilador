@@ -19,8 +19,12 @@ const Login: React.FC = () => {
       });
 
       if (response.status === 200) {
+        // Guardar datos en localStorage
         localStorage.setItem('usuarioNombre', response.data.nombre);
         localStorage.setItem('usuarioRol', response.data.rol);
+        localStorage.setItem('usuarioEmail', email); // <-- ahora guarda también el email
+
+        // Redirigir al home o página deseada
         navigate('/');
       }
     } catch (error: any) {
@@ -28,7 +32,6 @@ const Login: React.FC = () => {
         const status = error.response.status;
         const message = error.response.data?.message;
 
-        // Mostrar el mensaje adecuado según el status
         if (status === 403) {
           setError(message || 'Tu cuenta aún no ha sido activada.');
         } else if (status === 401) {

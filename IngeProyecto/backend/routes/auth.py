@@ -4,6 +4,8 @@ from werkzeug.utils import secure_filename
 from database.models import Usuario
 from database import db
 import os
+import re
+
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -16,7 +18,7 @@ def register():
         password = request.form.get("password")
         fecha_nacimiento = request.form.get("fecha_nacimiento")
         dni_foto = request.files.get("dni_foto")
-        rol = "administrador" 
+        rol = "cliente" 
         estado = "activa"
 
         if not nombre or not apellido or not email or not password or not fecha_nacimiento or not dni_foto:
@@ -180,5 +182,79 @@ def baja_usuario():
 
     except Exception as e:
         return jsonify({"message": "Error al desactivar cuenta", "error": str(e)}), 500
+    
+@auth_bp.route("/usuario", methods=["GET"])
+def obtener_usuario():
+    email = request.args.get("email")
+    if not email:
+        return jsonify({"message": "Email requerido"}), 400
+
+    usuario = Usuario.query.filter_by(email=email).first()
+    if not usuario:
+        return jsonify({"message": "Usuario no encontrado"}), 404
+
+    return jsonify({
+        "nombre": usuario.nombre,
+        "apellido": usuario.apellido,
+        "email": usuario.email
+    }), 200
+
+@auth_bp.route("/cambiar-password", methods=["PUT"])
+def cambiar_password():
+    try:
+        data = request.json
+        email = data.get("email")
+        password_actual = data.get("password_actual")
+        nueva_password = data.get("nueva_password")
+
+        if not email or not password_actual or not nueva_password:
+            return jsonify({"message": "Faltan datos"}), 400
+
+        usuario = Usuario.query.filter_by(email=email).first()
+
+        if not usuario:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+
+        if not check_password_hash(usuario.password, password_actual):
+            return jsonify({"message": "Contraseña actual incorrecta"}), 401
+
+        # Validar nueva contraseña
+        if (
+            len(nueva_password) < 5
+            or not re.search(r"[A-Z]", nueva_password)
+            or not re.search(r"\d", nueva_password)
+        ):
+            return jsonify({"message": "La nueva contraseña debe tener al menos 5 caracteres, una mayúscula y un número."}), 400
+
+        usuario.password = generate_password_hash(nueva_password)
+        db.session.commit()
+
+        return jsonify({"message": "Contraseña actualizada correctamente"}), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al cambiar contraseña", "error": str(e)}), 500
+
+from werkzeug.security import check_password_hash
+
+@auth_bp.route("/validar-password", methods=["POST"])
+def validar_password():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password:
+        return jsonify({"message": "Email y contraseña requeridos"}), 400
+
+    usuario = Usuario.query.filter_by(email=email).first()
+    if not usuario:
+        return jsonify({"message": "Usuario no encontrado"}), 404
+
+    if check_password_hash(usuario.password, password):
+        return jsonify({"valid": True}), 200
+    else:
+        return jsonify({"valid": False}), 200
+
+
+
 
 
