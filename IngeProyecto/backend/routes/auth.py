@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from database.models import Usuario
 from database import db
+from werkzeug.security import check_password_hash
 import os
 import re
 
@@ -19,7 +20,7 @@ def register():
         fecha_nacimiento = request.form.get("fecha_nacimiento")
         dni_foto = request.files.get("dni_foto")
         rol = "cliente" 
-        estado = "activa"
+        estado = "pendiente"
 
         if not nombre or not apellido or not email or not password or not fecha_nacimiento or not dni_foto:
             return jsonify({"message": "Faltan datos"}), 400
@@ -126,7 +127,7 @@ def registrar_cliente():
         password = data.get("password")
         fecha_nacimiento = data.get("fecha_nacimiento")
         rol = "cliente"
-        estado = "activa"
+        estado = "pendiente"
 
         if not nombre or not apellido or not email or not password or not fecha_nacimiento:
             return jsonify({"message": "Faltan datos"}), 400
@@ -155,6 +156,46 @@ def registrar_cliente():
         print("Error al registrar cliente:", e)
         return jsonify({"message": "Hubo un problema con el registro del cliente", "error": str(e)}), 500
 
+
+
+
+
+@auth_bp.route("/baja-cuenta", methods=["PUT"])
+def baja_usuario():
+    try:
+        data = request.json
+        email = data.get("email")
+        password = data.get("password")  # Nuevo: obtener contraseña
+
+        if not email or not password:
+            return jsonify({"message": "Email y contraseña requeridos"}), 400
+
+        usuario = Usuario.query.filter_by(email=email).first()
+
+        if not usuario:
+            return jsonify({"message": "Cuenta no encontrada"}), 404
+
+        if usuario.rol.lower() == "administrador":
+            return jsonify({"message": "No se puede desactivar una cuenta de administrador"}), 403
+
+        if usuario.estado.lower() != "activa":
+            return jsonify({"message": "Solo se pueden desactivar cuentas activas"}), 400
+
+        # Validar contraseña
+        if not check_password_hash(usuario.password, password):
+            return jsonify({"message": "Contraseña incorrecta"}), 401
+
+        usuario.estado = "desactivada"
+        db.session.commit()
+
+        return jsonify({"message": "Cuenta desactivada correctamente"}), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al desactivar cuenta", "error": str(e)}), 500
+
+
+
+""""
 @auth_bp.route("/baja-cuenta", methods=["PUT"])
 def baja_usuario():
     try:
@@ -183,6 +224,8 @@ def baja_usuario():
     except Exception as e:
         return jsonify({"message": "Error al desactivar cuenta", "error": str(e)}), 500
     
+"""
+
 @auth_bp.route("/usuario", methods=["GET"])
 def obtener_usuario():
     email = request.args.get("email")

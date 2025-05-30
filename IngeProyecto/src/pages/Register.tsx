@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom';
 const Register: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fechaNacimiento, setFechaNacimiento] = useState('');
   const [dniFoto, setDniFoto] = useState<File | null>(null);
   const [error, setError] = useState('');
   const navigate = useNavigate(); // <-- Hook de navegación
@@ -64,6 +64,11 @@ const Register: React.FC = () => {
             </div>
 
             <div className="mb-3">
+              <label htmlFor="fecha_nacimiento" className="form-label">Fecha de nacimiento:</label>
+              <input type="date" id="fecha_nacimiento" className="form-control" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} />
+            </div>
+           
+            <div className="mb-3">
               <label htmlFor="email" className="form-label">Email:</label>
               <input type="email" id="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
@@ -71,11 +76,6 @@ const Register: React.FC = () => {
             <div className="mb-3">
               <label htmlFor="password" className="form-label">Contraseña:</label>
               <input type="password" id="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} />
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="fecha_nacimiento" className="form-label">Fecha de nacimiento:</label>
-              <input type="date" id="fecha_nacimiento" className="form-control" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} />
             </div>
 
             <div className="mb-3">

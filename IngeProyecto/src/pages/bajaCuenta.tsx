@@ -3,11 +3,12 @@ import Navbar from '../Components/NavBar/Navbar';
 
 const BajaCuenta: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState(''); // Nuevo estado
   const [mensaje, setMensaje] = useState('');
 
   const handleDesactivar = async () => {
-    if (!email) {
-      alert('Por favor, ingrese el email la cuenta.');
+    if (!email || !password) {
+      alert('Por favor, ingrese el email y la contraseña.');
       return;
     }
 
@@ -18,12 +19,13 @@ const BajaCuenta: React.FC = () => {
       const response = await fetch('http://localhost:5000/baja-cuenta', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, password }), // Enviar contraseña
       });
 
       if (response.ok) {
         setMensaje('Cuenta desactivada correctamente.');
         setEmail('');
+        setPassword('');
       } else {
         const resData = await response.json();
         setMensaje(resData.message || 'No se pudo desactivar la cuenta.');
@@ -54,6 +56,15 @@ const BajaCuenta: React.FC = () => {
               placeholder="Email del usuario"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="mb-3">
+            <input
+              type="password"
+              className="form-control"
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 

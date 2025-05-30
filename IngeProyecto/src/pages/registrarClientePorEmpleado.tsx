@@ -8,10 +8,11 @@ const RegistrarCliente: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
+  const [dniFoto, setDniFoto] = useState<File | null>(null);
   const [error, setError] = useState('');
 
   const isFormValid = () => {
-    return nombre && apellido && email && password && fechaNacimiento;
+    return nombre && apellido && email && password && fechaNacimiento && dniFoto;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,6 +60,11 @@ const RegistrarCliente: React.FC = () => {
             </div>
 
             <div className="mb-3">
+              <label htmlFor="fecha_nacimiento" className="form-label">Fecha de nacimiento:</label>
+              <input type="date" id="fecha_nacimiento" className="form-control" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} />
+            </div>
+
+            <div className="mb-3">
               <label htmlFor="email" className="form-label">Email:</label>
               <input type="email" id="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
@@ -69,8 +75,14 @@ const RegistrarCliente: React.FC = () => {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="fecha_nacimiento" className="form-label">Fecha de nacimiento:</label>
-              <input type="date" id="fecha_nacimiento" className="form-control" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} />
+              <label htmlFor="dni_foto" className="form-label">Foto del Documento (DNI):</label>
+              <input
+                type="file"
+                id="dni_foto"
+                className="form-control"
+                accept="image/*"
+                onChange={(e) => setDniFoto(e.target.files?.[0] || null)}
+              />
             </div>
 
             {error && <div className="alert alert-danger text-center p-2">{error}</div>}
