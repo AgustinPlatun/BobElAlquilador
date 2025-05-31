@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // <-- Agrega este estado
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -76,14 +77,24 @@ const Login: React.FC = () => {
                 <label htmlFor="password" className="form-label">
                   Contraseña
                 </label>
-                <input
-                  type="password"
-                  id="password"
-                  className="form-control"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="input-group">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    className="form-control"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    tabIndex={-1}
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  >
+                    {showPassword ? "🙈" : "👁️"}
+                  </button>
+                </div>
               </div>
 
               {error && (
