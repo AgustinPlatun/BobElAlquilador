@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import Logo from './Logo';
@@ -12,6 +13,10 @@ const Navbar: React.FC = () => {
   const [usuario, setUsuario] = useState<string | null>(null);
   const [rol, setRol] = useState<string | null>(null);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 992);
+  const [busqueda, setBusqueda] = useState('');
+  const [resultados, setResultados] = useState<any[]>([]);
+  const [showResultados, setShowResultados] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,10 +53,74 @@ const Navbar: React.FC = () => {
     return options;
   };
 
+  useEffect(() => {
+    const fetchResultados = async () => {
+      if (busqueda.trim().length === 0) {
+        setResultados([]);
+        setShowResultados(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await axios.get('http://localhost:5000/maquinarias');
+        const coincidencias = res.data.filter((m: any) =>
+          m.nombre.toLowerCase().includes(busqueda.toLowerCase())
+        );
+        setResultados(coincidencias);
+        setShowResultados(true);
+      } catch {
+        setResultados([]);
+        setShowResultados(true);
+      }
+      setLoading(false);
+    };
+
+    const delayDebounce = setTimeout(fetchResultados, 300);
+    return () => clearTimeout(delayDebounce);
+  }, [busqueda]);
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-danger w-100">
       <div className="container-fluid d-flex align-items-center justify-content-between px-0">
         <Logo isLargeScreen={isLargeScreen} />
+
+        {/* Barra de búsqueda */}
+        <div className="position-relative me-3" style={{ minWidth: 250 }}>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Buscar maquinaria..."
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+            onFocus={() => busqueda && setShowResultados(true)}
+            onBlur={() => setTimeout(() => setShowResultados(false), 200)}
+            style={{ width: 250 }}
+          />
+          {showResultados && (
+            <div
+              className="list-group position-absolute w-100 shadow"
+              style={{ zIndex: 1000, maxHeight: 250, overflowY: 'auto' }}
+            >
+              {loading && (
+                <div className="list-group-item text-center">Buscando...</div>
+              )}
+              {!loading && resultados.length === 0 && (
+                <div className="list-group-item text-center text-muted">
+                  No se encontraron maquinarias
+                </div>
+              )}
+              {!loading && resultados.map((m) => (
+                <a
+                  key={m.id}
+                  href={`/detalle-maquinaria/${encodeURIComponent(m.nombre)}`}
+                  className="list-group-item list-group-item-action"
+                >
+                  {m.nombre}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Mobile: menú hamburguesa y usuario */}
         <div className="d-flex d-lg-none align-items-center gap-2" style={{ marginLeft: '42px' }}>
