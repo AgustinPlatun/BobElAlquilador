@@ -13,9 +13,9 @@ class Usuario(db.Model):
 
 class Maquinaria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    codigo = db.Column(db.String(20), unique=True, nullable=False)
     nombre = db.Column(db.String(100), nullable=False)
     descripcion = db.Column(db.Text, nullable=False)
     foto = db.Column(db.String(255), nullable=True)
     estado = db.Column(db.Boolean, nullable=False, default=True)
-    cantDisponible = db.Column(db.Integer, nullable=False, default=1)
     precio = db.Column(db.Float, nullable=False)

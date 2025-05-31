@@ -15,6 +15,7 @@ import BajaCuenta from './pages/bajaCuenta';
 import PagoExitoso from './pages/pagos/pagoExitoso';
 import PagoFallido from './pages/pagos/pagoFallido';
 import PagoPendiente from './pages/pagos/pagoPendiente';
+import AltaEmpleado from './pages/altaEmpleado';
 
 const router = createBrowserRouter([
   {
@@ -81,6 +82,10 @@ const router = createBrowserRouter([
   {
     path: "/pago-pendiente",
     element: <PagoPendiente />
+  },
+  {
+    path: "/alta-empleado",
+    element: <AltaEmpleado />
   }
 ]);
 

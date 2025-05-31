@@ -8,6 +8,7 @@ interface Maquinaria {
   descripcion: string;
   foto: string;
   precio: number;
+  codigo: string; 
 }
 
 const Servicios: React.FC = () => {
@@ -50,6 +51,10 @@ const Servicios: React.FC = () => {
                 description={maquinaria.descripcion}
                 precio={Number(maquinaria.precio)}
               />
+              {/* Ejemplo en una Card de maquinaria */}
+              <h5 className="card-title">
+                {maquinaria.nombre} <span className="badge bg-secondary ms-2">{maquinaria.codigo}</span>
+              </h5>
             </div>
           ))}
         </div>

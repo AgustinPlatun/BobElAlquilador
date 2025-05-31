@@ -46,7 +46,7 @@ const Card: React.FC<CardProps> = ({ image, name, description, precio }) => {
       </p>
       <p className="fw-bold text-success mb-2">${precio.toFixed(2)}</p>
       <button className="btn btn-danger px-4 py-2 mt-auto" onClick={handleAlquilar}>
-        Alquilar
+        Ver detalle
       </button>
     </div>
   );

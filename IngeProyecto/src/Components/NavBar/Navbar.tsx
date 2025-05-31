@@ -17,6 +17,7 @@ const Navbar: React.FC = () => {
   const [resultados, setResultados] = useState<any[]>([]);
   const [showResultados, setShowResultados] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,20 +32,16 @@ const Navbar: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('usuarioNombre');
-    localStorage.removeItem('usuarioRol');
-    setUsuario(null);
-    setRol(null);
-    navigate('/');
+    setShowLogoutModal(true);
   };
 
   const getMenuOptions = (): MenuOption[] => {
     const options: MenuOption[] = [{ label: 'Mis datos', path: '/mis-datos' }];
     if (rol === 'administrador') {
-      options.push({ label: 'Alta de maquinaria', path: '/alta-maquinaria' });
+      options.push({ label: 'Dar de alta empleado', path: '/alta-empleado' });
       options.push({ label: 'Baja de maquinaria', path: '/baja-maquinaria' });
       options.push({ label: 'Registrar empleado', path: '/registrar-empleado' });
-      options.push({ label: 'Desactivar una cuenta', path: '/desactivar-cuenta' });
+      options.push({ label: 'Dar de baja empleado', path: '/desactivar-cuenta' });
     } else if (rol === 'empleado') {
       options.push({ label: 'Verificar cuentas', path: '/verificar-cuentas' });
       options.push({ label: 'Registrar cliente', path: '/registrar-cliente' });
@@ -159,6 +156,40 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {showLogoutModal && (
+        <div className="modal show d-block" tabIndex={-1} style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Cerrar sesión</h5>
+                <button type="button" className="btn-close" onClick={() => setShowLogoutModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <p>¿Seguro que deseas cerrar sesión?</p>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowLogoutModal(false)}>
+                  Cancelar
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => {
+                    localStorage.removeItem('usuarioNombre');
+                    localStorage.removeItem('usuarioRol');
+                    setUsuario(null);
+                    setRol(null);
+                    setShowLogoutModal(false);
+                    navigate('/');
+                  }}
+                >
+                  Cerrar sesión
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
