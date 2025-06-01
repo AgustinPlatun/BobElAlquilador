@@ -10,6 +10,7 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [dniFoto, setDniFoto] = useState<File | null>(null);
+  const [dniNumero, setDniNumero] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate(); // <-- Hook de navegación
 
@@ -34,6 +35,7 @@ const Register: React.FC = () => {
       formData.append('password', password);
       formData.append('fecha_nacimiento', fechaNacimiento);
       if (dniFoto) formData.append('dni_foto', dniFoto);
+      formData.append('dni_numero', dniNumero);
 
       await axios.post('http://localhost:5000/register', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -86,6 +88,18 @@ const Register: React.FC = () => {
                 className="form-control"
                 accept="image/*"
                 onChange={(e) => setDniFoto(e.target.files?.[0] || null)}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="dni_numero" className="form-label">Número de DNI:</label>
+              <input
+                type="text"
+                id="dni_numero"
+                className="form-control"
+                value={dniNumero}
+                onChange={e => setDniNumero(e.target.value)}
+                required
               />
             </div>
 

@@ -12,6 +12,8 @@ const MisDatos: React.FC = () => {
   const rol = localStorage.getItem('usuarioRol');
 
   const [apellido, setApellido] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState('');
+  const [dniNumero, setDniNumero] = useState('');
 
   // Estados para cambiar contraseña
   const [showModalPassword, setShowModalPassword] = useState(false);
@@ -40,15 +42,17 @@ const MisDatos: React.FC = () => {
   const [showPasswordChangedAlert, setShowPasswordChangedAlert] = useState(false);
 
   useEffect(() => {
-    const fetchApellido = async () => {
+    const fetchDatos = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/usuario?email=${email}`);
         setApellido(response.data.apellido);
+        setFechaNacimiento(response.data.fecha_nacimiento);
+        setDniNumero(response.data.dni_numero);
       } catch (error) {
-        console.error('Error al obtener apellido:', error);
+        // Manejo de error
       }
     };
-    if (email) fetchApellido();
+    if (email) fetchDatos();
   }, [email]);
 
   const handleCambiarPassword = async () => {
@@ -128,6 +132,13 @@ const MisDatos: React.FC = () => {
     }
   };
 
+  // Función para formatear fecha "YYYY-MM-DD" a "DD-MM-YYYY"
+  const formatearFecha = (fecha: string) => {
+    if (!fecha) return '';
+    const [anio, mes, dia] = fecha.split('-');
+    return `${dia}-${mes}-${anio}`;
+  };
+
   return (
     <div>
       <Navbar />
@@ -143,6 +154,8 @@ const MisDatos: React.FC = () => {
           <p><strong>Apellido:</strong> {apellido}</p>
           <p><strong>Email:</strong> {email}</p>
           <p><strong>Rol:</strong> {rol}</p>
+          <p><strong>Fecha de nacimiento:</strong> {formatearFecha(fechaNacimiento)}</p>
+          <p><strong>DNI:</strong> {dniNumero}</p>
 
           <hr />
 

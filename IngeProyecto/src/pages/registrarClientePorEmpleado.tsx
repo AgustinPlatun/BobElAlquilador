@@ -6,13 +6,13 @@ const RegistrarCliente: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
   const [dniFoto, setDniFoto] = useState<File | null>(null);
+  const [dniNumero, setDniNumero] = useState('');
   const [error, setError] = useState('');
 
   const isFormValid = () => {
-    return nombre && apellido && email && password && fechaNacimiento && dniFoto;
+    return nombre && apellido && email && fechaNacimiento && dniFoto && dniNumero;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,25 +29,35 @@ const RegistrarCliente: React.FC = () => {
         nombre,
         apellido,
         email,
-        password,
         fecha_nacimiento: fechaNacimiento,
+        dni_numero: dniNumero,
       };
 
       const response = await axios.post('http://localhost:5000/registrar-cliente', data);
 
       alert(response.data.message);
-    } catch (error) {
-      console.error('Error al registrar cliente:', error);
-      setError('Hubo un problema al registrar el cliente.');
+    } catch (error: any) {
+      // Mostrar mensaje del backend si existe
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Hubo un problema al registrar el cliente.');
+      }
     }
   };
 
   return (
-    <div>
+    <div style={{ background: "#f8f9fa", minHeight: "100vh" }}>
       <Navbar />
-      <div className="register-page-container d-flex justify-content-center align-items-center min-vh-100 pt-5" style={{ width: '100vw', height: '100vh' }}>
-        <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '90%', border: '1px solid red' }}>
-          <h2 className="text-center mb-4 text-danger">Registrar Usuario</h2>
+      <div
+        className="container d-flex justify-content-center align-items-center"
+        style={{
+          minHeight: "calc(100vh - 80px)",
+          marginTop: "80px", 
+        }}
+      >
+        <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '100%' }}>
+          <h2 className="text-center mb-4 text-danger">Registrar Cliente</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="nombre" className="form-label">Nombre:</label>
@@ -70,8 +80,15 @@ const RegistrarCliente: React.FC = () => {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="password" className="form-label">Contraseña:</label>
-              <input type="password" id="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <label htmlFor="dni_numero" className="form-label">Número de DNI:</label>
+              <input
+                type="text"
+                id="dni_numero"
+                className="form-control"
+                value={dniNumero}
+                onChange={e => setDniNumero(e.target.value)}
+                required
+              />
             </div>
 
             <div className="mb-3">

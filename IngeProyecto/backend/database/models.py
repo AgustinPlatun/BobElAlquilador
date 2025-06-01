@@ -10,6 +10,7 @@ class Usuario(db.Model):
     estado = db.Column(db.String(80), nullable=False)
     fecha_nacimiento = db.Column(db.String(10), nullable=False)
     dni_foto = db.Column(db.String(255), nullable=True)
+    dni_numero = db.Column(db.String(20), nullable=False) # poner despues en false
 
 class Maquinaria(db.Model):
     id = db.Column(db.Integer, primary_key=True)

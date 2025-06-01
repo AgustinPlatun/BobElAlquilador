@@ -11,7 +11,7 @@ const Contacto: React.FC = () => {
             <h2 className="card-title mb-4 text-center">Contacto</h2>
             <ul className="list-group list-group-flush mb-3">
               <li className="list-group-item">
-                📍 <strong>Dirección:</strong> Calle Falsa 123, Ciudad, Provincia
+                📍 <strong>Dirección:</strong> Carlos Pelegrini 123, Buenos Aires
               </li>
               <li className="list-group-item">
                 📞 <strong>Teléfono:</strong> (011) 1234-5678

@@ -18,8 +18,7 @@ import PagoPendiente from './pages/pagos/pagoPendiente';
 import AltaEmpleado from './pages/altaEmpleado';
 import SolicitarRecuperacion from './pages/SolicitarRecuperacion';
 import RecuperarPassword from './pages/RecuperarPassword';
-
-
+import NotFound from './pages/NotFound';
 
 const router = createBrowserRouter([
   {
@@ -98,6 +97,10 @@ const router = createBrowserRouter([
   {
     path: "/recuperar-password/:token",
     element: <RecuperarPassword />
+  },
+  {
+    path: "*",
+    element: <NotFound />
   }
 ]);
 

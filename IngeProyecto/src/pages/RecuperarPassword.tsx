@@ -9,6 +9,8 @@ const RecuperarPassword: React.FC = () => {
   const [confirmarPassword, setConfirmarPassword] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
+  const [mostrar, setMostrar] = useState(false);
+  const [mostrarConfirmar, setMostrarConfirmar] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,11 +41,45 @@ const RecuperarPassword: React.FC = () => {
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label">Nueva contraseña:</label>
-              <input type="password" className="form-control" value={nuevaPassword} onChange={e => setNuevaPassword(e.target.value)} required />
+              <div className="input-group">
+                <input
+                  type={mostrar ? "text" : "password"}
+                  className="form-control"
+                  value={nuevaPassword}
+                  onChange={e => setNuevaPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setMostrar(m => !m)}
+                  tabIndex={-1}
+                  aria-label={mostrar ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {mostrar ? "🙈" : "👁️"}
+                </button>
+              </div>
             </div>
             <div className="mb-3">
               <label className="form-label">Repetir contraseña:</label>
-              <input type="password" className="form-control" value={confirmarPassword} onChange={e => setConfirmarPassword(e.target.value)} required />
+              <div className="input-group">
+                <input
+                  type={mostrarConfirmar ? "text" : "password"}
+                  className="form-control"
+                  value={confirmarPassword}
+                  onChange={e => setConfirmarPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setMostrarConfirmar(m => !m)}
+                  tabIndex={-1}
+                  aria-label={mostrarConfirmar ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {mostrarConfirmar ? "🙈" : "👁️"}
+                </button>
+              </div>
             </div>
             <button type="submit" className="btn btn-danger w-100">Cambiar contraseña</button>
           </form>

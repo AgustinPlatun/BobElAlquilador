@@ -11,6 +11,7 @@ const AltaMaquinaria: React.FC = () => {
   const [error, setError] = useState('');
   const [mostrarReactivar, setMostrarReactivar] = useState(false);
   const [nombreExistente, setNombreExistente] = useState('');
+  const [mensaje, setMensaje] = useState('');
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -49,7 +50,7 @@ const AltaMaquinaria: React.FC = () => {
       const errorData = await response.json();
 
       if (response.ok) {
-        alert('Maquinaria dada de alta correctamente.');
+        setMensaje('Maquinaria dada de alta correctamente.');
         setNombre('');
         setDescripcion('');
         setFoto(null);
@@ -170,6 +171,7 @@ const AltaMaquinaria: React.FC = () => {
               <button type="submit" className="btn btn-danger w-100 mt-3">Dar Alta Maquinaria</button>
             )}
           </form>
+          {mensaje && <div className="alert alert-success text-center mt-3">{mensaje}</div>}
           {mostrarReactivar && (
             <div>
               <p className="text-warning text-center mb-2">

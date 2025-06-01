@@ -6,21 +6,52 @@ const RegistrarEmpleado: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
   const [dniFoto, setDniFoto] = useState<File | null>(null);
+  const [dniNumero, setDniNumero] = useState('');
   const [error, setError] = useState('');
 
+  const isDniValido = (dni: string) => /^\d{8}$/.test(dni);
+  const isEmailValido = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isFechaValida = (fecha: string) => {
+    // Espera formato YYYY-MM-DD
+    const partes = fecha.split("-");
+    return partes[0] && partes[0].length === 4 && /^\d{4}$/.test(partes[0]);
+  };
+
   const isFormValid = () => {
-    return nombre && apellido && email && password && fechaNacimiento && dniFoto;
+    return (
+      nombre &&
+      apellido &&
+      email &&
+      fechaNacimiento &&
+      dniFoto &&
+      dniNumero &&
+      isDniValido(dniNumero) &&
+      isEmailValido(email) &&
+      isFechaValida(fechaNacimiento)
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!isFormValid()) {
+    if (!nombre || !apellido || !email || !fechaNacimiento || !dniFoto || !dniNumero) {
       setError('Todos los campos son obligatorios.');
+      return;
+    }
+    if (!isDniValido(dniNumero)) {
+      setError('El DNI debe contener exactamente 8 números y no letras.');
+      return;
+    }
+    if (!isEmailValido(email)) {
+      setError('El email no es válido.');
+      return;
+    }
+    if (!isFechaValida(fechaNacimiento)) {
+      setError('El año de la fecha debe tener 4 dígitos.');
       return;
     }
 
@@ -29,24 +60,33 @@ const RegistrarEmpleado: React.FC = () => {
         nombre,
         apellido,
         email,
-        password,
         fecha_nacimiento: fechaNacimiento,
+        dni_numero: dniNumero,
       };
 
-      const response = await axios.post('http://localhost:5000/registrar-empleado', data);;
-
+      const response = await axios.post('http://localhost:5000/registrar-empleado', data);
       alert(response.data.message);
-    } catch (error) {
-      console.error('Error al registrar empleado:', error);
-      setError('Hubo un problema al registrar el empleado.');
+    } catch (error: any) {
+      // MOSTRAR mensaje del backend si existe
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Hubo un problema al registrar el empleado.');
+      }
     }
   };
 
   return (
-    <div>
+    <div style={{ background: "#f8f9fa", minHeight: "100vh" }}>
       <Navbar />
-      <div className="register-page-container d-flex justify-content-center align-items-center min-vh-100 pt-5" style={{ width: '100vw', height: '100vh' }}>
-        <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '90%' }}>
+      <div
+        className="container d-flex justify-content-center align-items-center"
+        style={{
+          minHeight: "calc(100vh - 80px)",
+          marginTop: "80px", 
+        }}
+      >
+        <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '100%' }}>
           <h2 className="text-center mb-4 text-danger">Registrar Empleado</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
@@ -94,13 +134,14 @@ const RegistrarEmpleado: React.FC = () => {
             </div>
 
             <div className="mb-3">
-              <label htmlFor="password" className="form-label">Contraseña:</label>
+              <label htmlFor="dni_numero" className="form-label">Número de DNI:</label>
               <input
-                type="password"
-                id="password"
+                type="text"
+                id="dni_numero"
                 className="form-control"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={dniNumero}
+                onChange={e => setDniNumero(e.target.value)}
+                required
               />
             </div>
 

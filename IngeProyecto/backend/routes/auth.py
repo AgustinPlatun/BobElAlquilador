@@ -10,6 +10,8 @@ from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 import smtplib
 from email.mime.text import MIMEText
+import random
+import string
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -34,10 +36,11 @@ def register():
         password = request.form.get("password")
         fecha_nacimiento = request.form.get("fecha_nacimiento")
         dni_foto = request.files.get("dni_foto")
+        dni_numero = request.form.get("dni_numero") 
         rol = "cliente" 
         estado = "pendiente"
 
-        if not nombre or not apellido or not email or not password or not fecha_nacimiento or not dni_foto:
+        if not nombre or not apellido or not email or not password or not fecha_nacimiento or not dni_foto or not dni_numero:
             return jsonify({"message": "Faltan datos"}), 400
 
         # Guardar la foto y definir dni_filename ANTES de actualizar usuario existente
@@ -74,6 +77,7 @@ def register():
             rol=rol,
             fecha_nacimiento=fecha_nacimiento,
             dni_foto=dni_filename,
+            dni_numero=dni_numero  
         )
         db.session.add(nuevo_usuario)
         db.session.commit()
@@ -114,18 +118,39 @@ def registrar_empleado():
         nombre = data.get("nombre")
         apellido = data.get("apellido")
         email = data.get("email")
-        password = data.get("password")
         fecha_nacimiento = data.get("fecha_nacimiento")
+        dni_numero = data.get("dni_numero")
         rol = "empleado"
         estado = "activa"
 
-        if not nombre or not apellido or not email or not password or not fecha_nacimiento:
+        # Validaciones
+        if not nombre or not apellido or not email or not fecha_nacimiento or not dni_numero:
             return jsonify({"message": "Faltan datos"}), 400
+
+        if not re.fullmatch(r"\d{8}", dni_numero):
+            return jsonify({"message": "El DNI debe contener exactamente 8 números y no letras."}), 400
+
+        if not re.fullmatch(r"[^@]+@[^@]+\.[^@]+", email):
+            return jsonify({"message": "El email no es válido."}), 400
+
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", fecha_nacimiento):
+            return jsonify({"message": "La fecha debe tener el formato YYYY-MM-DD."}), 400
+
+        if not fecha_nacimiento.split('-')[0].isdigit() or len(fecha_nacimiento.split('-')[0]) != 4:
+            return jsonify({"message": "El año de la fecha debe tener 4 dígitos."}), 400
 
         if Usuario.query.filter_by(email=email).first():
             return jsonify({"message": "El email ya está registrado"}), 400
 
-        hashed_password = generate_password_hash(password)
+        # Generar contraseña aleatoria con formato: al menos 5 caracteres, una mayúscula y un número
+        def generar_password():
+            while True:
+                pwd = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+                if (any(c.isupper() for c in pwd) and any(c.isdigit() for c in pwd) and len(pwd) >= 5):
+                    return pwd
+
+        password_generada = generar_password()
+        hashed_password = generate_password_hash(password_generada)
 
         nuevo_empleado = Usuario(
             nombre=nombre,
@@ -135,12 +160,33 @@ def registrar_empleado():
             estado=estado,
             rol=rol,
             fecha_nacimiento=fecha_nacimiento,
-            dni_foto=None 
+            dni_foto=None,
+            dni_numero=dni_numero
         )
         db.session.add(nuevo_empleado)
         db.session.commit()
 
-        return jsonify({"message": "Empleado registrado correctamente"}), 201
+        # Enviar mail con la contraseña generada
+        msg = MIMEText(
+            f"¡Bienvenido/a {nombre}!\n\n"
+            f"Te registraron como empleado en BobElAlquilador.\n"
+            f"Tu contraseña temporal es: {password_generada}\n\n"
+            f"Por favor, ingresá a la aplicación y cambiá tu contraseña desde la sección 'Mis Datos'.\n\n"
+            f"Saludos,\nEl equipo de BobElAlquilador",
+            _charset="utf-8"
+        )
+        msg["Subject"] = "Registro como empleado - BobElAlquilador"
+        msg["From"] = "quantumdevsunlp@gmail.com"
+        msg["To"] = email
+
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login("quantumdevsunlp@gmail.com", "zuio rjmo duxk igbf")
+                server.sendmail(msg["From"], [msg["To"]], msg.as_string())
+        except Exception as e:
+            print("Error enviando email de alta empleado:", e)
+
+        return jsonify({"message": "Empleado registrado correctamente. Se envió la contraseña por email."}), 201
 
     except Exception as e:
         print("Error al registrar empleado:", e)
@@ -153,18 +199,26 @@ def registrar_cliente():
         nombre = data.get("nombre")
         apellido = data.get("apellido")
         email = data.get("email")
-        password = data.get("password")
         fecha_nacimiento = data.get("fecha_nacimiento")
+        dni_numero = data.get("dni_numero")
         rol = "cliente"
-        estado = "pendiente"
+        estado = "activa" 
 
-        if not nombre or not apellido or not email or not password or not fecha_nacimiento:
+        if not nombre or not apellido or not email or not fecha_nacimiento or not dni_numero:
             return jsonify({"message": "Faltan datos"}), 400
 
         if Usuario.query.filter_by(email=email).first():
             return jsonify({"message": "El email ya está registrado"}), 400
 
-        hashed_password = generate_password_hash(password)
+        # Generar contraseña aleatoria con formato: al menos 5 caracteres, una mayúscula y un número
+        def generar_password():
+            while True:
+                pwd = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+                if (any(c.isupper() for c in pwd) and any(c.isdigit() for c in pwd) and len(pwd) >= 5):
+                    return pwd
+
+        password_generada = generar_password()
+        hashed_password = generate_password_hash(password_generada)
 
         nuevo_cliente = Usuario(
             nombre=nombre,
@@ -174,12 +228,33 @@ def registrar_cliente():
             estado=estado,
             rol=rol,
             fecha_nacimiento=fecha_nacimiento,
-            dni_foto=None
+            dni_foto=None,
+            dni_numero=dni_numero
         )
         db.session.add(nuevo_cliente)
         db.session.commit()
 
-        return jsonify({"message": "Cliente registrado correctamente"}), 201
+        # Enviar mail con la contraseña generada
+        msg = MIMEText(
+            f"¡Bienvenido/a {nombre}!\n\n"
+            f"Te registraron como cliente en BobElAlquilador.\n"
+            f"Tu contraseña temporal es: {password_generada}\n\n"
+            f"Por favor, ingresá a la aplicación y cambiá tu contraseña desde la sección 'Mis Datos'.\n\n"
+            f"Saludos,\nEl equipo de BobElAlquilador",
+            _charset="utf-8"
+        )
+        msg["Subject"] = "Registro como cliente - BobElAlquilador"
+        msg["From"] = "quantumdevsunlp@gmail.com"
+        msg["To"] = email
+
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login("quantumdevsunlp@gmail.com", "zuio rjmo duxk igbf")
+                server.sendmail(msg["From"], [msg["To"]], msg.as_string())
+        except Exception as e:
+            print("Error enviando email de alta cliente:", e)
+
+        return jsonify({"message": "Cliente registrado correctamente. Se envió la contraseña por email."}), 201
 
     except Exception as e:
         print("Error al registrar cliente:", e)
@@ -258,9 +333,6 @@ def baja_usuario():
 @auth_bp.route("/usuario", methods=["GET"])
 def obtener_usuario():
     email = request.args.get("email")
-    if not email:
-        return jsonify({"message": "Email requerido"}), 400
-
     usuario = Usuario.query.filter_by(email=email).first()
     if not usuario:
         return jsonify({"message": "Usuario no encontrado"}), 404
@@ -268,7 +340,10 @@ def obtener_usuario():
     return jsonify({
         "nombre": usuario.nombre,
         "apellido": usuario.apellido,
-        "email": usuario.email
+        "email": usuario.email,
+        "rol": usuario.rol,
+        "fecha_nacimiento": usuario.fecha_nacimiento,
+        "dni_numero": usuario.dni_numero
     }), 200
 
 @auth_bp.route("/cambiar-password", methods=["PUT"])
@@ -334,9 +409,15 @@ def baja_empleado():
         if not email:
             return jsonify({"message": "Email requerido"}), 400
 
-        usuario = Usuario.query.filter_by(email=email, rol="empleado").first()
+        usuario = Usuario.query.filter_by(email=email).first()
         if not usuario:
             return jsonify({"message": "Empleado no encontrado"}), 404
+
+        if usuario.rol != "empleado":
+            return jsonify({"message": "El usuario no tiene rol de empleado."}), 400
+
+        if usuario.estado != "activa":
+            return jsonify({"message": "Solo se puede dar de baja a empleados activos."}), 400
 
         usuario.rol = "cliente"
         db.session.commit()
@@ -362,6 +443,9 @@ def alta_empleado():
 
         if usuario.rol == "empleado":
             return jsonify({"message": "El usuario ya es empleado."}), 400
+
+        if usuario.estado != "activa":
+            return jsonify({"message": "Solo se puede dar de alta como empleado a usuarios activos."}), 400
 
         usuario.rol = "empleado"
         db.session.commit()
@@ -474,7 +558,12 @@ def activar_usuario(usuario_id):
     db.session.commit()
 
     # Enviar mail de activación
-    msg = MIMEText("¡Su cuenta ha sido activada! Ya puede ingresar al sistema.", _charset="utf-8")
+    msg = MIMEText(
+        f"Hola, nos comunicamos de Bob El Alquilador.\n\n"
+        "¡Tu cuenta fue activada! Ya podés ingresar al sistema y disfrutar de nuestros servicios.\n\n"
+        "Saludos,\nEl equipo de Bob El Alquilador",
+        _charset="utf-8"
+    )
     msg["Subject"] = "Cuenta activada"
     msg["From"] = "quantumdevsunlp@gmail.com"
     msg["To"] = usuario.email
@@ -487,6 +576,90 @@ def activar_usuario(usuario_id):
         print("Error enviando email de activación:", e)
 
     return jsonify({"message": "Usuario activado y notificado por email."}), 200
+
+@auth_bp.route("/dni-numero-fecha-nacimiento", methods=["POST"])
+def dni_numero_fecha_nacimiento():
+    try:
+        data = request.json
+        email = data.get("email")
+        dni_numero = data.get("dni_numero")
+        fecha_nacimiento = data.get("fecha_nacimiento")
+
+        if not email or not dni_numero or not fecha_nacimiento:
+            return jsonify({"message": "Faltan datos"}), 400
+
+        usuario = Usuario.query.filter_by(email=email).first()
+
+        if not usuario:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+
+        usuario.dni_numero = dni_numero
+        usuario.fecha_nacimiento = fecha_nacimiento
+        db.session.commit()
+
+        return jsonify({"message": "Datos actualizados correctamente"}), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al actualizar datos", "error": str(e)}), 500
+
+@auth_bp.route("/dni-numero/<email>", methods=["GET"])
+def obtener_dni_numero(email):
+    try:
+        usuario = Usuario.query.filter_by(email=email).first()
+
+        if not usuario:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+
+        return jsonify({
+            "dni_numero": usuario.dni_numero,
+            "fecha_nacimiento": usuario.fecha_nacimiento
+        }), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al obtener datos", "error": str(e)}), 500
+
+@auth_bp.route("/actualizar-rol/<int:usuario_id>", methods=["PUT"])
+def actualizar_rol(usuario_id):
+    try:
+        data = request.json
+        nuevo_rol = data.get("rol")
+
+        if not nuevo_rol:
+            return jsonify({"message": "Rol requerido"}), 400
+
+        usuario = Usuario.query.get(usuario_id)
+
+        if not usuario:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+
+        usuario.rol = nuevo_rol
+        db.session.commit()
+
+        return jsonify({"message": "Rol actualizado correctamente"}), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al actualizar rol", "error": str(e)}), 500
+
+@auth_bp.route("/datos-usuario/<email>", methods=["GET"])
+def datos_usuario(email):
+    try:
+        usuario = Usuario.query.filter_by(email=email).first()
+
+        if not usuario:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+
+        return jsonify({
+            "nombre": usuario.nombre,
+            "apellido": usuario.apellido,
+            "email": usuario.email,
+            "rol": usuario.rol,
+            "dniNumero": usuario.dni_numero,
+            "fechaNacimiento": usuario.fecha_nacimiento
+        }), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al obtener datos del usuario", "error": str(e)}), 500
+
 
 
 
