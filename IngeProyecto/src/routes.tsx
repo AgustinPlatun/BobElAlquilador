@@ -16,6 +16,10 @@ import PagoExitoso from './pages/pagos/pagoExitoso';
 import PagoFallido from './pages/pagos/pagoFallido';
 import PagoPendiente from './pages/pagos/pagoPendiente';
 import AltaEmpleado from './pages/altaEmpleado';
+import SolicitarRecuperacion from './pages/SolicitarRecuperacion';
+import RecuperarPassword from './pages/RecuperarPassword';
+
+
 
 const router = createBrowserRouter([
   {
@@ -86,6 +90,14 @@ const router = createBrowserRouter([
   {
     path: "/alta-empleado",
     element: <AltaEmpleado />
+  },
+  {
+    path: "/solicitar-recuperacion",
+    element: <SolicitarRecuperacion />
+  },
+  {
+    path: "/recuperar-password/:token",
+    element: <RecuperarPassword />
   }
 ]);
 

@@ -107,6 +107,11 @@ const Login: React.FC = () => {
                 Ingresar
               </button>
             </form>
+            <div className="text-center mt-3">
+              <a href="/solicitar-recuperacion" className="text-danger" style={{ cursor: 'pointer' }}>
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
           </div>
         </div>
       </div>

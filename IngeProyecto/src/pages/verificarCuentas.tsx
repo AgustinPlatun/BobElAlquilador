@@ -22,6 +22,8 @@ const UsuariosPendientes: React.FC = () => {
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<Usuario | null>(null);
   const [accion, setAccion] = useState<AccionPendiente>(null);
   const [showModal, setShowModal] = useState(false);
+  const [motivoRechazo, setMotivoRechazo] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchUsuarios();
@@ -44,21 +46,29 @@ const UsuariosPendientes: React.FC = () => {
 
   const ejecutarAccion = async () => {
     if (!usuarioSeleccionado || !accion) return;
-
+    setLoading(true);
     try {
       if (accion === "activar") {
         await axios.put(`http://localhost:5000/activar-usuario/${usuarioSeleccionado.id}`);
       } else if (accion === "eliminar") {
-        await axios.delete(`http://localhost:5000/eliminar-usuario/${usuarioSeleccionado.id}`);
+        await axios.post(`http://localhost:5000/rechazar-usuario/${usuarioSeleccionado.id}`, {
+          motivo: motivoRechazo,
+        });
       }
       setUsuarios((prev) => prev.filter((u) => u.id !== usuarioSeleccionado.id));
-      setShowModal(false);
+      cerrarModal();
       setUsuarioSeleccionado(null);
       setAccion(null);
     } catch (err) {
-      console.error("Error al procesar la acción", err);
       setError("No se pudo procesar la acción.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const cerrarModal = () => {
+    setShowModal(false);
+    setMotivoRechazo('');
   };
 
   return (
@@ -120,27 +130,40 @@ const UsuariosPendientes: React.FC = () => {
       </div>
 
       {/* Modal de confirmación */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+      <Modal show={showModal} onHide={cerrarModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>
             {accion === "activar" ? "Confirmar Activación" : "Confirmar Rechazo"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          ¿Estás seguro que querés{" "}
-          {accion === "activar" ? "activar" : "rechazar"} al usuario{" "}
-          <strong>
-            {usuarioSeleccionado?.nombre} {usuarioSeleccionado?.apellido}
-          </strong>
-          ?
+          {accion === "eliminar" ? (
+            <>
+              <p>
+                ¿Estás seguro que querés rechazar al usuario <strong>{usuarioSeleccionado?.nombre} {usuarioSeleccionado?.apellido}</strong>?
+              </p>
+              <textarea
+                className="form-control"
+                placeholder="Motivo del rechazo"
+                value={motivoRechazo}
+                onChange={e => setMotivoRechazo(e.target.value)}
+                rows={3}
+              />
+            </>
+          ) : (
+            <p>
+              ¿Estás seguro que querés activar al usuario <strong>{usuarioSeleccionado?.nombre} {usuarioSeleccionado?.apellido}</strong>?
+            </p>
+          )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={cerrarModal}>
             Cancelar
           </Button>
           <Button
             variant={accion === "activar" ? "success" : "danger"}
             onClick={ejecutarAccion}
+            disabled={loading || (accion === "eliminar" && !motivoRechazo)}
           >
             {accion === "activar" ? "Activar Usuario" : "Rechazar Usuario"}
           </Button>
