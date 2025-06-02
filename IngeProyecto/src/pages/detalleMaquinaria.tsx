@@ -121,7 +121,7 @@ const DetalleMaquinaria: React.FC = () => {
                     style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
                     onClick={handleAlquilar}
                   >
-                    Alquilar
+                    Reservar
                   </button>
                 )}
                 {rol === 'administrador' && (

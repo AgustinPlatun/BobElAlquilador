@@ -22,6 +22,7 @@ const AltaMaquinaria: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setMensaje('');
     setMostrarReactivar(false);
 
     if (!codigo || !nombre || !descripcion || !foto || !precio) {
@@ -76,6 +77,7 @@ const AltaMaquinaria: React.FC = () => {
 
   const handleReactivar = async () => {
     setError('');
+    setMensaje('');
     try {
       const formData = new FormData();
       formData.append('codigo', codigo);
@@ -86,7 +88,7 @@ const AltaMaquinaria: React.FC = () => {
       });
 
       if (response.ok) {
-        alert('Maquinaria reactivada correctamente.');
+        setMensaje('Maquinaria reactivada correctamente.');
         setNombre('');
         setDescripcion('');
         setFoto(null);

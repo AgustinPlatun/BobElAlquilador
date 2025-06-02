@@ -10,6 +10,7 @@ const RegistrarEmpleado: React.FC = () => {
   const [dniFoto, setDniFoto] = useState<File | null>(null);
   const [dniNumero, setDniNumero] = useState('');
   const [error, setError] = useState('');
+  const [mensaje, setMensaje] = useState('');
 
   const isDniValido = (dni: string) => /^\d{8}$/.test(dni);
   const isEmailValido = (email: string) =>
@@ -37,6 +38,7 @@ const RegistrarEmpleado: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setMensaje('');
 
     if (!nombre || !apellido || !email || !fechaNacimiento || !dniFoto || !dniNumero) {
       setError('Todos los campos son obligatorios.');
@@ -65,9 +67,8 @@ const RegistrarEmpleado: React.FC = () => {
       };
 
       const response = await axios.post('http://localhost:5000/registrar-empleado', data);
-      alert(response.data.message);
+      setMensaje(response.data.message); // <-- Mostrar mensaje en la app
     } catch (error: any) {
-      // MOSTRAR mensaje del backend si existe
       if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
       } else {
@@ -170,6 +171,12 @@ const RegistrarEmpleado: React.FC = () => {
               Registrar nuevo empleado
             </button>
           </form>
+
+          {mensaje && (
+            <div className="alert alert-success text-center mt-3" role="alert">
+              {mensaje}
+            </div>
+          )}
         </div>
       </div>
     </div>

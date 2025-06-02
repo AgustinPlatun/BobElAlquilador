@@ -12,10 +12,11 @@ const SolicitarRecuperacion: React.FC = () => {
     e.preventDefault();
     setMensaje('');
     setError('');
-    setLoading(true); // Deshabilita el botón
+    setLoading(true);
     try {
-      await axios.post('http://localhost:5000/solicitar-recuperacion', { email });
-      setMensaje('Se envió correctamente el enlace de recuperación al correo.');
+      const res = await axios.post('http://localhost:5000/solicitar-recuperacion', { email });
+      // Mostrar SIEMPRE el mensaje del backend
+      setMensaje(res.data.message);
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
@@ -23,7 +24,7 @@ const SolicitarRecuperacion: React.FC = () => {
         setError('Hubo un problema al solicitar la recuperación.');
       }
     } finally {
-      setLoading(false); // Habilita el botón de nuevo
+      setLoading(false);
     }
   };
 

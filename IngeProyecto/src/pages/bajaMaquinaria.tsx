@@ -6,6 +6,7 @@ const BajaMaquinaria: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const rol = localStorage.getItem('usuarioRol');
 
   // Solo permitir acceso a administradores
@@ -40,11 +41,8 @@ const BajaMaquinaria: React.FC = () => {
 
   // Dar de baja
   const handleBaja = async () => {
-    if (!codigo) {
-      setError('Ingrese el código de la maquinaria.');
-      return;
-    }
-    if (!window.confirm(`¿Está seguro de dar de baja la maquinaria "${nombre}"?`)) return;
+    setError('');
+    setMensaje('');
     try {
       const response = await fetch('http://localhost:5000/baja-maquinaria', {
         method: 'PUT',
@@ -62,6 +60,7 @@ const BajaMaquinaria: React.FC = () => {
     } catch {
       setError('Hubo un problema al dar de baja la maquinaria.');
     }
+    setShowConfirmModal(false);
   };
 
   return (
@@ -85,7 +84,11 @@ const BajaMaquinaria: React.FC = () => {
               <strong>Nombre:</strong> {nombre}
             </div>
           )}
-          <button className="btn btn-danger w-100 mb-3" onClick={handleBaja} disabled={!nombre}>
+          <button
+            className="btn btn-danger w-100 mb-3"
+            onClick={() => setShowConfirmModal(true)}
+            disabled={!nombre}
+          >
             Dar de baja
           </button>
           {mensaje && (
@@ -100,6 +103,33 @@ const BajaMaquinaria: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Modal de confirmación */}
+      {showConfirmModal && (
+        <div className="modal show d-block" tabIndex={-1} style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirmar baja</h5>
+                <button type="button" className="btn-close" onClick={() => setShowConfirmModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  ¿Está seguro de que desea dar de baja la maquinaria <strong>{nombre}</strong>?
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowConfirmModal(false)}>
+                  Cancelar
+                </button>
+                <button className="btn btn-danger" onClick={handleBaja}>
+                  Confirmar baja
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

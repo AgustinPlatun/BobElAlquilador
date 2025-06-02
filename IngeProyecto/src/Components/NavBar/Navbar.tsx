@@ -120,7 +120,7 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* Mobile: menú hamburguesa y usuario */}
+        {/* Mobile */}
         <div className="d-flex d-lg-none align-items-center gap-2" style={{ marginLeft: '42px' }}>
           <button
             className="navbar-toggler border border"
@@ -150,7 +150,7 @@ const Navbar: React.FC = () => {
             style={{ minWidth: isLargeScreen ? '260px' : undefined }}
           >
             {usuario ? (
-              <UserDropdown usuario={usuario} menuOptions={getMenuOptions()} />
+              <UserDropdown usuario="Menú de opciones" menuOptions={getMenuOptions()} />
             ) : (
               <GuestButtons isMobile={false} />
             )}
