@@ -15,7 +15,15 @@ const Register: React.FC = () => {
   const navigate = useNavigate(); // <-- Hook de navegación
 
   const isFormValid = () => {
-    return nombre && apellido && email && password && fechaNacimiento && dniFoto;
+    return (
+      nombre &&
+      apellido &&
+      email &&
+      password &&
+      fechaNacimiento &&
+      dniFoto &&
+      dniNumero // Asegúrate de incluir dniNumero aquí
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,9 +50,12 @@ const Register: React.FC = () => {
       });
 
       navigate('/login');
-    } catch (error) {
-      console.error('Error al registrar cliente:', error);
-      setError('Hubo un problema al registrar el cliente.');
+    } catch (error: any) {
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Hubo un problema al registrar el cliente.');
+      }
     }
   };
 
@@ -99,14 +110,14 @@ const Register: React.FC = () => {
                 className="form-control"
                 value={dniNumero}
                 onChange={e => setDniNumero(e.target.value)}
-                required
+                // required <-- puedes quitar esto, la validación la hace isFormValid
               />
             </div>
 
             {error && <div className="alert alert-danger text-center p-2">{error}</div>}
 
             <button type="submit" className="btn btn-danger w-100" disabled={!isFormValid()}>
-              Registrar nuevo usuario
+              Registrarse
             </button>
           </form>
         </div>

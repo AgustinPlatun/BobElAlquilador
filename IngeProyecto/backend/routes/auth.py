@@ -45,6 +45,19 @@ def register():
         if not nombre or not apellido or not email or not password or not fecha_nacimiento or not dni_foto or not dni_numero:
             return jsonify({"message": "Faltan datos"}), 400
 
+        # Validar que el DNI solo tenga números
+        if not dni_numero.isdigit():
+            return jsonify({"message": "El documento solo puede contener números."}), 400
+
+        # Validar contraseña: al menos una mayúscula y un número
+        import re
+        if (
+            len(password) < 5
+            or not re.search(r"[A-Z]", password)
+            or not re.search(r"\d", password)
+        ):
+            return jsonify({"message": "La contraseña debe tener al menos 5 caracteres, una mayúscula y un número."}), 400
+
         # Guardar la foto y definir dni_filename ANTES de actualizar usuario existente
         dni_folder = os.path.join(os.path.dirname(__file__), '../uploads/dni_clientes_fotos')
         os.makedirs(dni_folder, exist_ok=True)
@@ -55,7 +68,6 @@ def register():
         usuario_existente = Usuario.query.filter_by(email=email).first()
         if usuario_existente:
             if usuario_existente.estado == "rechazado":
-                # Permitir re-registro: actualizar datos y poner estado en pendiente
                 usuario_existente.nombre = nombre
                 usuario_existente.apellido = apellido
                 usuario_existente.password = generate_password_hash(password)
