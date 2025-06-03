@@ -10,7 +10,7 @@ class Usuario(db.Model):
     estado = db.Column(db.String(80), nullable=False)
     fecha_nacimiento = db.Column(db.String(10), nullable=False)
     dni_foto = db.Column(db.String(255), nullable=True)
-    dni_numero = db.Column(db.String(20), nullable=False) # poner despues en false
+    dni_numero = db.Column(db.String(20), nullable=False)
 
 class Maquinaria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,3 +20,8 @@ class Maquinaria(db.Model):
     foto = db.Column(db.String(255), nullable=True)
     estado = db.Column(db.Boolean, nullable=False, default=True)
     precio = db.Column(db.Float, nullable=False)
+
+class Categoria(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), unique=True, nullable=False)
+    estado = db.Column(db.String(80), nullable=False, default='activa')

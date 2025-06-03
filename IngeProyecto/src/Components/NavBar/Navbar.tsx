@@ -42,7 +42,9 @@ const Navbar: React.FC = () => {
       options.push({ label: 'Baja de maquinaria', path: '/baja-maquinaria' });
       options.push({ label: 'Registrar empleado', path: '/registrar-empleado' });
       options.push({ label: 'Cambiar rol de empleado a cliente', path: '/desactivar-cuenta' });
-      options.push({ label: 'Alta de Maquinaria', path: '/alta-maquinaria' }); // Opción añadida
+      options.push({ label: 'Alta de Maquinaria', path: '/alta-maquinaria' });
+      options.push({ label: 'Alta de Categoria', path: '/alta-categoria' });
+      options.push({ label: 'Baja de Categoria', path: '/baja-categoria' });
     } else if (rol === 'empleado') {
       options.push({ label: 'Verificar cuentas', path: '/verificar-cuentas' });
       options.push({ label: 'Registrar cliente', path: '/registrar-cliente' });

@@ -19,6 +19,8 @@ import AltaEmpleado from './pages/altaEmpleado';
 import SolicitarRecuperacion from './pages/SolicitarRecuperacion';
 import RecuperarPassword from './pages/RecuperarPassword';
 import NotFound from './pages/NotFound';
+import AltaCategoria from './pages/altaCategoria';
+import BajaCategoria from './pages/bajaCategoria';
 
 const router = createBrowserRouter([
   {
@@ -101,6 +103,14 @@ const router = createBrowserRouter([
   {
     path: "*",
     element: <NotFound />
+  },
+  {
+    path: "/alta-categoria",
+    element: <AltaCategoria />
+  },
+  {
+    path: "/baja-categoria",
+    element: <BajaCategoria />
   }
 ]);
 
