@@ -79,6 +79,18 @@ const RegistrarCliente: React.FC = () => {
               <input type="email" id="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
 
+            {/* Cambiado el orden: primero foto, luego número */}
+            <div className="mb-3">
+              <label htmlFor="dni_foto" className="form-label">Foto del Documento (DNI):</label>
+              <input
+                type="file"
+                id="dni_foto"
+                className="form-control"
+                accept="image/*"
+                onChange={(e) => setDniFoto(e.target.files?.[0] || null)}
+              />
+            </div>
+
             <div className="mb-3">
               <label htmlFor="dni_numero" className="form-label">Número de DNI:</label>
               <input
@@ -88,17 +100,6 @@ const RegistrarCliente: React.FC = () => {
                 value={dniNumero}
                 onChange={e => setDniNumero(e.target.value)}
                 required
-              />
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="dni_foto" className="form-label">Foto del Documento (DNI):</label>
-              <input
-                type="file"
-                id="dni_foto"
-                className="form-control"
-                accept="image/*"
-                onChange={(e) => setDniFoto(e.target.files?.[0] || null)}
               />
             </div>
 

@@ -61,7 +61,7 @@ const AltaEmpleado: React.FC = () => {
             />
           </div>
           <button className="btn btn-success w-100 mb-3" onClick={handleAltaEmpleado}>
-            Dar de alta empleado
+            Promover empleado
           </button>
           {mensaje && (
             <div className="alert alert-info text-center p-2" role="alert">

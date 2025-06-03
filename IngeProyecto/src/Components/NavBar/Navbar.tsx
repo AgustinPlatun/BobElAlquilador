@@ -38,10 +38,10 @@ const Navbar: React.FC = () => {
   const getMenuOptions = (): MenuOption[] => {
     const options: MenuOption[] = [{ label: 'Mis datos', path: '/mis-datos' }];
     if (rol === 'administrador') {
-      options.push({ label: 'Dar de alta empleado', path: '/alta-empleado' });
+      options.push({ label: 'Cambiar rol de cliente a empleado', path: '/alta-empleado' });
       options.push({ label: 'Baja de maquinaria', path: '/baja-maquinaria' });
       options.push({ label: 'Registrar empleado', path: '/registrar-empleado' });
-      options.push({ label: 'Dar de baja empleado', path: '/desactivar-cuenta' });
+      options.push({ label: 'Cambiar rol de empleado a cliente', path: '/desactivar-cuenta' });
       options.push({ label: 'Alta de Maquinaria', path: '/alta-maquinaria' }); // Opción añadida
     } else if (rol === 'empleado') {
       options.push({ label: 'Verificar cuentas', path: '/verificar-cuentas' });

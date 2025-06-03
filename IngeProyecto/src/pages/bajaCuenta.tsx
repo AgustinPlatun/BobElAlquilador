@@ -7,6 +7,7 @@ const BajaCuenta: React.FC = () => {
   const [error, setError] = useState('');
   const [confirmar, setConfirmar] = useState(false);
   const [nombreEmpleado, setNombreEmpleado] = useState('');
+  const [showModal, setShowModal] = useState(false);
   const rol = localStorage.getItem('usuarioRol');
 
   if (rol !== 'administrador') {
@@ -36,8 +37,12 @@ const BajaCuenta: React.FC = () => {
       const res = await fetch(`http://localhost:5000/usuario?email=${encodeURIComponent(email)}`);
       if (res.ok) {
         const data = await res.json();
+        if (data.rol !== 'empleado') {
+          setError('El usuario encontrado no es un empleado.');
+          return;
+        }
         setNombreEmpleado(`${data.nombre} ${data.apellido}`);
-        setConfirmar(true);
+        setShowModal(true); // Mostrar modal
       } else {
         setError('No existe un empleado con ese email.');
       }
@@ -63,6 +68,7 @@ const BajaCuenta: React.FC = () => {
         setEmail('');
         setConfirmar(false);
         setNombreEmpleado('');
+        setShowModal(false);
       } else {
         setError(resData.message || 'No se pudo dar de baja el empleado.');
       }
@@ -84,35 +90,12 @@ const BajaCuenta: React.FC = () => {
               placeholder="Email del empleado"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={confirmar}
+              disabled={showModal}
             />
           </div>
-          {!confirmar && (
-            <button className="btn btn-danger w-100 mb-3" onClick={buscarEmpleado}>
-              Dar de baja empleado
-            </button>
-          )}
-          {confirmar && (
-            <div>
-              <p className="text-warning text-center mb-2">
-                ¿Está seguro de dar de baja al empleado <span className="fw-bold">{nombreEmpleado}</span> ({email})?
-              </p>
-              <button className="btn btn-danger w-100 mb-2" onClick={handleBajaEmpleado}>
-                Confirmar baja
-              </button>
-              <button
-                className="btn btn-secondary w-100"
-                onClick={() => {
-                  setConfirmar(false);
-                  setNombreEmpleado('');
-                  setMensaje('');
-                  setError('');
-                }}
-              >
-                Cancelar
-              </button>
-            </div>
-          )}
+          <button className="btn btn-danger w-100 mb-3" onClick={buscarEmpleado} disabled={showModal}>
+            Degradar empleado
+          </button>
           {mensaje && (
             <div className="alert alert-info text-center p-2 mt-2" role="alert">
               {mensaje}
@@ -125,6 +108,32 @@ const BajaCuenta: React.FC = () => {
           )}
         </div>
       </div>
+      {/* Modal de confirmación */}
+      {showModal && (
+        <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }} tabIndex={-1}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirmar baja</h5>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <p className="text-warning text-center mb-2">
+                  ¿Está seguro de dar de baja al empleado <span className="fw-bold">{nombreEmpleado}</span> ({email})?
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-danger" onClick={handleBajaEmpleado}>
+                  Confirmar
+                </button>
+                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
