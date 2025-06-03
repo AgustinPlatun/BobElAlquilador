@@ -50,11 +50,8 @@ const Servicios: React.FC = () => {
                 name={maquinaria.nombre}
                 description={maquinaria.descripcion}
                 precio={Number(maquinaria.precio)}
+                codigo={maquinaria.codigo}
               />
-              {/* Ejemplo en una Card de maquinaria */}
-              <h5 className="card-title">
-                {maquinaria.nombre} <span className="badge bg-secondary ms-2">{maquinaria.codigo}</span>
-              </h5>
             </div>
           ))}
         </div>
