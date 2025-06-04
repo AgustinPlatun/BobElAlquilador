@@ -51,11 +51,11 @@ const Login: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="container d-flex justify-content-center align-items-center min-vh-100 pt-5">
+      <div className="container d-flex justify-content-center align-items-center min-vh-100">
         <div className="login-page-container">
           <div
             className="card p-4 shadow"
-            style={{ maxWidth: '400px', width: '90%', border: '1px solid red' }}
+            style={{ maxWidth: '500px', width: '98%', border: '1px solid red'}}
           >
             <h2 className="text-center mb-4 text-danger">Iniciar Sesión</h2>
             <form onSubmit={handleLogin}>

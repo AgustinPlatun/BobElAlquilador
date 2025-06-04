@@ -38,7 +38,7 @@ const Servicios: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="container py-5 mt-5 text-center" style={{ paddingLeft: '15px', paddingRight: '15px' }}>
+      <div className="container py-5 text-center" style={{ paddingLeft: '15px', paddingRight: '15px' }}>
         <h1 className="mb-4">Nuestras Maquinarias</h1>
         {error && <div className="alert alert-danger">{error}</div>}
         <div
