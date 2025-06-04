@@ -44,3 +44,11 @@ def baja_categoria():
     categoria.estado = 'desactivada'
     db.session.commit()
     return jsonify({'message': 'Categoría dada de baja correctamente.'}), 200
+
+@categoria_bp.route('/categorias-activas', methods=['GET'])
+def categorias_activas():
+    categorias = Categoria.query.filter_by(estado='activa').all()
+    return jsonify([
+        {"id": c.id, "nombre": c.nombre}
+        for c in categorias
+    ]), 200

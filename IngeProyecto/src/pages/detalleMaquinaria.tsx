@@ -8,6 +8,8 @@ interface Maquinaria {
   foto: string;
   precio: number;
   codigo: string;
+  politicas_reembolso?: string;
+  categoria_id?: number;
 }
 
 const DetalleMaquinaria: React.FC = () => {
@@ -19,6 +21,9 @@ const DetalleMaquinaria: React.FC = () => {
   const [editDescripcion, setEditDescripcion] = useState(maquinaria?.descripcion || '');
   const [editPrecio, setEditPrecio] = useState(maquinaria?.precio || 0);
   const [editFoto, setEditFoto] = useState<File | null>(null);
+  const [editPoliticas, setEditPoliticas] = useState(maquinaria?.politicas_reembolso || '');
+  const [editCategoriaId, setEditCategoriaId] = useState(maquinaria?.categoria_id ? String(maquinaria.categoria_id) : '');
+  const [categorias, setCategorias] = useState<{ id: number; nombre: string }[]>([]);
   const [editError, setEditError] = useState('');
   const navigate = useNavigate();
 
@@ -32,6 +37,11 @@ const DetalleMaquinaria: React.FC = () => {
 
     const storedRol = localStorage.getItem('usuarioRol');
     setRol(storedRol);
+
+    fetch('http://localhost:5000/categorias-activas')
+      .then(res => res.json())
+      .then(data => setCategorias(data))
+      .catch(() => setCategorias([]));
   }, [nombre]);
 
   const handleAlquilar = async () => {
@@ -74,6 +84,8 @@ const DetalleMaquinaria: React.FC = () => {
     setEditDescripcion(maquinaria?.descripcion || '');
     setEditPrecio(maquinaria?.precio || 0);
     setEditFoto(null);
+    setEditPoliticas(maquinaria?.politicas_reembolso || '');
+    setEditCategoriaId(maquinaria?.categoria_id ? String(maquinaria.categoria_id) : '');
     setEditError('');
     setShowEditModal(true);
   };
@@ -151,7 +163,7 @@ const DetalleMaquinaria: React.FC = () => {
                   onSubmit={async (e) => {
                     e.preventDefault();
                     setEditError('');
-                    if (!editNombre || !editDescripcion || !editPrecio) {
+                    if (!editNombre || !editDescripcion || !editPrecio || !editCategoriaId || !editPoliticas) {
                       setEditError('Todos los campos son obligatorios.');
                       return;
                     }
@@ -160,6 +172,8 @@ const DetalleMaquinaria: React.FC = () => {
                     formData.append('descripcion', editDescripcion);
                     formData.append('precio', String(editPrecio));
                     if (editFoto) formData.append('foto', editFoto);
+                    formData.append('categoria_id', editCategoriaId);
+                    formData.append('politicas_reembolso', editPoliticas);
 
                     const response = await fetch(`http://localhost:5000/editar-maquinaria/${maquinaria.codigo}`, {
                       method: 'PUT',
@@ -195,6 +209,28 @@ const DetalleMaquinaria: React.FC = () => {
                   <div className="mb-3">
                     <label className="form-label">Foto (opcional)</label>
                     <input type="file" className="form-control" onChange={e => setEditFoto(e.target.files?.[0] || null)} />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Categoría</label>
+                    <select
+                      className="form-select"
+                      value={editCategoriaId}
+                      onChange={e => setEditCategoriaId(e.target.value)}
+                    >
+                      <option value="">Seleccionar categoría</option>
+                      {categorias.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Políticas de reembolso</label>
+                    <input
+                      className="form-control"
+                      value={editPoliticas}
+                      onChange={e => setEditPoliticas(e.target.value)}
+                      placeholder="Ej: Reembolso solo por fallas técnicas"
+                    />
                   </div>
                   {editError && <div className="alert alert-danger">{editError}</div>}
                   <button type="submit" className="btn btn-warning">Guardar Cambios</button>

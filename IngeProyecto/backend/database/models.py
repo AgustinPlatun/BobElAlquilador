@@ -20,6 +20,9 @@ class Maquinaria(db.Model):
     foto = db.Column(db.String(255), nullable=True)
     estado = db.Column(db.Boolean, nullable=False, default=True)
     precio = db.Column(db.Float, nullable=False)
+    politicas_reembolso = db.Column(db.String(255), nullable=True)
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=True)
+    categoria = db.relationship('Categoria', backref='maquinarias')
 
 class Categoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)

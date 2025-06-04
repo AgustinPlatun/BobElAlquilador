@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-from database.models import Maquinaria
+from database.models import Maquinaria, Categoria
 from database import db
 import os
 
@@ -16,6 +16,8 @@ def alta_maquinaria():
         descripcion = request.form.get("descripcion")
         foto = request.files.get("foto")
         precio = request.form.get("precio")
+        politicas_reembolso = request.form.get("politicas_reembolso")
+        categoria_id = request.form.get("categoria_id")
 
         if not codigo or not nombre or not descripcion or not foto or not precio:
             return jsonify({"message": "Todos los campos son obligatorios"}), 400
@@ -36,6 +38,14 @@ def alta_maquinaria():
         except ValueError:
             return jsonify({"message": "El precio debe ser un número válido"}), 400
 
+        # Validar categoría si se envía
+        if categoria_id:
+            categoria = Categoria.query.get(categoria_id)
+            if not categoria:
+                return jsonify({"message": "La categoría no existe"}), 400
+        else:
+            categoria_id = None
+
         filename = secure_filename(foto.filename)
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         foto.save(filepath)
@@ -46,7 +56,9 @@ def alta_maquinaria():
             descripcion=descripcion,
             foto=filename,
             precio=precio,
-            estado=True
+            estado=True,
+            politicas_reembolso=politicas_reembolso,
+            categoria_id=categoria_id
         )
         db.session.add(nueva_maquinaria)
         db.session.commit()
@@ -63,11 +75,14 @@ def obtener_maquinarias():
         resultado = [
             {
                 "id": maquinaria.id,
-                "codigo": maquinaria.codigo, 
+                "codigo": maquinaria.codigo,
                 "nombre": maquinaria.nombre,
                 "descripcion": maquinaria.descripcion,
                 "foto": maquinaria.foto,
-                "precio": maquinaria.precio
+                "precio": maquinaria.precio,
+                "politicas_reembolso": maquinaria.politicas_reembolso,
+                "categoria_id": maquinaria.categoria_id,
+                "categoria": maquinaria.categoria.nombre if maquinaria.categoria else None
             }
             for maquinaria in maquinarias
         ]
@@ -106,6 +121,8 @@ def editar_maquinaria(codigo):
         descripcion = request.form.get("descripcion")
         precio = request.form.get("precio")
         foto = request.files.get("foto")
+        politicas_reembolso = request.form.get("politicas_reembolso")
+        categoria_id = request.form.get("categoria_id")
 
         if not nombre or not descripcion or not precio:
             return jsonify({"message": "Todos los campos son obligatorios"}), 400
@@ -113,6 +130,15 @@ def editar_maquinaria(codigo):
         maquinaria.nombre = nombre
         maquinaria.descripcion = descripcion
         maquinaria.precio = float(precio)
+        maquinaria.politicas_reembolso = politicas_reembolso
+
+        # Validar categoría si se envía
+        if categoria_id:
+            categoria = Categoria.query.get(categoria_id)
+            if not categoria:
+                return jsonify({"message": "La categoría no existe"}), 400
+            maquinaria.categoria_id = categoria_id
+
         if foto:
             filename = secure_filename(foto.filename)
             filepath = os.path.join(UPLOAD_FOLDER, filename)
@@ -120,7 +146,6 @@ def editar_maquinaria(codigo):
             maquinaria.foto = filename
 
         db.session.commit()
-        # Devuelve el objeto actualizado
         return jsonify({
             "message": "Maquinaria actualizada correctamente",
             "maquinaria": {
@@ -128,14 +153,15 @@ def editar_maquinaria(codigo):
                 "codigo": maquinaria.codigo,
                 "descripcion": maquinaria.descripcion,
                 "precio": maquinaria.precio,
-                "foto": maquinaria.foto
+                "foto": maquinaria.foto,
+                "politicas_reembolso": maquinaria.politicas_reembolso,
+                "categoria_id": maquinaria.categoria_id
             }
         }), 200
 
     except Exception as e:
         return jsonify({"message": "Hubo un problema al editar la maquinaria", "error": str(e)}), 500
 
-# Nuevo endpoint para reactivar maquinaria
 @maquinaria_bp.route("/reactivar-maquinaria", methods=["PUT"])
 def reactivar_maquinaria():
     try:

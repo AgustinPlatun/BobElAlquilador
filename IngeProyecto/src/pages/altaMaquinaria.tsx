@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../Components/NavBar/Navbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -8,10 +8,21 @@ const AltaMaquinaria: React.FC = () => {
   const [foto, setFoto] = useState<File | null>(null);
   const [precio, setPrecio] = useState('');
   const [codigo, setCodigo] = useState('');
+  const [politicas, setPoliticas] = useState('');
+  const [categoriaId, setCategoriaId] = useState('');
+  const [categorias, setCategorias] = useState<{ id: number; nombre: string }[]>([]);
   const [error, setError] = useState('');
   const [mostrarReactivar, setMostrarReactivar] = useState(false);
   const [nombreExistente, setNombreExistente] = useState('');
   const [mensaje, setMensaje] = useState('');
+
+  useEffect(() => {
+    // Cargar categorías activas
+    fetch('http://localhost:5000/categorias-activas')
+      .then(res => res.json())
+      .then(data => setCategorias(data))
+      .catch(() => setCategorias([]));
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -25,7 +36,7 @@ const AltaMaquinaria: React.FC = () => {
     setMensaje('');
     setMostrarReactivar(false);
 
-    if (!codigo || !nombre || !descripcion || !foto || !precio) {
+    if (!codigo || !nombre || !descripcion || !foto || !precio || !categoriaId || !politicas) {
       setError('Todos los campos son obligatorios.');
       return;
     }
@@ -42,6 +53,8 @@ const AltaMaquinaria: React.FC = () => {
       formData.append('descripcion', descripcion);
       formData.append('foto', foto);
       formData.append('precio', precio);
+      formData.append('politicas_reembolso', politicas);
+      if (categoriaId) formData.append('categoria_id', categoriaId);
 
       const response = await fetch('http://localhost:5000/alta-maquinaria', {
         method: 'POST',
@@ -57,6 +70,8 @@ const AltaMaquinaria: React.FC = () => {
         setFoto(null);
         setPrecio('');
         setCodigo('');
+        setPoliticas('');
+        setCategoriaId('');
       } else if (errorData.reactivar) {
         setError(errorData.message);
         setNombreExistente(errorData.nombre || '');
@@ -94,6 +109,8 @@ const AltaMaquinaria: React.FC = () => {
         setFoto(null);
         setPrecio('');
         setCodigo('');
+        setPoliticas('');
+        setCategoriaId('');
         setMostrarReactivar(false);
         setError('');
         setNombreExistente('');
@@ -121,7 +138,6 @@ const AltaMaquinaria: React.FC = () => {
                 className="form-control"
                 value={codigo}
                 onChange={(e) => setCodigo(e.target.value)}
-                required
               />
             </div>
             <div className="mb-3">
@@ -132,7 +148,6 @@ const AltaMaquinaria: React.FC = () => {
                 className="form-control"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                required
               />
             </div>
             <div className="mb-3">
@@ -155,7 +170,6 @@ const AltaMaquinaria: React.FC = () => {
                 onChange={(e) => setPrecio(e.target.value)}
                 min="0"
                 step="0.01"
-                required
               />
               <div className="form-text">El precio ingresado corresponde al valor por día de alquiler.</div>
             </div>
@@ -166,6 +180,31 @@ const AltaMaquinaria: React.FC = () => {
                 id="foto"
                 className="form-control"
                 onChange={handleFileChange}
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="categoria" className="form-label">Categoría:</label>
+              <select
+                id="categoria"
+                className="form-select"
+                value={categoriaId}
+                onChange={(e) => setCategoriaId(e.target.value)}
+              >
+                <option value="">Seleccionar categoría</option>
+                {categorias.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-3">
+              <label htmlFor="politicas" className="form-label">Políticas de reembolso:</label>
+              <input
+                type="text"
+                id="politicas"
+                className="form-control"
+                value={politicas}
+                onChange={(e) => setPoliticas(e.target.value)}
+                placeholder="Ej: Reembolso solo por fallas técnicas"
               />
             </div>
             {!mostrarReactivar && error && <p className="text-danger">{error}</p>}
