@@ -10,6 +10,7 @@ interface Maquinaria {
   codigo: string;
   politicas_reembolso?: string;
   categoria_id?: number;
+  categoria?: string; // <-- agrega esto
 }
 
 const DetalleMaquinaria: React.FC = () => {
@@ -32,7 +33,20 @@ const DetalleMaquinaria: React.FC = () => {
       .then(res => res.json())
       .then(data => {
         const found = data.find((m: Maquinaria) => m.nombre === nombre);
-        setMaquinaria(found);
+        if (found) {
+          // Si la maquinaria tiene categoria_id, busca el nombre de la categoría
+          if (found.categoria_id) {
+            fetch('http://localhost:5000/categorias-activas')
+              .then(res => res.json())
+              .then(cats => {
+                const cat = cats.find((c: { id: number }) => c.id === found.categoria_id);
+                setMaquinaria({ ...found, categoria: cat ? cat.nombre : '-' });
+              })
+              .catch(() => setMaquinaria({ ...found, categoria: '-' }));
+          } else {
+            setMaquinaria({ ...found, categoria: '-' });
+          }
+        }
       });
 
     const storedRol = localStorage.getItem('usuarioRol');
@@ -113,133 +127,150 @@ const DetalleMaquinaria: React.FC = () => {
               </div>
               <div className="col-md-5 d-flex flex-column justify-content-between">
                 <div>
-                  <h2 className="fw-bold mb-3" style={{ fontSize: '1.8rem' }}>
+                  <h2 className="fw-bold mb-1" style={{ fontSize: '1.8rem' }}>
                     {maquinaria.nombre}
                     <span className="badge bg-secondary ms-2" style={{ fontSize: '1rem', verticalAlign: 'middle' }}>
                       {maquinaria.codigo}
                     </span>
                   </h2>
+                  <div className="text-muted mb-3" style={{ fontSize: '0.95rem' }}>
+                    {maquinaria.categoria && maquinaria.categoria.trim() !== '' ? maquinaria.categoria : '-'}
+                  </div>
                   <h3 className="text-success fw-bold mb-3" style={{ fontSize: '2rem' }}>
                     ${maquinaria.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                   </h3>
-                  <div className="mb-4">
-                    <h5 className="fw-bold mb-2">Descripción</h5>
-                    <p style={{ fontSize: '1.1rem' }}>{maquinaria.descripcion}</p>
-                  </div>
-                </div>
-                {rol !== 'administrador' && (
-                  <button
-                    className="btn btn-danger fw-bold"
-                    style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
-                    onClick={handleAlquilar}
-                  >
-                    Reservar
-                  </button>
-                )}
-                {rol === 'administrador' && (
-                  <button
-                    className="btn btn-warning fw-bold mt-3"
-                    style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
-                    onClick={openEditModal}
-                  >
-                    Editar Maquinaria
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {showEditModal && (
-        <div className="modal show d-block" tabIndex={-1} style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Editar Maquinaria</h5>
-                <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
-              </div>
-              <div className="modal-body">
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    setEditError('');
-                    if (!editNombre || !editDescripcion || !editPrecio || !editCategoriaId || !editPoliticas) {
-                      setEditError('Todos los campos son obligatorios.');
-                      return;
-                    }
-                    const formData = new FormData();
-                    formData.append('nombre', editNombre);
-                    formData.append('descripcion', editDescripcion);
-                    formData.append('precio', String(editPrecio));
-                    if (editFoto) formData.append('foto', editFoto);
-                    formData.append('categoria_id', editCategoriaId);
-                    formData.append('politicas_reembolso', editPoliticas);
-
-                    const response = await fetch(`http://localhost:5000/editar-maquinaria/${maquinaria.codigo}`, {
-                      method: 'PUT',
-                      body: formData,
-                    });
-                    const data = await response.json();
-                    if (response.ok) {
-                      setShowEditModal(false);
-                      // Si el nombre cambió, navega a la nueva URL
-                      if (data.maquinaria && data.maquinaria.nombre !== maquinaria.nombre) {
-                        navigate(`/detalle-maquinaria/${encodeURIComponent(data.maquinaria.nombre)}`);
-                        window.location.reload();
-                      } else {
-                        window.location.reload();
-                      }
-                    } else {
-                      setEditError(data.message || 'Hubo un problema al editar la maquinaria.');
-                    }
-                  }}
-                >
-                  <div className="mb-3">
-                    <label className="form-label">Nombre</label>
-                    <input className="form-control" value={editNombre} onChange={e => setEditNombre(e.target.value)} />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Descripción</label>
-                    <textarea className="form-control" value={editDescripcion} onChange={e => setEditDescripcion(e.target.value)} />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Precio</label>
-                    <input type="number" className="form-control" value={editPrecio} onChange={e => setEditPrecio(Number(e.target.value))} />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Foto (opcional)</label>
-                    <input type="file" className="form-control" onChange={e => setEditFoto(e.target.files?.[0] || null)} />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Categoría</label>
-                    <select
-                      className="form-select"
-                      value={editCategoriaId}
-                      onChange={e => setEditCategoriaId(e.target.value)}
+                  {rol !== 'administrador' && (
+                    <button
+                      className="btn btn-danger fw-bold mb-3"
+                      style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
+                      onClick={handleAlquilar}
                     >
-                      <option value="">Seleccionar categoría</option>
-                      {categorias.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.nombre}</option>
-                      ))}
-                    </select>
-                  </div>
+                      Reservar
+                    </button>
+                  )}
                   <div className="mb-3">
-                    <label className="form-label">Políticas de reembolso</label>
-                    <input
-                      className="form-control"
-                      value={editPoliticas}
-                      onChange={e => setEditPoliticas(e.target.value)}
-                      placeholder="Ej: Reembolso solo por fallas técnicas"
-                    />
+                    <span className="fw-bold">Política de reembolso: </span>
+                    <span>
+                      {maquinaria.politicas_reembolso && maquinaria.politicas_reembolso.trim() !== ''
+                        ? maquinaria.politicas_reembolso
+                        : '-'}
+                    </span>
                   </div>
-                  {editError && <div className="alert alert-danger">{editError}</div>}
-                  <button type="submit" className="btn btn-warning">Guardar Cambios</button>
-                </form>
+                  {rol === 'administrador' && (
+                    <button
+                      className="btn btn-warning fw-bold mb-3"
+                      style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
+                      onClick={openEditModal}
+                    >
+                      Editar Maquinaria
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      )}
+        {maquinaria.descripcion && (
+          <div className="row justify-content-center mt-4">
+            <div className="col-lg-10">
+              <div className="bg-white shadow-sm rounded p-4" style={{ minWidth: 0 }}>
+                <h5 className="fw-bold mb-2">Descripción</h5>
+                <p style={{ fontSize: '1.1rem' }}>{maquinaria.descripcion}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        {showEditModal && (
+          <div className="modal show d-block" tabIndex={-1} style={{ background: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Editar Maquinaria</h5>
+                  <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
+                </div>
+                <div className="modal-body">
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      setEditError('');
+                      if (!editNombre || !editDescripcion || !editPrecio || !editCategoriaId || !editPoliticas) {
+                        setEditError('Todos los campos son obligatorios.');
+                        return;
+                      }
+                      const formData = new FormData();
+                      formData.append('nombre', editNombre);
+                      formData.append('descripcion', editDescripcion);
+                      formData.append('precio', String(editPrecio));
+                      if (editFoto) formData.append('foto', editFoto);
+                      formData.append('categoria_id', editCategoriaId);
+                      formData.append('politicas_reembolso', editPoliticas);
+
+                      const response = await fetch(`http://localhost:5000/editar-maquinaria/${maquinaria.codigo}`, {
+                        method: 'PUT',
+                        body: formData,
+                      });
+                      const data = await response.json();
+                      if (response.ok) {
+                        setShowEditModal(false);
+                        // Si el nombre cambió, navega a la nueva URL
+                        if (data.maquinaria && data.maquinaria.nombre !== maquinaria.nombre) {
+                          navigate(`/detalle-maquinaria/${encodeURIComponent(data.maquinaria.nombre)}`);
+                          window.location.reload();
+                        } else {
+                          window.location.reload();
+                        }
+                      } else {
+                        setEditError(data.message || 'Hubo un problema al editar la maquinaria.');
+                      }
+                    }}
+                  >
+                    <div className="mb-3">
+                      <label className="form-label">Nombre</label>
+                      <input className="form-control" value={editNombre} onChange={e => setEditNombre(e.target.value)} />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Descripción</label>
+                      <textarea className="form-control" value={editDescripcion} onChange={e => setEditDescripcion(e.target.value)} />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Precio</label>
+                      <input type="number" className="form-control" value={editPrecio} onChange={e => setEditPrecio(Number(e.target.value))} />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Foto (opcional)</label>
+                      <input type="file" className="form-control" onChange={e => setEditFoto(e.target.files?.[0] || null)} />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Categoría</label>
+                      <select
+                        className="form-select"
+                        value={editCategoriaId}
+                        onChange={e => setEditCategoriaId(e.target.value)}
+                      >
+                        <option value="">Seleccionar categoría</option>
+                        {categorias.map(cat => (
+                          <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Políticas de reembolso</label>
+                      <input
+                        className="form-control"
+                        value={editPoliticas}
+                        onChange={e => setEditPoliticas(e.target.value)}
+                        placeholder="Ej: Reembolso solo por fallas técnicas"
+                      />
+                    </div>
+                    {editError && <div className="alert alert-danger">{editError}</div>}
+                    <button type="submit" className="btn btn-warning">Guardar Cambios</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </>
   );
 };
