@@ -85,7 +85,15 @@ const Navbar: React.FC = () => {
         <Logo isLargeScreen={isLargeScreen} />
 
         {/* Barra de búsqueda */}
-        <div className="position-relative me-3" style={{ minWidth: 250 }}>
+        <div
+          className={`position-relative me-3 ${!isLargeScreen ? 'mx-auto mt-2 mb-2' : ''}`}
+          style={{
+            minWidth: 250,
+            width: isLargeScreen ? 250 : '90%',
+            maxWidth: 400,
+            ...(isLargeScreen ? {} : { display: 'block' }),
+          }}
+        >
           <input
             type="text"
             className="form-control"
@@ -94,7 +102,7 @@ const Navbar: React.FC = () => {
             onChange={e => setBusqueda(e.target.value)}
             onFocus={() => busqueda && setShowResultados(true)}
             onBlur={() => setTimeout(() => setShowResultados(false), 200)}
-            style={{ width: 250 }}
+            style={{ width: '100%' }}
           />
           {showResultados && (
             <div
@@ -122,10 +130,10 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* Mobile */}
-        <div className="d-flex d-lg-none align-items-center gap-2" style={{ marginLeft: '42px' }}>
+        {/* Mobile: botón hamburguesa y usuario arriba a la derecha */}
+        <div className="d-lg-none position-absolute top-0 end-0 mt-2 me-2 d-flex align-items-center gap-2" style={{ zIndex: 1050 }}>
           <button
-            className="navbar-toggler border border"
+            className="navbar-toggler border"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#navbarNav"
