@@ -105,11 +105,11 @@ const DetalleMaquinaria: React.FC = () => {
         },
         body: JSON.stringify({
           nombre: maquinaria.nombre,
-          precio: maquinaria.precio,
+          precio: montoTotal, // <-- monto total
           codigo_maquinaria: maquinaria.codigo,
-          fecha_inicio: fechaInicio.toISOString().slice(0, 10), // formato YYYY-MM-DD
+          fecha_inicio: fechaInicio.toISOString().slice(0, 10),
           fecha_fin: fechaFin.toISOString().slice(0, 10),
-          usuario_email: usuarioEmail, // <-- agrega esto
+          usuario_email: usuarioEmail,
         }),
       });
 
@@ -136,6 +136,17 @@ const DetalleMaquinaria: React.FC = () => {
     setEditError('');
     setShowEditModal(true);
   };
+
+  const calcularDias = () => {
+    if (fechaInicio && fechaFin) {
+      // Suma 1 para incluir ambos extremos
+      return Math.ceil((fechaFin.getTime() - fechaInicio.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    }
+    return 0;
+  };
+
+  const diasSeleccionados = calcularDias();
+  const montoTotal = maquinaria ? (maquinaria.precio * diasSeleccionados) : 0;
 
   if (noEncontrada) {
     return (
@@ -209,7 +220,15 @@ const DetalleMaquinaria: React.FC = () => {
                         minDate={addDays(new Date(), 1)}
                         excludeDates={fechasReservadas} // <-- bloquea las fechas reservadas
                       />
-                    </div>
+                      {/* Monto total debajo del calendario en verde */}
+                        <div className="mt-2 text-start">
+                          <span className="fw-bold" style={{ color: "#198754", fontSize: "1.2rem" }}>
+                            {diasSeleccionados > 0
+                              ? `Monto total: $${montoTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
+                              : 'Seleccioná un rango de fechas'}
+                          </span>
+                        </div>
+                      </div>
                   )}
                   {rol !== 'administrador' && (
                     <button
