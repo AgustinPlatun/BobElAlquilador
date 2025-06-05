@@ -6,45 +6,73 @@ import { useNavigate } from 'react-router-dom';
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // <-- Agrega este estado
+  const [codigo, setCodigo] = useState('');
+  const [esperandoCodigo, setEsperandoCodigo] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); 
   const navigate = useNavigate();
+  const [codigoInvalido, setCodigoInvalido] = useState(false);
 
-  const handleLogin = async (event: React.FormEvent) => {
-    event.preventDefault();
-
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true); 
     try {
-      const response = await axios.post('http://localhost:5000/login', {
-        email,
-        password,
-      });
-
-      if (response.status === 200) {
-        // Guardar datos en localStorage
-        localStorage.setItem('usuarioNombre', response.data.nombre);
-        localStorage.setItem('usuarioRol', response.data.rol);
-        localStorage.setItem('usuarioEmail', email); // <-- ahora guarda también el email
-
-        // Redirigir al home o página deseada
-        navigate('/');
+      const response = await axios.post(
+        'http://localhost:5000/login',
+        { email, password },
+        { withCredentials: true }
+      );
+      if (response.data.require_code) {
+        setEsperandoCodigo(true);
+        setLoading(false); 
+        return;
       }
+      // Login normal
+      localStorage.setItem('usuarioNombre', response.data.nombre);
+      localStorage.setItem('usuarioRol', response.data.rol);
+      localStorage.setItem('usuarioEmail', response.data.email);
+      navigate('/');
     } catch (error: any) {
-      if (error.response) {
-        const status = error.response.status;
-        const message = error.response.data?.message;
+      setError(error.response?.data?.message || 'Error al iniciar sesión');
+    } finally {
+      setLoading(false); 
+    }
+  };
 
-        if (status === 403) {
-          setError(message || 'Tu cuenta aún no ha sido activada.');
-        } else if (status === 401) {
-          setError(message || 'Datos incorrectos');
-        } else {
-          setError('Error al iniciar sesión');
-        }
-      } else {
-        setError('No se pudo conectar al servidor');
-      }
+  const handleVerificarCodigo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setCodigoInvalido(false);
 
-      console.log(error);
+    if (!codigo) {
+      setCodigoInvalido(true);
+      setError('Por favor ingresá el código enviado por mail.');
+      return;
+    }
+
+    if (!/^\d{5}$/.test(codigo)) {
+      setCodigoInvalido(true);
+      setError('El código debe tener exactamente 5 dígitos numéricos.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/verificar-codigo',
+        { email, codigo },
+        { withCredentials: true }
+      );
+      localStorage.setItem('usuarioNombre', response.data.nombre);
+      localStorage.setItem('usuarioRol', response.data.rol);
+      localStorage.setItem('usuarioEmail', response.data.email);
+      navigate('/');
+    } catch (error: any) {
+      setError(error.response?.data?.message || 'Código incorrecto');
+      setCodigoInvalido(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,65 +81,72 @@ const Login: React.FC = () => {
       <Navbar />
       <div className="container d-flex justify-content-center align-items-center min-vh-100">
         <div className="login-page-container">
-          <div
-            className="card p-4 shadow"
-            style={{ maxWidth: '500px', width: '98%', border: '1px solid red'}}
-          >
+          <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '98%', border: '1px solid red'}}>
             <h2 className="text-center mb-4 text-danger">Iniciar Sesión</h2>
-            <form onSubmit={handleLogin}>
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  className="form-control"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="password" className="form-label">
-                  Contraseña
-                </label>
-                <div className="input-group">
+            {!esperandoCodigo ? (
+              <form onSubmit={handleLogin}>
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">Email:</label>
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type="email"
+                    id="email"
+                    className="form-control"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">Contraseña:</label>
+                  <input
+                    type="password"
                     id="password"
                     className="form-control"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={e => setPassword(e.target.value)}
                     required
                   />
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    tabIndex={-1}
-                    onClick={() => setShowPassword((prev) => !prev)}
-                  >
-                    {showPassword ? "🙈" : "👁️"}
-                  </button>
                 </div>
+                <button type="submit" className="btn btn-danger w-100" disabled={loading}>
+                  {loading ? "Enviando..." : "Ingresar"}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerificarCodigo}>
+                <div className="mb-3">
+                  <label htmlFor="codigo" className="form-label">Código de 5 dígitos:</label>
+                  <input
+                    type="text"
+                    id="codigo"
+                    className={`form-control ${codigoInvalido ? 'is-invalid' : ''}`}
+                    value={codigo}
+                    onChange={e => {
+                      setCodigo(e.target.value.replace(/\D/g, '').slice(0, 5));
+                      if (codigoInvalido) setCodigoInvalido(false);
+                      setError('');
+                    }}
+                    maxLength={5}
+                  />
+                  {codigoInvalido && (
+                    <div className="invalid-feedback text-center">
+                      {error}
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-danger w-100"
+                  disabled={loading}
+                >
+                  {loading ? "Verificando..." : "Verificar Código"}
+                </button>
+              </form>
+            )}
+            {error && !codigoInvalido && (
+              <div className="alert alert-danger text-center p-2" role="alert">
+                {error}
               </div>
-
-              {error && (
-                <div className="alert alert-danger text-center p-2" role="alert">
-                  {error}
-                </div>
-              )}
-
-              <button type="submit" className="btn btn-danger w-100">
-                Ingresar
-              </button>
-            </form>
-            <div className="text-center mt-3">
-              <a href="/solicitar-recuperacion" className="text-danger" style={{ cursor: 'pointer' }}>
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
+            )}
           </div>
         </div>
       </div>

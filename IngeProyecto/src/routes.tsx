@@ -69,7 +69,7 @@ const router = createBrowserRouter([
     element: <RegistrarCliente />
   },
   {
-    path: "/detalle-maquinaria/:nombre",
+    path: "/detalle-maquinaria/:codigo",
     element: <DetalleMaquinaria />
   },
   {

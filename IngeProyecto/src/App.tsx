@@ -32,11 +32,13 @@ const App: React.FC = () => {
           <div className="col-md-6 mb-4 mb-md-0 text-center">
             <video
               src="/video/Bob_el_Alquilador_-_New_York.mp4"
-              controls
               autoPlay
               loop
               muted
+              playsInline
               style={{ width: '320px', height: '400px', borderRadius: '12px', objectFit: 'cover' }}
+              tabIndex={-1} // Opcional: evita foco por teclado
+              onContextMenu={e => e.preventDefault()} // Opcional: evita menú derecho
             >
               Tu navegador no soporta el video.
             </video>

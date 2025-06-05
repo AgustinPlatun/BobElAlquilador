@@ -14,7 +14,7 @@ interface Maquinaria {
 }
 
 const DetalleMaquinaria: React.FC = () => {
-  const { nombre } = useParams();
+  const { codigo } = useParams();
   const [maquinaria, setMaquinaria] = useState<Maquinaria | null>(null);
   const [rol, setRol] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -26,13 +26,15 @@ const DetalleMaquinaria: React.FC = () => {
   const [editCategoriaId, setEditCategoriaId] = useState(maquinaria?.categoria_id ? String(maquinaria.categoria_id) : '');
   const [categorias, setCategorias] = useState<{ id: number; nombre: string }[]>([]);
   const [editError, setEditError] = useState('');
+  const [noEncontrada, setNoEncontrada] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    setNoEncontrada(false); // Reinicia al cambiar el código
     fetch('http://localhost:5000/maquinarias')
       .then(res => res.json())
       .then(data => {
-        const found = data.find((m: Maquinaria) => m.nombre === nombre);
+        const found = data.find((m: Maquinaria) => m.codigo === codigo);
         if (found) {
           // Si la maquinaria tiene categoria_id, busca el nombre de la categoría
           if (found.categoria_id) {
@@ -46,6 +48,9 @@ const DetalleMaquinaria: React.FC = () => {
           } else {
             setMaquinaria({ ...found, categoria: '-' });
           }
+          setNoEncontrada(false);
+        } else {
+          setNoEncontrada(true);
         }
       });
 
@@ -56,7 +61,7 @@ const DetalleMaquinaria: React.FC = () => {
       .then(res => res.json())
       .then(data => setCategorias(data))
       .catch(() => setCategorias([]));
-  }, [nombre]);
+  }, [codigo]);
 
   const handleAlquilar = async () => {
     const usuarioNombre = localStorage.getItem('usuarioNombre');
@@ -103,6 +108,14 @@ const DetalleMaquinaria: React.FC = () => {
     setEditError('');
     setShowEditModal(true);
   };
+
+  if (noEncontrada) {
+    return (
+      <div className="text-center py-5 text-danger">
+        No se encontró la maquinaria solicitada.
+      </div>
+    );
+  }
 
   if (!maquinaria) return <div className="text-center py-5">Cargando...</div>;
 
@@ -212,9 +225,9 @@ const DetalleMaquinaria: React.FC = () => {
                       const data = await response.json();
                       if (response.ok) {
                         setShowEditModal(false);
-                        // Si el nombre cambió, navega a la nueva URL
-                        if (data.maquinaria && data.maquinaria.nombre !== maquinaria.nombre) {
-                          navigate(`/detalle-maquinaria/${encodeURIComponent(data.maquinaria.nombre)}`);
+                        // Si el código cambió, navega a la nueva URL
+                        if (data.maquinaria && data.maquinaria.codigo !== maquinaria.codigo) {
+                          navigate(`/detalle-maquinaria/${encodeURIComponent(data.maquinaria.codigo)}`);
                           window.location.reload();
                         } else {
                           window.location.reload();

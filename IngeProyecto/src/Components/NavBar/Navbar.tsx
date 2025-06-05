@@ -117,14 +117,18 @@ const Navbar: React.FC = () => {
                   No se encontraron maquinarias
                 </div>
               )}
-              {!loading && resultados.map((m) => (
-                <a
-                  key={m.id}
-                  href={`/detalle-maquinaria/${encodeURIComponent(m.nombre)}`}
+              {!loading && resultados.map((m: any) => (
+                <button
+                  key={m.codigo}
                   className="list-group-item list-group-item-action"
+                  onClick={() => {
+                    setShowResultados(false);
+                    // Redirige usando el código único
+                    window.location.href = `/detalle-maquinaria/${encodeURIComponent(m.codigo)}`;
+                  }}
                 >
-                  {m.nombre}
-                </a>
+                  {m.nombre} <span className="text-muted">({m.codigo})</span>
+                </button>
               ))}
             </div>
           )}

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from database.models import Usuario
@@ -10,6 +10,7 @@ from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 import smtplib
 from email.mime.text import MIMEText
+from email.header import Header
 import random
 import string
 from werkzeug.security import check_password_hash
@@ -116,10 +117,38 @@ def login():
         if usuario.estado.lower() == "pendiente":
             return jsonify({"message": "Tu cuenta aún no ha sido activada."}), 403
 
+        if usuario.rol == "administrador":
+            codigo = str(random.randint(10000, 99999))
+            session[email] = codigo
+            msg = MIMEText(
+                f"""
+¡Hola!
+
+Nos comunicamos de <b>Bob el Alquilador</b>.<br><br>
+Para completar tu inicio de sesión como administrador, por favor ingresa el siguiente código de verificación en la aplicación:<br><br>
+<b style="font-size:1.5em;">{codigo}</b><br><br>
+
+""",
+                _subtype="html",
+                _charset="utf-8"
+            )
+            msg["Subject"] = "Código de acceso para administrador - BobElAlquilador"
+            msg["From"] = "quantumdevsunlp@gmail.com"
+            msg["To"] = email
+            try:
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                    server.login("quantumdevsunlp@gmail.com", "zuio rjmo duxk igbf")
+                    server.sendmail(msg["From"], [msg["To"]], msg.as_string())
+            except Exception as e:
+                print("Error enviando email:", e)
+            return jsonify({"require_code": True}), 200
+
+        # Si no es admin, login normal
         return jsonify({
             "message": "Inicio de sesión exitoso",
             "nombre": usuario.nombre,
-            "rol": usuario.rol
+            "rol": usuario.rol,
+            "email": usuario.email
         }), 200
 
     except Exception as e:
@@ -649,6 +678,37 @@ def datos_usuario(email):
 
     except Exception as e:
         return jsonify({"message": "Error al obtener datos del usuario", "error": str(e)}), 500
+
+@auth_bp.route("/verificar-codigo", methods=["POST"])
+def verificar_codigo():
+    data = request.json
+    email = data.get("email")
+    codigo = data.get("codigo")
+
+    # Validación: debe tener exactamente 5 dígitos numéricos
+    if not re.fullmatch(r"\d{5}", codigo or ""):
+        return jsonify({"message": "Código inválido. Debe tener exactamente 5 dígitos numéricos."}), 400
+
+    codigo_guardado = session.get(email)
+    if not codigo_guardado:
+        return jsonify({"message": "No se solicitó código para este usuario"}), 400
+
+    if codigo_guardado == codigo:
+        usuario = Usuario.query.filter_by(email=email).first()
+        if not usuario:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+
+        # Borrar el código una vez usado
+        session.pop(email, None)
+
+        return jsonify({
+            "message": "Inicio de sesión exitoso",
+            "nombre": usuario.nombre,
+            "rol": usuario.rol,
+            "email": usuario.email
+        }), 200
+    else:
+        return jsonify({"message": "Código incorrecto"}), 401
 
 
 
