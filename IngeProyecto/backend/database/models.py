@@ -28,3 +28,13 @@ class Categoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), unique=True, nullable=False)
     estado = db.Column(db.String(80), nullable=False, default='activa')
+
+class Reserva(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    fecha_inicio = db.Column(db.Date, nullable=False)
+    fecha_fin = db.Column(db.Date, nullable=False)
+    precio = db.Column(db.Float, nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    usuario = db.relationship('Usuario', backref='reservas')
+    maquinaria_id = db.Column(db.Integer, db.ForeignKey('maquinaria.id'), nullable=False)
+    maquinaria = db.relationship('Maquinaria', backref='reservas')

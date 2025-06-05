@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-from database.models import Maquinaria, Categoria
+from database.models import Maquinaria, Categoria, Reserva
 from database import db
 import os
+from datetime import timedelta
 
 maquinaria_bp = Blueprint("maquinaria", __name__)
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '../uploads/maquinarias_fotos')
@@ -179,3 +180,18 @@ def reactivar_maquinaria():
 
     except Exception as e:
         return jsonify({"message": "Hubo un problema al reactivar la maquinaria", "error": str(e)}), 500
+
+@maquinaria_bp.route("/fechas-reservadas/<codigo>", methods=["GET"])
+def fechas_reservadas(codigo):
+    maquinaria = Maquinaria.query.filter_by(codigo=codigo).first()
+    if not maquinaria:
+        return jsonify([])
+
+    reservas = Reserva.query.filter_by(maquinaria_id=maquinaria.id).all()
+    fechas = []
+    for reserva in reservas:
+        dia = reserva.fecha_inicio
+        while dia <= reserva.fecha_fin:
+            fechas.append(dia.strftime("%Y-%m-%d"))
+            dia += timedelta(days=1)
+    return jsonify(fechas)

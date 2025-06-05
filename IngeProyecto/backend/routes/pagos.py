@@ -1,5 +1,9 @@
 import mercadopago
 from flask import Blueprint, request, jsonify, current_app
+from database.models import Reserva, Usuario, Maquinaria, Reserva
+from database import db
+from datetime import datetime
+
 
 pagos_bp = Blueprint('pagos', __name__)
 
@@ -19,6 +23,10 @@ def crear_preferencia():
         nombre = data.get('nombre')
         precio = float(data.get('precio', 0))
         cantidad = int(data.get('cantidad', 1))
+        codigo_maquinaria = data.get('codigo_maquinaria')
+        fecha_inicio = data.get('fecha_inicio')
+        fecha_fin = data.get('fecha_fin')
+        usuario_email = data.get('usuario_email')
 
         preference_data = {
             "items": [
@@ -29,12 +37,19 @@ def crear_preferencia():
                     "unit_price": precio
                 }
             ],
+            "metadata": {
+                "codigo_maquinaria": codigo_maquinaria,
+                "fecha_inicio": fecha_inicio,
+                "fecha_fin": fecha_fin,
+                "usuario_email": usuario_email
+            },
             "back_urls": {
                 "success": "https://qcmnwmj3-5173.brs.devtunnels.ms/pago-exitoso",
                 "failure": "https://qcmnwmj3-5173.brs.devtunnels.ms/pago-fallido",
                 "pending": "https://qcmnwmj3-5173.brs.devtunnels.ms/pago-pendiente"
             },
-            "auto_return": "approved"
+            "auto_return": "approved",
+            "notification_url": "https://qcmnwmj3-5000.brs.devtunnels.ms/webhook"
         }
 
         preference_response = sdk.preference().create(preference_data)
@@ -52,34 +67,36 @@ def crear_preferencia():
     
 @pagos_bp.route('/webhook', methods=['POST'])
 def webhook():
-    try:
-        data = request.json
-        print("🔔 Webhook recibido:", data)
+    data = request.json
+    if data.get("type") == "payment":
+        payment_id = data["data"]["id"]
+        sdk = get_sdk()
+        payment = sdk.payment().get(payment_id)
+        payment_info = payment.get('response', {})
 
-        # Verificamos si es un evento de tipo 'payment'
-        if data.get("type") == "payment":
-            payment_id = data["data"]["id"]
+        print("Payment info:", payment_info)
 
-            sdk = get_sdk()
-            payment = sdk.payment().get(payment_id)
-            payment_info = payment.get('response', {})
+        if payment_info.get('status') == 'approved':
+            metadata = payment_info.get('metadata', {})
+            codigo_maquinaria = metadata.get('codigo_maquinaria')
+            fecha_inicio = metadata.get('fecha_inicio')
+            fecha_fin = metadata.get('fecha_fin')
+            usuario_email = metadata.get('usuario_email')
+            precio = payment_info.get('transaction_amount')
 
-            print("📄 Información del pago:")
-            print(f"ID: {payment_info.get('id')}")
-            print(f"Estado: {payment_info.get('status')}")
-            print(f"Método de pago: {payment_info.get('payment_method_id')}")
-            print(f"Monto: {payment_info.get('transaction_amount')} {payment_info.get('currency_id')}")
-            print(f"Nombre del comprador: {payment_info.get('payer', {}).get('first_name')} {payment_info.get('payer', {}).get('last_name')}")
-            print(f"Email del comprador: {payment_info.get('payer', {}).get('email')}")
-            print(f"Fecha de creación: {payment_info.get('date_created')}")
-            print(f"Fecha de aprobación: {payment_info.get('date_approved')}")
-        else:
-            print("📌 Evento no relacionado con 'payment'.")
+            usuario = Usuario.query.filter_by(email=usuario_email).first()
+            maquinaria = Maquinaria.query.filter_by(codigo=codigo_maquinaria).first()
 
-        return '', 200
-
-    except Exception as e:
-        print("❌ Error en el webhook:", str(e))
-        return '', 500
+            if usuario and maquinaria and fecha_inicio and fecha_fin:
+                reserva = Reserva(
+                    fecha_inicio=datetime.strptime(fecha_inicio, "%Y-%m-%d").date(),
+                    fecha_fin=datetime.strptime(fecha_fin, "%Y-%m-%d").date(),
+                    precio=precio,
+                    usuario_id=usuario.id,
+                    maquinaria_id=maquinaria.id
+                )
+                db.session.add(reserva)
+                db.session.commit()
+    return '', 200
 
 

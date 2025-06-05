@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import Navbar from '../Components/NavBar/Navbar';
+import { addDays } from 'date-fns';
 
 interface Maquinaria {
   nombre: string;
@@ -27,6 +30,9 @@ const DetalleMaquinaria: React.FC = () => {
   const [categorias, setCategorias] = useState<{ id: number; nombre: string }[]>([]);
   const [editError, setEditError] = useState('');
   const [noEncontrada, setNoEncontrada] = useState(false);
+  const [rangoFechas, setRangoFechas] = useState<[Date | null, Date | null]>([null, null]);
+  const [fechaInicio, fechaFin] = rangoFechas;
+  const [fechasReservadas, setFechasReservadas] = useState<Date[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,17 +67,35 @@ const DetalleMaquinaria: React.FC = () => {
       .then(res => res.json())
       .then(data => setCategorias(data))
       .catch(() => setCategorias([]));
+
+    if (codigo) {
+      fetch(`http://localhost:5000/fechas-reservadas/${codigo}`)
+        .then(res => res.json())
+        .then((fechas: string[]) => {
+          // Solución: fuerza la hora al mediodía para evitar desfase por zona horaria
+          setFechasReservadas(
+            fechas.map(f => {
+              // Si ya tiene hora, úsala, si no, agrégala
+              return new Date(f.length > 10 ? f : `${f}T12:00:00`);
+            })
+          );
+        });
+    }
   }, [codigo]);
 
   const handleAlquilar = async () => {
     const usuarioNombre = localStorage.getItem('usuarioNombre');
-    const rol = localStorage.getItem('usuarioRol');
+    const usuarioEmail = localStorage.getItem('usuarioEmail'); // <-- agrega esto
     if (!usuarioNombre) {
       alert('Debes iniciar sesión para alquilar.');
       navigate('/login');
       return;
     }
     if (!maquinaria) return;
+    if (!fechaInicio || !fechaFin) {
+      alert('Seleccioná un rango de fechas para reservar.');
+      return;
+    }
 
     try {
       const response = await fetch('http://localhost:5000/crear-preferencia', {
@@ -82,6 +106,10 @@ const DetalleMaquinaria: React.FC = () => {
         body: JSON.stringify({
           nombre: maquinaria.nombre,
           precio: maquinaria.precio,
+          codigo_maquinaria: maquinaria.codigo,
+          fecha_inicio: fechaInicio.toISOString().slice(0, 10), // formato YYYY-MM-DD
+          fecha_fin: fechaFin.toISOString().slice(0, 10),
+          usuario_email: usuarioEmail, // <-- agrega esto
         }),
       });
 
@@ -152,6 +180,37 @@ const DetalleMaquinaria: React.FC = () => {
                   <h3 className="text-success fw-bold mb-3" style={{ fontSize: '2rem' }}>
                     ${maquinaria.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                   </h3>
+                  {/* Calendario SIEMPRE visible debajo del precio */}
+                  {rol !== 'administrador' && (
+                    <div className="mb-3">
+                      <DatePicker
+                        selectsRange
+                        startDate={fechaInicio}
+                        endDate={fechaFin}
+                        onChange={(update) => {
+                          if (Array.isArray(update)) {
+                            const [start, end] = update;
+                            if (start && end) {
+                              const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+                              if (diff > 6) {
+                                const newEnd = new Date(start);
+                                newEnd.setDate(start.getDate() + 6);
+                                setRangoFechas([start, newEnd]);
+                                return;
+                              }
+                            }
+                          }
+                          setRangoFechas(update as [Date | null, Date | null]);
+                        }}
+                        inline
+                        monthsShown={1}
+                        dateFormat="yyyy/MM/dd"
+                        className="form-control"
+                        minDate={addDays(new Date(), 1)}
+                        excludeDates={fechasReservadas} // <-- bloquea las fechas reservadas
+                      />
+                    </div>
+                  )}
                   {rol !== 'administrador' && (
                     <button
                       className="btn btn-danger fw-bold mb-3"
