@@ -14,7 +14,7 @@ const Card: React.FC<CardProps> = ({ image, name, description, precio, codigo, c
   const navigate = useNavigate();
 
   const handleAlquilar = () => {
-    navigate(`/detalle-maquinaria/${encodeURIComponent(name)}`);
+    navigate(`/detalle-maquinaria/${encodeURIComponent(codigo)}`);
   };
 
   return (
