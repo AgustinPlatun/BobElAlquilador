@@ -113,34 +113,34 @@ const Login: React.FC = () => {
               </form>
             ) : (
               <form onSubmit={handleVerificarCodigo}>
-                <div className="mb-3">
-                  <label htmlFor="codigo" className="form-label">Código de 5 dígitos:</label>
-                  <input
-                    type="text"
-                    id="codigo"
-                    className={`form-control ${codigoInvalido ? 'is-invalid' : ''}`}
-                    value={codigo}
-                    onChange={e => {
-                      setCodigo(e.target.value.replace(/\D/g, '').slice(0, 5));
-                      if (codigoInvalido) setCodigoInvalido(false);
-                      setError('');
-                    }}
-                    maxLength={5}
-                  />
-                  {codigoInvalido && (
-                    <div className="invalid-feedback text-center">
-                      {error}
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="submit"
-                  className="btn btn-danger w-100"
-                  disabled={loading}
-                >
-                  {loading ? "Verificando..." : "Verificar Código"}
-                </button>
-              </form>
+              <div className="mb-3">
+                <label htmlFor="codigo" className="form-label">Código de 5 dígitos:</label>
+                <input
+                  type="text"
+                  id="codigo"
+                  className={`form-control ${codigoInvalido ? 'is-invalid' : ''}`}
+                  value={codigo}
+                  onChange={e => {
+                    setCodigo(e.target.value.replace(/\D/g, '').slice(0, 5));
+                    if (codigoInvalido) setCodigoInvalido(false);
+                    setError('');
+                  }}
+                  maxLength={5}
+                />
+                {codigoInvalido && (
+                  <div className="invalid-feedback text-center">
+                    {error}
+                  </div>
+                )}
+              </div>
+              <button
+                type="submit"
+                className="btn btn-danger w-100"
+                disabled={loading || codigo.length !== 5} // <= bloqueo botón si no hay 5 dígitos
+              >
+                {loading ? "Verificando..." : "Verificar Código"}
+              </button>
+            </form>
             )}
             {error && !codigoInvalido && (
               <div className="alert alert-danger text-center p-2" role="alert">
