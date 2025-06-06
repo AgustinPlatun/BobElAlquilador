@@ -1,5 +1,5 @@
 import React from 'react';
-import EditMaquinariaModal from './editMaquinariaModal.tsx';
+import EditMaquinariaModal from './detalleMaquinariaModal.tsx';
 import MaquinariaInfo from './maquinariaInfo';
 import MaquinariaCalendario from './maquinariaCalendario';
 import { useDetalleMaquinariaContent } from './maquinariaFetch.tsx';
