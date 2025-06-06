@@ -10,7 +10,7 @@ import BajaMaquinaria from './pages/bajaMaquinaria';
 import RegistrarEmpleado from './pages/registrarEmpleado';
 import UsuariosPendientes from './pages/verificarCuentas';
 import RegistrarCliente from './pages/registrarClientePorEmpleado';
-import DetalleMaquinaria from './pages/detalleMaquinaria';
+import DetalleMaquinaria from './pages/detalleMauinaria/detalleMaquinaria';
 import BajaCuenta from './pages/bajaCuenta';
 import PagoExitoso from './pages/pagos/pagoExitoso';
 import PagoFallido from './pages/pagos/pagoFallido';
