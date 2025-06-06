@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import EditMaquinariaModal from './detalleMaquinariaModal.tsx';
 import MaquinariaInfo from './maquinariaInfo';
 import MaquinariaCalendario from './maquinariaCalendario';
@@ -13,6 +13,15 @@ const DetalleMaquinariaContent: React.FC = () => {
     categorias, editError, setEditError, noEncontrada,
     rangoFechas, setRangoFechas, fechasReservadas, navigate
   } = useDetalleMaquinariaContent();
+
+  const [showMPError, setShowMPError] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showFechaModal, setShowFechaModal] = useState(false);
+
+  // Nuevo estado para checkbox y dirección
+  const [envio, setEnvio] = useState(false);
+  const [direccion, setDireccion] = useState('');
+  const [showDireccionError, setShowDireccionError] = useState(false);
 
   const [fechaInicio, fechaFin] = rangoFechas;
 
@@ -30,13 +39,16 @@ const DetalleMaquinariaContent: React.FC = () => {
     const usuarioNombre = localStorage.getItem('usuarioNombre');
     const usuarioEmail = localStorage.getItem('usuarioEmail');
     if (!usuarioNombre) {
-      alert('Debes iniciar sesión para alquilar.');
-      navigate('/login');
+      setShowLoginModal(true);
       return;
     }
     if (!maquinaria) return;
     if (!fechaInicio || !fechaFin) {
-      alert('Seleccioná un rango de fechas para reservar.');
+      setShowFechaModal(true);
+      return;
+    }
+    if (envio && direccion.trim() === '') {
+      setShowDireccionError(true);
       return;
     }
 
@@ -53,6 +65,8 @@ const DetalleMaquinariaContent: React.FC = () => {
           fecha_inicio: fechaInicio.toISOString().slice(0, 10),
           fecha_fin: fechaFin.toISOString().slice(0, 10),
           usuario_email: usuarioEmail,
+          envio: envio,
+          direccion: envio ? direccion : null,
         }),
       });
 
@@ -60,11 +74,11 @@ const DetalleMaquinariaContent: React.FC = () => {
       if (data.init_point) {
         window.location.href = data.init_point;
       } else {
-        alert('No se pudo iniciar el proceso de pago.');
+        setShowMPError(true); // Mostrar modal de error
       }
     } catch (error) {
       console.error('Error al crear la preferencia:', error);
-      alert('Hubo un error al procesar el pago.');
+      setShowMPError(true);
     }
   };
 
@@ -129,7 +143,46 @@ const DetalleMaquinariaContent: React.FC = () => {
                 montoTotal={montoTotal}
                 handleAlquilar={handleAlquilar}
               />
-              {/* Política de reembolso debajo del botón de reserva */}
+              {/* Checkbox de envío debajo del botón de reservar */}
+              <div>
+                <div className="form-check mb-3 mt-2">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="envioCheckbox"
+                    checked={envio}
+                    onChange={e => {
+                      setEnvio(e.target.checked);
+                      if (!e.target.checked) setDireccion('');
+                      setShowDireccionError(false);
+                    }}
+                  />
+                  <label className="form-check-label" htmlFor="envioCheckbox">
+                    Envío
+                  </label>
+                </div>
+                {/* Campo de dirección si envío está activado */}
+                {envio && (
+                  <div className="mb-4">
+                    <label htmlFor="direccionEnvio" className="form-label">Dirección de envío:</label>
+                    <input
+                      type="text"
+                      id="direccionEnvio"
+                      className="form-control"
+                      value={direccion}
+                      onChange={e => {
+                        setDireccion(e.target.value);
+                        setShowDireccionError(false);
+                      }}
+                      placeholder="Ingresá la dirección"
+                    />
+                    {showDireccionError && (
+                      <div className="text-danger mt-1">Debes ingresar una dirección para el envío.</div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {/* Política de reembolso debajo del checkbox */}
               <div style={{ marginTop: 0 }}>
                 <span className="fw-bold">Política de reembolso: </span>
                 <span>
@@ -182,6 +235,95 @@ const DetalleMaquinariaContent: React.FC = () => {
         navigate={navigate}
         setShowEditModal={setShowEditModal}
       />
+
+      {/* Modal: Debes iniciar sesión */}
+      {showLoginModal && (
+        <div
+          className="modal fade show"
+          style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}
+          tabIndex={-1}
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title text-danger">Atención</h5>
+              </div>
+              <div className="modal-body">
+                <p>Debes iniciar sesión para alquilar.</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    setShowLoginModal(false);
+                    navigate('/login');
+                  }}
+                >
+                  Aceptar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal: Seleccioná un rango de fechas */}
+      {showFechaModal && (
+        <div
+          className="modal fade show"
+          style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}
+          tabIndex={-1}
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title text-danger">Atención</h5>
+              </div>
+              <div className="modal-body">
+                <p>Seleccioná un rango de fechas para reservar.</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setShowFechaModal(false)}
+                >
+                  Aceptar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de error de MercadoPago */}
+      {showMPError && (
+        <div
+          className="modal fade show"
+          style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}
+          tabIndex={-1}
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title text-danger">Error</h5>
+              </div>
+              <div className="modal-body">
+                <p>No se pudo conectar con el servidor de MercadoPago.</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setShowMPError(false)}
+                >
+                  Aceptar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

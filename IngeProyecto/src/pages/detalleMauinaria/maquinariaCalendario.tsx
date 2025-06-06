@@ -53,7 +53,7 @@ const MaquinariaCalendario: React.FC<Props> = ({
           </span>
         </div>
         <button
-          className="btn btn-danger fw-bold mb-3"
+          className="btn btn-danger fw-bold"
           style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
           onClick={handleAlquilar}
         >
