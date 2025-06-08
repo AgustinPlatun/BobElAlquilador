@@ -4,12 +4,12 @@ from database.models import Usuario
 from werkzeug.security import generate_password_hash
 
 with app.app_context():
-    if not Usuario.query.filter_by(email="pepardo@gmail.com").first():
+    if not Usuario.query.filter_by(email="agusplatun@hotmail.com").first():
         admin = Usuario(
-            nombre="pepardo",
-            apellido="Principal",
-            email="pepardo@gmail.com",
-            password=generate_password_hash("Pepardo123"),
+            nombre="Agustin",
+            apellido="Platun",
+            email="agusplatun@hotmail.com",
+            password=generate_password_hash("Agus123"),
             rol="administrador",
             estado="activa",  
             fecha_nacimiento="2000-01-01",
@@ -23,19 +23,6 @@ with app.app_context():
         print("Ya existe un usuario con ese email.")
 
 
-with app.app_context():
-    usuario = Usuario.query.filter_by(email="cuentadeusoextra@gmail.com").first()
-    if usuario:
-        usuario.nombre = "cuenta"
-        usuario.apellido = "Principal"
-        usuario.password = generate_password_hash("Cuenta123")
-        usuario.rol = "administrador"
-        usuario.estado = "activa"
-        usuario.fecha_nacimiento = "2000-01-01"
-        usuario.dni_foto = " "
-        usuario.dni_numero = "12365578"
-        db.session.commit()
-        print("Usuario modificado a administrador correctamente.")
 
 
 

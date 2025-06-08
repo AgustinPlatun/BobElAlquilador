@@ -7,7 +7,6 @@ from datetime import datetime
 
 pagos_bp = Blueprint('pagos', __name__)
 
-# Inicializar SDK usando el token de config
 def get_sdk():
     token = current_app.config.get("MERCADOPAGO_ACCESS_TOKEN")
     if not token:
@@ -44,12 +43,12 @@ def crear_preferencia():
                 "usuario_email": usuario_email
             },
             "back_urls": {
-                "success": "https://qcmnwmj3-5173.brs.devtunnels.ms/pago-exitoso",
-                "failure": "https://qcmnwmj3-5173.brs.devtunnels.ms/pago-fallido",
-                "pending": "https://qcmnwmj3-5173.brs.devtunnels.ms/pago-pendiente"
+                "success": "https://kw6qqwz8-5173.brs.devtunnels.ms/pago-exitoso",
+                "failure": "https://kw6qqwz8-5173.brs.devtunnels.ms/pago-fallido",
+                "pending": "https://kw6qqwz8-5173.brs.devtunnels.ms/pago-pendiente"
             },
             "auto_return": "approved",
-            "notification_url": "https://qcmnwmj3-5000.brs.devtunnels.ms/webhook"
+            "notification_url": "https://kw6qqwz8-5000.brs.devtunnels.ms/webhook"
         }
 
         preference_response = sdk.preference().create(preference_data)

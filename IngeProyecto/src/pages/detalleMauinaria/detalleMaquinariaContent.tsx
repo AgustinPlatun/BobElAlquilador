@@ -17,6 +17,7 @@ const DetalleMaquinariaContent: React.FC = () => {
   const [showMPError, setShowMPError] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showFechaModal, setShowFechaModal] = useState(false);
+  const [showMinDiasError, setShowMinDiasError] = useState(false);
 
   // Nuevo estado para checkbox y dirección
   const [envio, setEnvio] = useState(false);
@@ -49,6 +50,10 @@ const DetalleMaquinariaContent: React.FC = () => {
     }
     if (envio && direccion.trim() === '') {
       setShowDireccionError(true);
+      return;
+    }
+    if (diasSeleccionados < 7) {
+      setShowMinDiasError(true);
       return;
     }
 
@@ -316,6 +321,35 @@ const DetalleMaquinariaContent: React.FC = () => {
                 <button
                   className="btn btn-primary"
                   onClick={() => setShowMPError(false)}
+                >
+                  Aceptar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Mínimo 7 días de reserva */}
+      {showMinDiasError && (
+        <div
+          className="modal fade show"
+          style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}
+          tabIndex={-1}
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title text-danger">Atención</h5>
+              </div>
+              <div className="modal-body">
+                <p>La reserva debe ser de al menos 7 días.</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setShowMinDiasError(false)}
                 >
                   Aceptar
                 </button>
