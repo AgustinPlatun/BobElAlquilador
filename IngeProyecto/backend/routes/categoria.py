@@ -31,16 +31,8 @@ def crear_categoria():
 def baja_categoria():
     data = request.get_json()
     nombre = data.get('nombre')
-    if not nombre:
-        return jsonify({'error': 'El nombre es obligatorio.'}), 400
 
     categoria = Categoria.query.filter_by(nombre=nombre).first()
-    if not categoria:
-        return jsonify({'error': 'La categoría no existe.'}), 404
-
-    if categoria.estado == 'desactivada':
-        return jsonify({'error': 'La categoría ya está desactivada.'}), 400
-
     categoria.estado = 'desactivada'
     db.session.commit()
     return jsonify({'message': 'Categoría dada de baja correctamente.'}), 200

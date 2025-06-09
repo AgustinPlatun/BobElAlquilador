@@ -67,3 +67,12 @@ def activar_usuario(usuario_id):
         print("Error enviando email de activación:", e)
 
     return jsonify({"message": "Usuario activado y notificado por email."}), 200
+
+@clientes_bp.route("/clientes-activos", methods=["GET"])
+def clientes_activos():
+    clientes = Usuario.query.filter_by(rol="cliente", estado="activa").all()
+    resultado = [
+        {"id": c.id, "email": c.email, "nombre": c.nombre, "apellido": c.apellido}
+        for c in clientes
+    ]
+    return jsonify(resultado), 200

@@ -10,8 +10,8 @@ import BajaMaquinaria from './pages/bajaMaquinaria';
 import RegistrarEmpleado from './pages/registrarEmpleado';
 import UsuariosPendientes from './pages/verificarCuentas';
 import RegistrarCliente from './pages/registrarClientePorEmpleado';
-import DetalleMaquinaria from './pages/detalleMauinaria/detalleMaquinaria';
-import BajaCuenta from './pages/bajaCuenta';
+import DetalleMaquinaria from './pages/detalleMaquinaria/detalleMaquinaria';
+import BajaEmpleado from './pages/bajaEmpleado';
 import PagoExitoso from './pages/pagos/pagoExitoso';
 import PagoFallido from './pages/pagos/pagoFallido';
 import PagoPendiente from './pages/pagos/pagoPendiente';
@@ -74,7 +74,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/desactivar-cuenta",
-    element: <BajaCuenta />
+    element: <BajaEmpleado />
   },
   {
     path: "/pago-exitoso",

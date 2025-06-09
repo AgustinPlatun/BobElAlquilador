@@ -1,11 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../Components/NavBar/Navbar';
 
 const AltaEmpleado: React.FC = () => {
+  const [clientes, setClientes] = useState<any[]>([]);
   const [email, setEmail] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
   const rol = localStorage.getItem('usuarioRol');
+
+  useEffect(() => {
+    const fetchClientes = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/clientes-activos');
+        const data = await res.json();
+        setClientes(data);
+      } catch {
+        setError('Error al obtener los clientes.');
+      }
+    };
+    fetchClientes();
+  }, []);
 
   if (rol !== 'administrador') {
     return (
@@ -24,7 +38,7 @@ const AltaEmpleado: React.FC = () => {
     setMensaje('');
     setError('');
     if (!email) {
-      setError('Por favor, ingrese el email del usuario.');
+      setError('Por favor, seleccione un usuario.');
       return;
     }
     try {
@@ -37,6 +51,7 @@ const AltaEmpleado: React.FC = () => {
       if (response.ok) {
         setMensaje(resData.message || 'Usuario promovido a empleado correctamente.');
         setEmail('');
+        setClientes(clientes.filter((c) => c.email !== email));
       } else {
         setError(resData.message || 'No se pudo dar de alta el empleado.');
       }
@@ -50,17 +65,22 @@ const AltaEmpleado: React.FC = () => {
       <Navbar />
       <div className="baja-cuenta-page d-flex justify-content-center align-items-center" style={{ width: '100vw', height: '100vh' }}>
         <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '90%', border: '1px solid green' }}>
-          <h2 className="text-center mb-4">Alta de empleado</h2>
+          <h2 className="text-center mb-4">Promover a empleado</h2>
           <div className="mb-3">
-            <input
-              type="email"
+            <select
               className="form-control"
-              placeholder="Email del usuario"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-            />
+            >
+              <option value="">Seleccioná un cliente activo</option>
+              {clientes.map((c) => (
+                <option key={c.email} value={c.email}>
+                  {c.email}
+                </option>
+              ))}
+            </select>
           </div>
-          <button className="btn btn-success w-100 mb-3" onClick={handleAltaEmpleado}>
+          <button className="btn btn-success w-100 mb-3" onClick={handleAltaEmpleado} disabled={!email}>
             Promover empleado
           </button>
           {mensaje && (

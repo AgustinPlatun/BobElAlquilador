@@ -96,12 +96,7 @@ def baja_maquinaria():
     try:
         data = request.json
         codigo = data.get("codigo")
-        if not codigo:
-            return jsonify({"message": "El código de la maquinaria es obligatorio"}), 400
-
         maquinaria = Maquinaria.query.filter_by(codigo=codigo).first()
-        if not maquinaria:
-            return jsonify({"message": "La maquinaria no existe"}), 404
 
         maquinaria.estado = False  # Baja lógica
         db.session.commit()

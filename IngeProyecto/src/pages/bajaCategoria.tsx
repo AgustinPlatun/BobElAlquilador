@@ -1,11 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../Components/NavBar/Navbar';
 
 const BajaCategoria: React.FC = () => {
-  const [nombre, setNombre] = useState('');
+  const [categorias, setCategorias] = useState<any[]>([]);
+  const [categoriaId, setCategoriaId] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
   const rol = localStorage.getItem('usuarioRol');
+
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/categorias-activas');
+        const data = await res.json();
+        setCategorias(data);
+      } catch {
+        setError('Error al obtener las categorías.');
+      }
+    };
+    fetchCategorias();
+  }, []);
 
   if (rol !== 'administrador') {
     return (
@@ -23,20 +37,22 @@ const BajaCategoria: React.FC = () => {
   const handleBajaCategoria = async () => {
     setMensaje('');
     setError('');
-    if (!nombre.trim()) {
-      setError('Por favor, ingrese el nombre de la categoría.');
+    if (!categoriaId) {
+      setError('Por favor, seleccione una categoría.');
       return;
     }
+    const categoria = categorias.find((c) => c.id === parseInt(categoriaId));
     try {
       const response = await fetch('http://localhost:5000/categoria/baja', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: nombre.trim() }),
+        body: JSON.stringify({ nombre: categoria.nombre }),
       });
       const resData = await response.json();
       if (response.ok) {
         setMensaje(resData.message || 'Categoría dada de baja correctamente.');
-        setNombre('');
+        setCategorias(categorias.filter((c) => c.id !== categoria.id));
+        setCategoriaId('');
       } else {
         setError(resData.error || 'No se pudo dar de baja la categoría.');
       }
@@ -52,15 +68,20 @@ const BajaCategoria: React.FC = () => {
         <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '90%', border: '1px solid orange' }}>
           <h2 className="text-center mb-4">Baja de categoría</h2>
           <div className="mb-3">
-            <input
-              type="text"
+            <select
               className="form-control"
-              placeholder="Nombre de la categoría"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-            />
+              value={categoriaId}
+              onChange={(e) => setCategoriaId(e.target.value)}
+            >
+              <option value="">Seleccioná una categoría</option>
+              {categorias.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
+            </select>
           </div>
-          <button className="btn btn-warning w-100 mb-3" onClick={handleBajaCategoria}>
+          <button className="btn btn-warning w-100 mb-3" onClick={handleBajaCategoria} disabled={!categoriaId}>
             Dar de baja categoría
           </button>
           {mensaje && (

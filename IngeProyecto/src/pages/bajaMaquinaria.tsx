@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../Components/NavBar/Navbar';
 
 const BajaMaquinaria: React.FC = () => {
+  const [maquinarias, setMaquinarias] = useState<any[]>([]);
   const [codigo, setCodigo] = useState('');
-  const [nombre, setNombre] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -23,20 +23,27 @@ const BajaMaquinaria: React.FC = () => {
     );
   }
 
-  // Buscar maquinaria por código
-  const buscarMaquinaria = async () => {
+  // Obtener todas las maquinarias activas al montar
+  useEffect(() => {
+    const fetchMaquinarias = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/maquinarias');
+        const data = await res.json();
+        setMaquinarias(data);
+      } catch {
+        setError('Error al obtener las maquinarias.');
+      }
+    };
+    fetchMaquinarias();
+  }, []);
+
+  // Cuando selecciona una maquinaria, guarda su código y nombre
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCodigo = e.target.value;
+    setCodigo(selectedCodigo);
+    const maq = maquinarias.find((m) => m.codigo === selectedCodigo);
+    setMensaje('');
     setError('');
-    setNombre('');
-    if (!codigo) return;
-    try {
-      const res = await fetch('http://localhost:5000/maquinarias');
-      const data = await res.json();
-      const maquinaria = data.find((m: any) => m.codigo === codigo);
-      if (maquinaria) setNombre(maquinaria.nombre);
-      else setError('No se encontró maquinaria con ese código.');
-    } catch {
-      setError('Error al buscar maquinaria.');
-    }
   };
 
   // Dar de baja
@@ -52,7 +59,7 @@ const BajaMaquinaria: React.FC = () => {
       if (response.ok) {
         setMensaje('Maquinaria dada de baja correctamente.');
         setCodigo('');
-        setNombre('');
+        setMaquinarias(maquinarias.filter((m) => m.codigo !== codigo));
       } else {
         const data = await response.json();
         setError(data.message || 'No se pudo dar de baja la maquinaria.');
@@ -70,24 +77,23 @@ const BajaMaquinaria: React.FC = () => {
         <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '90%', border: '1px solid red' }}>
           <h2 className="text-center mb-4">Baja de Maquinaria</h2>
           <div className="mb-3">
-            <input
-              type="text"
+            <select
               className="form-control"
-              placeholder="Código de la maquinaria"
               value={codigo}
-              onChange={(e) => setCodigo(e.target.value)}
-              onBlur={buscarMaquinaria}
-            />
+              onChange={handleSelect}
+            >
+              <option value="">Seleccioná una maquinaria</option>
+              {maquinarias.map((m) => (
+                <option key={m.codigo} value={m.codigo}>
+                  {m.nombre} ({m.codigo})
+                </option>
+              ))}
+            </select>
           </div>
-          {nombre && (
-            <div className="mb-3">
-              <strong>Nombre:</strong> {nombre}
-            </div>
-          )}
           <button
             className="btn btn-danger w-100 mb-3"
             onClick={() => setShowConfirmModal(true)}
-            disabled={!nombre}
+            disabled={!codigo}
           >
             Dar de baja
           </button>
@@ -115,7 +121,7 @@ const BajaMaquinaria: React.FC = () => {
               </div>
               <div className="modal-body">
                 <p>
-                  ¿Está seguro de que desea dar de baja la maquinaria <strong>{nombre}</strong>?
+                  ¿Está seguro de que desea dar de baja la maquinaria <strong>{codigo}</strong>?
                 </p>
               </div>
               <div className="modal-footer">

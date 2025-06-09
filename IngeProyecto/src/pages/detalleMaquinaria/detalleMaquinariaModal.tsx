@@ -43,7 +43,14 @@ const EditMaquinariaModal: React.FC<Props> = ({
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Editar Maquinaria</h5>
+            <h5 className="modal-title">
+              Editar Maquinaria
+              {maquinaria && maquinaria.codigo && (
+                <span className="ms-2 text-secondary" style={{ fontSize: '1rem' }}>
+                  ({maquinaria.codigo})
+                </span>
+              )}
+            </h5>
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
           <div className="modal-body">

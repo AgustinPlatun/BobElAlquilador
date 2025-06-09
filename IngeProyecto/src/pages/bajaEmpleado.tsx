@@ -1,14 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../Components/NavBar/Navbar';
 
-const BajaCuenta: React.FC = () => {
+const BajaEmpleado: React.FC = () => {
+  const [empleados, setEmpleados] = useState<any[]>([]);
   const [email, setEmail] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
-  const [confirmar, setConfirmar] = useState(false);
-  const [nombreEmpleado, setNombreEmpleado] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [nombreEmpleado, setNombreEmpleado] = useState('');
   const rol = localStorage.getItem('usuarioRol');
+
+  useEffect(() => {
+    const fetchEmpleados = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/empleados-activos');
+        const data = await res.json();
+        setEmpleados(data);
+      } catch {
+        setError('Error al obtener los empleados.');
+      }
+    };
+    fetchEmpleados();
+  }, []);
 
   if (rol !== 'administrador') {
     return (
@@ -23,35 +36,23 @@ const BajaCuenta: React.FC = () => {
     );
   }
 
-  // Paso 1: Buscar si existe el empleado antes de confirmar
-  const buscarEmpleado = async () => {
+  const handleBuscarEmpleado = () => {
     setMensaje('');
     setError('');
-    setConfirmar(false);
     setNombreEmpleado('');
     if (!email) {
-      setError('Por favor, ingrese el email del empleado.');
+      setError('Por favor, seleccione un empleado.');
       return;
     }
-    try {
-      const res = await fetch(`http://localhost:5000/usuario?email=${encodeURIComponent(email)}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.rol !== 'empleado') {
-          setError('El usuario encontrado no es un empleado.');
-          return;
-        }
-        setNombreEmpleado(`${data.nombre} ${data.apellido}`);
-        setShowModal(true); // Mostrar modal
-      } else {
-        setError('No existe un empleado con ese email.');
-      }
-    } catch {
-      setError('Error al buscar el empleado.');
+    const empleado = empleados.find((e) => e.email === email);
+    if (empleado) {
+      setNombreEmpleado(`${empleado.nombre} ${empleado.apellido}`);
+      setShowModal(true);
+    } else {
+      setError('No existe un empleado con ese email.');
     }
   };
 
-  // Paso 2: Confirmar y dar de baja
   const handleBajaEmpleado = async () => {
     setMensaje('');
     setError('');
@@ -66,9 +67,9 @@ const BajaCuenta: React.FC = () => {
       if (response.ok) {
         setMensaje(resData.message || 'Empleado dado de baja correctamente.');
         setEmail('');
-        setConfirmar(false);
         setNombreEmpleado('');
         setShowModal(false);
+        setEmpleados(empleados.filter((e) => e.email !== email));
       } else {
         setError(resData.message || 'No se pudo dar de baja el empleado.');
       }
@@ -82,18 +83,23 @@ const BajaCuenta: React.FC = () => {
       <Navbar />
       <div className="baja-cuenta-page d-flex justify-content-center align-items-center" style={{ width: '100vw', height: '100vh' }}>
         <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '90%', border: '1px solid red' }}>
-          <h2 className="text-center mb-4">Baja de empleado</h2>
+          <h2 className="text-center mb-4">Degradar empleado a cliente</h2>
           <div className="mb-3">
-            <input
-              type="email"
+            <select
               className="form-control"
-              placeholder="Email del empleado"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={showModal}
-            />
+            >
+              <option value="">Seleccioná un empleado activo</option>
+              {empleados.map((e) => (
+                <option key={e.email} value={e.email}>
+                  {e.email}
+                </option>
+              ))}
+            </select>
           </div>
-          <button className="btn btn-danger w-100 mb-3" onClick={buscarEmpleado} disabled={showModal}>
+          <button className="btn btn-danger w-100 mb-3" onClick={handleBuscarEmpleado} disabled={showModal || !email}>
             Degradar empleado
           </button>
           {mensaje && (
@@ -138,4 +144,4 @@ const BajaCuenta: React.FC = () => {
   );
 };
 
-export default BajaCuenta;
+export default BajaEmpleado;

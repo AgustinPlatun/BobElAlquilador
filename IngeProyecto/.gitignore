@@ -18,7 +18,6 @@ venv/
 BaseDeDatos.db
 
 # Uploads y archivos generados por la app
-backend/uploads/
 !backend/uploads/.gitkeep
 
 # Editor config
