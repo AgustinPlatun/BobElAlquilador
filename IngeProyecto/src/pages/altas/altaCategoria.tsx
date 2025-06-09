@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Navbar from '../Components/NavBar/Navbar';
+import Navbar from '../../Components/NavBar/Navbar';
 
 const AltaCategoria: React.FC = () => {
   const [nombre, setNombre] = useState('');

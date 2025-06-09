@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../Components/NavBar/Navbar';
+import Navbar from '../../Components/NavBar/Navbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AltaMaquinaria: React.FC = () => {

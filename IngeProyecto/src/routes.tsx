@@ -4,23 +4,23 @@ import Servicios from './pages/Servicios';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MiCuenta from './pages/myAccount';
-import AltaMaquinaria from './pages/altaMaquinaria';
+import AltaMaquinaria from './pages/altas/altaMaquinaria';
 import Contacto from './pages/contacto';
-import BajaMaquinaria from './pages/bajaMaquinaria';
+import BajaMaquinaria from './pages/bajas/bajaMaquinaria';
 import RegistrarEmpleado from './pages/registrarEmpleado';
 import UsuariosPendientes from './pages/verificarCuentas';
 import RegistrarCliente from './pages/registrarClientePorEmpleado';
 import DetalleMaquinaria from './pages/detalleMaquinaria/detalleMaquinaria';
-import BajaEmpleado from './pages/bajaEmpleado';
+import BajaEmpleado from './pages/bajas/bajaEmpleado';
 import PagoExitoso from './pages/pagos/pagoExitoso';
 import PagoFallido from './pages/pagos/pagoFallido';
 import PagoPendiente from './pages/pagos/pagoPendiente';
-import AltaEmpleado from './pages/altaEmpleado';
+import AltaEmpleado from './pages/altas/altaEmpleado';
 import SolicitarRecuperacion from './pages/SolicitarRecuperacion';
 import RecuperarPassword from './pages/RecuperarPassword';
 import NotFound from './pages/NotFound';
-import AltaCategoria from './pages/altaCategoria';
-import BajaCategoria from './pages/bajaCategoria';
+import AltaCategoria from './pages/altas/altaCategoria';
+import BajaCategoria from './pages/bajas/bajaCategoria';
 
 const router = createBrowserRouter([
   {
