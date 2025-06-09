@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Navbar from '../Components/NavBar/Navbar';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -107,6 +107,15 @@ const Login: React.FC = () => {
                     required
                   />
                 </div>
+                {/* Link para recuperar contraseña arriba del botón */}
+                <div className="text-center mb-3">
+                  <Link
+                    to="/solicitar-recuperacion"
+                    style={{ color: "#0d6efd", textDecoration: "underline", fontWeight: 500 }}
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
                 <button type="submit" className="btn btn-danger w-100" disabled={loading}>
                   {loading ? "Enviando..." : "Ingresar"}
                 </button>
@@ -136,7 +145,7 @@ const Login: React.FC = () => {
               <button
                 type="submit"
                 className="btn btn-danger w-100"
-                disabled={loading || codigo.length !== 5} // <= bloqueo botón si no hay 5 dígitos
+                disabled={loading || codigo.length !== 5}
               >
                 {loading ? "Verificando..." : "Verificar Código"}
               </button>
