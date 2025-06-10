@@ -20,41 +20,60 @@ const App: React.FC = () => {
   }, [location.search]);
 
   return (
-    <div>
+    <div style={{ background: "#f8f9fa", minHeight: "100vh" }}>
       <Navbar />
       {mensaje && (
-        <div className="alert alert-info text-center fw-bold" role="alert">
+        <div className="alert alert-info text-center fw-bold" role="alert" style={{ marginBottom: 0 }}>
           {mensaje}
         </div>
       )}
-      <main className="container py-4 px-4">
-        <div className="row align-items-center">
-          <div className="col-md-6 mb-4 mb-md-0 text-center">
-            <video
-              src="/video/Bob_el_Alquilador_-_New_York.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              style={{ width: '320px', height: '400px', borderRadius: '12px', objectFit: 'cover' }}
-              tabIndex={-1} // Opcional: evita foco por teclado
-              onContextMenu={e => e.preventDefault()} // Opcional: evita menú derecho
+      <main className="container py-5 px-4">
+        <div className="row align-items-center justify-content-center" style={{ minHeight: "80vh" }}>
+          {/* Contenedor del video más pequeño */}
+          <div className="col-md-4 mb-md-0 text-center">
+            <div
+              style={{
+                borderRadius: "18px",
+                display: "inline-block"
+              }}
             >
-              Tu navegador no soporta el video.
-            </video>
+              <video
+                src="/video/Bob_el_Alquilador_-_New_York.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  width: '90%',
+                  maxWidth: '90%',
+                  height: '90%',
+                  borderRadius: '12px',
+                  objectFit: 'cover',
+                  boxShadow: "0 2px 16px rgba(0,0,0,0.10)"
+                }}
+                tabIndex={-1}
+                onContextMenu={e => e.preventDefault()}
+              >
+                Tu navegador no soporta el video.
+              </video>
+            </div>
           </div>
-          <div className="col-md-6 text-start">
-            <h2 className="mb-3 fw-bold">Bienvenidos a Bob el Alquilador</h2>
-            <p>
-              Con más de 2 decadas de experiencia en el rubro, en Bob el Alquilador nos especializamos en el alquiler de maquinarias para obras, construcciones y todo tipo de proyectos. Ponemos a tu disposición una flota de equipos modernos y en excelentes condiciones, listos para acompañarte en cada desafío.
+          {/* Contenedor del texto más grande */}
+          <div className="col-md-8 text-start d-flex flex-column justify-content-center" style={{ minHeight: 400 }}>
+            <h1 className="fw-bold mb-3" style={{ fontSize: '2.4rem', color: "#212529", letterSpacing: "-1px" ,marginRight: '5%',marginLeft: '5%'}}>
+              Bienvenidos a <span style={{ color: "#198754" }}>Bob el Alquilador</span>
+            </h1>
+            <p className="text-muted mb-3" style={{ fontSize: '1.13rem', lineHeight: 1.7,marginRight: '5%',marginLeft: '5%' }}>
+              Con más de <b>2 décadas de experiencia</b> en el rubro, en Bob el Alquilador nos especializamos en el alquiler de maquinarias para obras, construcciones y todo tipo de proyectos.<br />
+              Ponemos a tu disposición una flota de equipos modernos y en excelentes condiciones, listos para acompañarte en cada desafío.
             </p>
-            <p>
-              Nuestro compromiso es ofrecerte un servicio confiable, rápido y personalizado, con el respaldo de un equipo técnico capacitado y siempre dispuesto a asesorarte.
+            <p className="text-muted mb-3" style={{ fontSize: '1.13rem', lineHeight: 1.7,marginRight: '5%',marginLeft: '5%' }}>
+              Nuestro compromiso es ofrecerte un servicio <b>confiable, rápido y personalizado</b>, con el respaldo de un equipo técnico capacitado y siempre dispuesto a asesorarte.
             </p>
-            <p className="fw-bold">
+            <div className="fw-bold" style={{ fontSize: "1.15rem", color: "#495057", background: "#e9f7ef", borderRadius: 8, padding: "0.8rem 1.2rem", display: "inline-block" ,marginRight: '5%',marginLeft: '5%'}}>
               🚧 Tu proyecto empieza con las herramientas correctas.<br />
               En Bob el Alquilador, te ayudamos a dar el primer paso.
-            </p>
+            </div>
           </div>
         </div>
       </main>

@@ -28,8 +28,6 @@ def rechazar_usuario(usuario_id):
     msg["From"] = "quantumdevsunlp@gmail.com"
     msg["To"] = usuario.email
 
-    print("Motivo recibido:", motivo)  # Nuevo: imprimir motivo en el servidor
-
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login("quantumdevsunlp@gmail.com", "zuio rjmo duxk igbf")

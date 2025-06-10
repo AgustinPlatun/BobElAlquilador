@@ -86,7 +86,7 @@ const Navbar: React.FC = () => {
 
         {/* Barra de búsqueda */}
         <div
-          className={`position-relative me-3 ${!isLargeScreen ? 'mx-auto mt-2 mb-2' : ''}`}
+          className={`position-relative me-3 ${!isLargeScreen ? 'mx-auto mt-4 mb-2' : ''}`}
           style={{
             minWidth: 250,
             width: isLargeScreen ? 250 : '90%',
@@ -135,7 +135,7 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Mobile: botón hamburguesa y usuario arriba a la derecha */}
-        <div className="d-lg-none position-absolute top-0 end-0 mt-2 me-2 d-flex align-items-center gap-2" style={{ zIndex: 1050 }}>
+        <div className="d-lg-none position-absolute top-0 end-0 mt-0 me-2 d-flex align-items-center gap-2" style={{ zIndex: 1050 }}>
           <button
             className="navbar-toggler border"
             type="button"

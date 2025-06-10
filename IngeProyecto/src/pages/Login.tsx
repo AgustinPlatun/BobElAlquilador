@@ -137,7 +137,7 @@ const Login: React.FC = () => {
                   maxLength={5}
                 />
                 {codigoInvalido && (
-                  <div className="invalid-feedback text-center">
+                  <div className="invalid-feedback text-center mt-2">
                     {error}
                   </div>
                 )}
@@ -152,7 +152,7 @@ const Login: React.FC = () => {
             </form>
             )}
             {error && !codigoInvalido && (
-              <div className="alert alert-danger text-center p-2" role="alert">
+              <div className="alert alert-danger text-center p-2 mt-2" role="alert">
                 {error}
               </div>
             )}
