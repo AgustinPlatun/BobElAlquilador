@@ -55,7 +55,8 @@ Para completar tu inicio de sesión como administrador, por favor ingresa el sig
             "message": "Inicio de sesión exitoso",
             "nombre": usuario.nombre,
             "rol": usuario.rol,
-            "email": usuario.email
+            "email": usuario.email,
+            "id": usuario.id
         }), 200
 
     except Exception as e:
@@ -87,7 +88,8 @@ def verificar_codigo():
             "message": "Inicio de sesión exitoso",
             "nombre": usuario.nombre,
             "rol": usuario.rol,
-            "email": usuario.email
+            "email": usuario.email,
+            "id": usuario.id
         }), 200
     else:
         return jsonify({"message": "Código incorrecto"}), 401

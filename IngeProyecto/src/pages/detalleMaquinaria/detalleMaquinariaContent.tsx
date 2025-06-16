@@ -3,6 +3,9 @@ import EditMaquinariaModal from './detalleMaquinariaModal.tsx';
 import MaquinariaInfo from './maquinariaInfo';
 import MaquinariaCalendario from './maquinariaCalendario';
 import { useDetalleMaquinariaContent } from './maquinariaFetch.tsx';
+import StarRating from '../../Components/StarRating';
+import CalificacionModal from './CalificacionModal';
+import PreguntaModal from './PreguntaModal';
 
 const DetalleMaquinariaContent: React.FC = () => {
   const {
@@ -11,7 +14,21 @@ const DetalleMaquinariaContent: React.FC = () => {
     editPrecio, setEditPrecio, editFoto, setEditFoto,
     editPoliticas, setEditPoliticas, editCategoriaId, setEditCategoriaId,
     categorias, editError, setEditError, noEncontrada,
-    rangoFechas, setRangoFechas, fechasReservadas, navigate
+    rangoFechas, setRangoFechas, fechasReservadas, navigate,
+    showCalificacionModal, setShowCalificacionModal,
+    calificacionPuntaje, setCalificacionPuntaje,
+    calificacionComentario, setCalificacionComentario,
+    handleCalificacionSubmit,
+    showPreguntaModal,
+    setShowPreguntaModal,
+    preguntaTexto,
+    setPreguntaTexto,
+    respuestaTexto,
+    setRespuestaTexto,
+    handlePreguntaSubmit,
+    handleRespuestaSubmit,
+    abrirModalRespuesta,
+    setPreguntaSeleccionada
   } = useDetalleMaquinariaContent();
 
   const [showMPError, setShowMPError] = useState(false);
@@ -88,14 +105,14 @@ const DetalleMaquinariaContent: React.FC = () => {
   };
 
   const openEditModal = () => {
-    setEditNombre(maquinaria?.nombre || '');
-    setEditDescripcion(maquinaria?.descripcion || '');
-    setEditPrecio(maquinaria?.precio || 0);
-    setEditFoto(null);
-    setEditPoliticas(maquinaria?.politicas_reembolso || '');
-    setEditCategoriaId(maquinaria?.categoria_id ? String(maquinaria.categoria_id) : '');
-    setEditError('');
-    setShowEditModal(true);
+    if (maquinaria) {
+      setEditNombre(maquinaria.nombre);
+      setEditDescripcion(maquinaria.descripcion);
+      setEditPrecio(maquinaria.precio);
+      setEditPoliticas(maquinaria.politicas_reembolso || '');
+      setEditCategoriaId(maquinaria.categoria_id?.toString() || '');
+      setShowEditModal(true);
+    }
   };
 
   if (noEncontrada) {
@@ -131,6 +148,27 @@ const DetalleMaquinariaContent: React.FC = () => {
               {/* Categoría en gris debajo del nombre */}
               <div style={{ fontSize: "0.95rem", color: "#6c757d", marginBottom: "5%" }}>
                 {maquinaria.categoria && maquinaria.categoria.trim() !== '' ? maquinaria.categoria : '-'}
+              </div>
+              {/* Calificaciones */}
+              <div className="mb-3">
+                {maquinaria.calificaciones ? (
+                  <div>
+                    <StarRating rating={maquinaria.calificaciones.promedio} readonly size={24} />
+                    <small className="text-muted ms-2">
+                      ({maquinaria.calificaciones.total_calificaciones} calificaciones)
+                    </small>
+                  </div>
+                ) : (
+                  <div className="text-muted">Sin calificaciones</div>
+                )}
+                {rol === 'cliente' && (
+                  <button
+                    className="btn btn-outline-primary btn-sm mt-2"
+                    onClick={() => setShowCalificacionModal(true)}
+                  >
+                    Calificar
+                  </button>
+                )}
               </div>
               {/* Precio por día en verde arriba del calendario */}
               <div style={{ marginBottom: "5%" }}>
@@ -207,18 +245,65 @@ const DetalleMaquinariaContent: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
-      </div>
-      {maquinaria.descripcion && (
-        <div className="row justify-content-center mt-4">
-          <div className="col-lg-10">
-            <div className="bg-white shadow-sm rounded p-4" style={{ minWidth: 0 }}>
-              <h5 className="fw-bold mb-2">Descripción</h5>
-              <p style={{ fontSize: '1.1rem' }}>{maquinaria.descripcion}</p>
+          
+          {/* Sección de preguntas y respuestas */}
+          <div className="mt-4 bg-white shadow-sm rounded p-4">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h4 className="mb-0">Preguntas y Respuestas</h4>
+              {rol === 'cliente' && (
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    setPreguntaTexto('');
+                    setShowPreguntaModal(true);
+                  }}
+                >
+                  Hacer una pregunta
+                </button>
+              )}
+            </div>
+            <div className="mt-3">
+              {maquinaria.preguntas && maquinaria.preguntas.length > 0 ? (
+                maquinaria.preguntas.map((pregunta) => (
+                  <div key={pregunta.id} className="border-bottom pb-3 mb-3">
+                    <div className="d-flex justify-content-between align-items-start">
+                      <div className="flex-grow-1">
+                        <div className="d-flex align-items-center mb-2">
+                          <strong className="me-2">{pregunta.usuario_nombre}</strong>
+                          <small className="text-muted">
+                            {new Date(pregunta.fecha_pregunta).toLocaleDateString()}
+                          </small>
+                        </div>
+                        <p className="mb-2">{pregunta.pregunta}</p>
+                        {pregunta.respuesta ? (
+                          <div className="ms-4 mt-2 p-2 bg-light rounded">
+                            <div className="d-flex align-items-center mb-2">
+                              <strong className="me-2">{pregunta.empleado_nombre}</strong>
+                              <small className="text-muted">
+                                {new Date(pregunta.fecha_respuesta!).toLocaleDateString()}
+                              </small>
+                            </div>
+                            <p className="mb-0">{pregunta.respuesta}</p>
+                          </div>
+                        ) : rol === 'empleado' && (
+                          <button
+                            className="btn btn-outline-primary btn-sm mt-2"
+                            onClick={() => abrirModalRespuesta(pregunta.id, pregunta.pregunta)}
+                          >
+                            Responder
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted">No hay preguntas aún. ¡Sé el primero en preguntar!</p>
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
       <EditMaquinariaModal
         show={showEditModal}
         onClose={() => setShowEditModal(false)}
@@ -358,6 +443,32 @@ const DetalleMaquinariaContent: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de calificación */}
+      <CalificacionModal
+        show={showCalificacionModal}
+        onClose={() => setShowCalificacionModal(false)}
+        onSubmit={handleCalificacionSubmit}
+        puntaje={calificacionPuntaje}
+        setPuntaje={setCalificacionPuntaje}
+        comentario={calificacionComentario}
+        setComentario={setCalificacionComentario}
+      />
+
+      {/* Modal de pregunta/respuesta */}
+      <PreguntaModal
+        show={showPreguntaModal}
+        onClose={() => {
+          setShowPreguntaModal(false);
+          setPreguntaSeleccionada(null);
+        }}
+        onSubmit={rol === 'empleado' ? handleRespuestaSubmit : handlePreguntaSubmit}
+        pregunta={preguntaTexto}
+        setPregunta={setPreguntaTexto}
+        respuesta={respuestaTexto}
+        setRespuesta={setRespuestaTexto}
+        esEmpleado={rol === 'empleado'}
+      />
     </div>
   );
 };

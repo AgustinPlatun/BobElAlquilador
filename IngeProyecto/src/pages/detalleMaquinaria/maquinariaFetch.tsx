@@ -10,6 +10,29 @@ export interface Maquinaria {
   politicas_reembolso?: string;
   categoria_id?: number;
   categoria?: string;
+  calificaciones?: {
+    promedio: number;
+    total_calificaciones: number;
+    calificaciones: Array<{
+      id: number;
+      puntaje: number;
+      comentario: string;
+      fecha: string;
+      usuario_id: number;
+      usuario_nombre: string;
+    }>;
+  };
+  preguntas?: Array<{
+    id: number;
+    pregunta: string;
+    respuesta: string | null;
+    fecha_pregunta: string;
+    fecha_respuesta: string | null;
+    usuario_id: number;
+    usuario_nombre: string;
+    empleado_id: number | null;
+    empleado_nombre: string | null;
+  }>;
 }
 
 export function useDetalleMaquinariaContent() {
@@ -30,6 +53,13 @@ export function useDetalleMaquinariaContent() {
   const [noEncontrada, setNoEncontrada] = useState(false);
   const [rangoFechas, setRangoFechas] = useState<[Date | null, Date | null]>([null, null]);
   const [fechasReservadas, setFechasReservadas] = useState<Date[]>([]);
+  const [showCalificacionModal, setShowCalificacionModal] = useState(false);
+  const [calificacionPuntaje, setCalificacionPuntaje] = useState(0);
+  const [calificacionComentario, setCalificacionComentario] = useState('');
+  const [showPreguntaModal, setShowPreguntaModal] = useState(false);
+  const [preguntaTexto, setPreguntaTexto] = useState('');
+  const [respuestaTexto, setRespuestaTexto] = useState('');
+  const [preguntaSeleccionada, setPreguntaSeleccionada] = useState<number | null>(null);
 
   useEffect(() => {
     setNoEncontrada(false);
@@ -44,6 +74,21 @@ export function useDetalleMaquinariaContent() {
               .then(cats => {
                 const cat = cats.find((c: { id: number }) => c.id === found.categoria_id);
                 setMaquinaria({ ...found, categoria: cat ? cat.nombre : '-' });
+                // Cargar calificaciones
+                fetch(`http://localhost:5000/calificaciones-maquinaria/${codigo}`)
+                  .then(res => res.json())
+                  .then(calificaciones => {
+                    // Cargar preguntas
+                    fetch(`http://localhost:5000/preguntas-maquinaria/${codigo}`)
+                      .then(res => res.json())
+                      .then(preguntas => {
+                        setMaquinaria(prev => prev ? { 
+                          ...prev, 
+                          calificaciones,
+                          preguntas 
+                        } : null);
+                      });
+                  });
               })
               .catch(() => setMaquinaria({ ...found, categoria: '-' }));
           } else {
@@ -74,6 +119,123 @@ export function useDetalleMaquinariaContent() {
     }
   }, [codigo]);
 
+  const handleCalificacionSubmit = async () => {
+    try {
+      const usuarioId = localStorage.getItem('usuarioId');
+      if (!usuarioId) {
+        alert('Debes iniciar sesión para calificar');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/calificar-maquinaria/${codigo}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          puntaje: calificacionPuntaje,
+          comentario: calificacionComentario,
+          usuario_id: parseInt(usuarioId)
+        }),
+      });
+
+      if (response.ok) {
+        setShowCalificacionModal(false);
+        setCalificacionPuntaje(0);
+        setCalificacionComentario('');
+        // Recargar calificaciones
+        const calificacionesResponse = await fetch(`http://localhost:5000/calificaciones-maquinaria/${codigo}`);
+        const calificaciones = await calificacionesResponse.json();
+        setMaquinaria(prev => prev ? { ...prev, calificaciones } : null);
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Error al calificar la maquinaria');
+      }
+    } catch (error) {
+      alert('Error al calificar la maquinaria');
+    }
+  };
+
+  const handlePreguntaSubmit = async () => {
+    try {
+      const usuarioId = localStorage.getItem('usuarioId');
+      if (!usuarioId) {
+        alert('Debes iniciar sesión para hacer una pregunta');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/preguntar-maquinaria/${codigo}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pregunta: preguntaTexto,
+          usuario_id: parseInt(usuarioId)
+        }),
+      });
+
+      if (response.ok) {
+        setShowPreguntaModal(false);
+        setPreguntaTexto('');
+        // Recargar preguntas
+        const preguntasResponse = await fetch(`http://localhost:5000/preguntas-maquinaria/${codigo}`);
+        const preguntas = await preguntasResponse.json();
+        setMaquinaria(prev => prev ? { ...prev, preguntas } : null);
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Error al enviar la pregunta');
+      }
+    } catch (error) {
+      alert('Error al enviar la pregunta');
+    }
+  };
+
+  const handleRespuestaSubmit = async () => {
+    if (!preguntaSeleccionada) return;
+
+    try {
+      const empleadoId = localStorage.getItem('usuarioId');
+      if (!empleadoId) {
+        alert('Error de autenticación');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/responder-pregunta/${preguntaSeleccionada}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          respuesta: respuestaTexto,
+          empleado_id: parseInt(empleadoId)
+        }),
+      });
+
+      if (response.ok) {
+        setShowPreguntaModal(false);
+        setRespuestaTexto('');
+        setPreguntaSeleccionada(null);
+        // Recargar preguntas
+        const preguntasResponse = await fetch(`http://localhost:5000/preguntas-maquinaria/${codigo}`);
+        const preguntas = await preguntasResponse.json();
+        setMaquinaria(prev => prev ? { ...prev, preguntas } : null);
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Error al enviar la respuesta');
+      }
+    } catch (error) {
+      alert('Error al enviar la respuesta');
+    }
+  };
+
+  const abrirModalRespuesta = (preguntaId: number, pregunta: string) => {
+    setPreguntaSeleccionada(preguntaId);
+    setPreguntaTexto(pregunta);
+    setRespuestaTexto('');
+    setShowPreguntaModal(true);
+  };
+
   return {
     maquinaria, setMaquinaria,
     rol, setRol,
@@ -89,6 +251,17 @@ export function useDetalleMaquinariaContent() {
     noEncontrada, setNoEncontrada,
     rangoFechas, setRangoFechas,
     fechasReservadas, setFechasReservadas,
-    navigate
+    navigate,
+    showCalificacionModal, setShowCalificacionModal,
+    calificacionPuntaje, setCalificacionPuntaje,
+    calificacionComentario, setCalificacionComentario,
+    handleCalificacionSubmit,
+    showPreguntaModal, setShowPreguntaModal,
+    preguntaTexto, setPreguntaTexto,
+    respuestaTexto, setRespuestaTexto,
+    handlePreguntaSubmit,
+    handleRespuestaSubmit,
+    abrirModalRespuesta,
+    setPreguntaSeleccionada
   };
 }

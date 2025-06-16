@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-from database.models import Maquinaria, Categoria, Reserva
+from database.models import Maquinaria, Categoria, Reserva, CalificacionMaquinaria, PreguntaMaquinaria
 from database import db
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 maquinaria_bp = Blueprint("maquinaria", __name__)
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '../uploads/maquinarias_fotos')
@@ -190,3 +190,152 @@ def fechas_reservadas(codigo):
             fechas.append(dia.strftime("%Y-%m-%d"))
             dia += timedelta(days=1)
     return jsonify(fechas)
+
+@maquinaria_bp.route("/calificar-maquinaria/<codigo>", methods=["POST"])
+def calificar_maquinaria(codigo):
+    try:
+        data = request.json
+        puntaje = data.get("puntaje")
+        comentario = data.get("comentario")
+        usuario_id = data.get("usuario_id")
+
+        if not puntaje or not usuario_id:
+            return jsonify({"message": "El puntaje y el usuario son obligatorios"}), 400
+
+        if not 1 <= puntaje <= 5:
+            return jsonify({"message": "El puntaje debe estar entre 1 y 5"}), 400
+
+        maquinaria = Maquinaria.query.filter_by(codigo=codigo).first()
+        if not maquinaria:
+            return jsonify({"message": "Maquinaria no encontrada"}), 404
+
+        nueva_calificacion = CalificacionMaquinaria(
+            puntaje=puntaje,
+            comentario=comentario,
+            usuario_id=usuario_id,
+            maquinaria_id=maquinaria.id
+        )
+
+        db.session.add(nueva_calificacion)
+        db.session.commit()
+
+        return jsonify({"message": "Calificación agregada correctamente"}), 201
+
+    except Exception as e:
+        return jsonify({"message": "Hubo un problema al calificar la maquinaria", "error": str(e)}), 500
+
+@maquinaria_bp.route("/calificaciones-maquinaria/<codigo>", methods=["GET"])
+def obtener_calificaciones(codigo):
+    try:
+        maquinaria = Maquinaria.query.filter_by(codigo=codigo).first()
+        if not maquinaria:
+            return jsonify({"message": "Maquinaria no encontrada"}), 404
+
+        calificaciones = CalificacionMaquinaria.query.filter_by(maquinaria_id=maquinaria.id).all()
+        resultado = [
+            {
+                "id": cal.id,
+                "puntaje": cal.puntaje,
+                "comentario": cal.comentario,
+                "fecha": cal.fecha.strftime("%Y-%m-%d %H:%M:%S"),
+                "usuario_id": cal.usuario_id,
+                "usuario_nombre": cal.usuario.nombre
+            }
+            for cal in calificaciones
+        ]
+
+        # Calcular promedio
+        promedio = sum(cal.puntaje for cal in calificaciones) / len(calificaciones) if calificaciones else 0
+
+        return jsonify({
+            "calificaciones": resultado,
+            "promedio": round(promedio, 1),
+            "total_calificaciones": len(calificaciones)
+        }), 200
+
+    except Exception as e:
+        return jsonify({"message": "Hubo un problema al obtener las calificaciones", "error": str(e)}), 500
+
+@maquinaria_bp.route("/preguntar-maquinaria/<codigo>", methods=["POST"])
+def preguntar_maquinaria(codigo):
+    try:
+        data = request.json
+        pregunta = data.get("pregunta")
+        usuario_id = data.get("usuario_id")
+
+        if not pregunta or not usuario_id:
+            return jsonify({"message": "La pregunta y el usuario son obligatorios"}), 400
+
+        maquinaria = Maquinaria.query.filter_by(codigo=codigo).first()
+        if not maquinaria:
+            return jsonify({"message": "Maquinaria no encontrada"}), 404
+
+        nueva_pregunta = PreguntaMaquinaria(
+            pregunta=pregunta,
+            usuario_id=usuario_id,
+            maquinaria_id=maquinaria.id
+        )
+
+        db.session.add(nueva_pregunta)
+        db.session.commit()
+
+        return jsonify({"message": "Pregunta enviada correctamente"}), 201
+
+    except Exception as e:
+        return jsonify({"message": "Hubo un problema al enviar la pregunta", "error": str(e)}), 500
+
+@maquinaria_bp.route("/responder-pregunta/<int:pregunta_id>", methods=["POST"])
+def responder_pregunta(pregunta_id):
+    try:
+        data = request.json
+        respuesta = data.get("respuesta")
+        empleado_id = data.get("empleado_id")
+
+        if not respuesta or not empleado_id:
+            return jsonify({"message": "La respuesta y el empleado son obligatorios"}), 400
+
+        pregunta = PreguntaMaquinaria.query.get(pregunta_id)
+        if not pregunta:
+            return jsonify({"message": "Pregunta no encontrada"}), 404
+
+        if pregunta.respuesta:
+            return jsonify({"message": "Esta pregunta ya tiene una respuesta"}), 400
+
+        pregunta.respuesta = respuesta
+        pregunta.empleado_id = empleado_id
+        pregunta.fecha_respuesta = datetime.utcnow()
+
+        db.session.commit()
+
+        return jsonify({"message": "Respuesta enviada correctamente"}), 200
+
+    except Exception as e:
+        return jsonify({"message": "Hubo un problema al enviar la respuesta", "error": str(e)}), 500
+
+@maquinaria_bp.route("/preguntas-maquinaria/<codigo>", methods=["GET"])
+def obtener_preguntas(codigo):
+    try:
+        maquinaria = Maquinaria.query.filter_by(codigo=codigo).first()
+        if not maquinaria:
+            return jsonify({"message": "Maquinaria no encontrada"}), 404
+
+        preguntas = PreguntaMaquinaria.query.filter_by(maquinaria_id=maquinaria.id).order_by(PreguntaMaquinaria.fecha_pregunta.desc()).all()
+        resultado = [
+            {
+                "id": p.id,
+                "pregunta": p.pregunta,
+                "respuesta": p.respuesta,
+                "fecha_pregunta": p.fecha_pregunta.strftime("%Y-%m-%d %H:%M:%S"),
+                "fecha_respuesta": p.fecha_respuesta.strftime("%Y-%m-%d %H:%M:%S") if p.fecha_respuesta else None,
+                "usuario_id": p.usuario_id,
+                "usuario_nombre": p.usuario.nombre,
+                "empleado_id": p.empleado_id,
+                "empleado_nombre": p.empleado.nombre if p.empleado else None
+            }
+            for p in preguntas
+        ]
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({"message": "Hubo un problema al obtener las preguntas", "error": str(e)}), 500

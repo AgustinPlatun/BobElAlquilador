@@ -32,6 +32,7 @@ const Login: React.FC = () => {
       localStorage.setItem('usuarioNombre', response.data.nombre);
       localStorage.setItem('usuarioRol', response.data.rol);
       localStorage.setItem('usuarioEmail', response.data.email);
+      localStorage.setItem('usuarioId', response.data.id);
       navigate('/');
     } catch (error: any) {
       setError(error.response?.data?.message || 'Error al iniciar sesión');
@@ -67,6 +68,7 @@ const Login: React.FC = () => {
       localStorage.setItem('usuarioNombre', response.data.nombre);
       localStorage.setItem('usuarioRol', response.data.rol);
       localStorage.setItem('usuarioEmail', response.data.email);
+      localStorage.setItem('usuarioId', response.data.id);
       navigate('/');
     } catch (error: any) {
       setError(error.response?.data?.message || 'Código incorrecto');

@@ -1,4 +1,5 @@
 from database import db
+from datetime import datetime
 
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,6 +24,7 @@ class Maquinaria(db.Model):
     politicas_reembolso = db.Column(db.String(255), nullable=True)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=True)
     categoria = db.relationship('Categoria', backref='maquinarias')
+    calificaciones = db.relationship('CalificacionMaquinaria', backref='maquinaria', lazy=True)
 
 class Categoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -38,3 +40,25 @@ class Reserva(db.Model):
     usuario = db.relationship('Usuario', backref='reservas')
     maquinaria_id = db.Column(db.Integer, db.ForeignKey('maquinaria.id'), nullable=False)
     maquinaria = db.relationship('Maquinaria', backref='reservas')
+
+class CalificacionMaquinaria(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    puntaje = db.Column(db.Integer, nullable=False)  # 1-5 estrellas
+    comentario = db.Column(db.Text, nullable=True)
+    fecha = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    usuario = db.relationship('Usuario', backref='calificaciones')
+    maquinaria_id = db.Column(db.Integer, db.ForeignKey('maquinaria.id'), nullable=False)
+
+class PreguntaMaquinaria(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    pregunta = db.Column(db.Text, nullable=False)
+    respuesta = db.Column(db.Text, nullable=True)
+    fecha_pregunta = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    fecha_respuesta = db.Column(db.DateTime, nullable=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    usuario = db.relationship('Usuario', foreign_keys=[usuario_id], backref='preguntas')
+    empleado_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
+    empleado = db.relationship('Usuario', foreign_keys=[empleado_id], backref='respuestas')
+    maquinaria_id = db.Column(db.Integer, db.ForeignKey('maquinaria.id'), nullable=False)
+    maquinaria = db.relationship('Maquinaria', backref='preguntas')
