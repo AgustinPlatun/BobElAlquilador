@@ -6,6 +6,7 @@ import { useDetalleMaquinariaContent } from './maquinariaFetch.tsx';
 import StarRating from '../../Components/StarRating';
 import CalificacionModal from './CalificacionModal';
 import PreguntaModal from './PreguntaModal';
+import MantenimientoModal from './MantenimientoModal';
 
 const DetalleMaquinariaContent: React.FC = () => {
   const {
@@ -28,7 +29,13 @@ const DetalleMaquinariaContent: React.FC = () => {
     handlePreguntaSubmit,
     handleRespuestaSubmit,
     abrirModalRespuesta,
-    setPreguntaSeleccionada
+    setPreguntaSeleccionada,
+    preguntaSeleccionada,
+    showMantenimientoModal,
+    setShowMantenimientoModal,
+    mantenimientoDescripcion,
+    setMantenimientoDescripcion,
+    handleMantenimientoSubmit
   } = useDetalleMaquinariaContent();
 
   const [showMPError, setShowMPError] = useState(false);
@@ -115,6 +122,9 @@ const DetalleMaquinariaContent: React.FC = () => {
     }
   };
 
+  const [modoAgregarMantenimiento, setModoAgregarMantenimiento] = useState(false);
+  const [showMantenimientoSuccess, setShowMantenimientoSuccess] = useState(false);
+
   if (noEncontrada) {
     return (
       <div className="text-center py-5 text-danger">
@@ -135,7 +145,32 @@ const DetalleMaquinariaContent: React.FC = () => {
               openEditModal={openEditModal}
               rol={rol}
             />
-            <div className="col-md-5 d-flex flex-column ">
+            <div className="col-md-5 d-flex flex-column">
+              {/* Botones de mantenimiento para empleados */}
+              {rol === 'empleado' && (
+                <div className="d-flex gap-2 mb-4">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      setMantenimientoDescripcion('');
+                      setModoAgregarMantenimiento(true);
+                      setShowMantenimientoModal(true);
+                    }}
+                  >
+                    Agregar Mantenimiento
+                  </button>
+                  <button
+                    className="btn btn-outline-primary"
+                    onClick={() => {
+                      setModoAgregarMantenimiento(false);
+                      setShowMantenimientoModal(true);
+                    }}
+                  >
+                    Ver Historial
+                  </button>
+                </div>
+              )}
+
               {/* Nombre y código arriba del precio */}
               <div>
                 <span className="fw-bold" style={{ fontSize: "1.8rem" }}>
@@ -176,6 +211,17 @@ const DetalleMaquinariaContent: React.FC = () => {
                   ${maquinaria.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </span>
               </div>
+              {/* Botón de pregunta para clientes */}
+              {rol === 'cliente' && (
+                <div className="d-flex gap-2 mb-3">
+                  <button
+                    className="btn btn-outline-primary"
+                    onClick={() => setShowPreguntaModal(true)}
+                  >
+                    Hacer una pregunta
+                  </button>
+                </div>
+              )}
               <MaquinariaCalendario
                 rol={rol}
                 fechaInicio={fechaInicio}
@@ -246,62 +292,71 @@ const DetalleMaquinariaContent: React.FC = () => {
             </div>
           </div>
           
-          {/* Sección de preguntas y respuestas */}
-          <div className="mt-4 bg-white shadow-sm rounded p-4">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h4 className="mb-0">Preguntas y Respuestas</h4>
-              {rol === 'cliente' && (
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={() => {
-                    setPreguntaTexto('');
-                    setShowPreguntaModal(true);
-                  }}
-                >
-                  Hacer una pregunta
-                </button>
-              )}
-            </div>
-            <div className="mt-3">
-              {maquinaria.preguntas && maquinaria.preguntas.length > 0 ? (
-                maquinaria.preguntas.map((pregunta) => (
-                  <div key={pregunta.id} className="border-bottom pb-3 mb-3">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div className="flex-grow-1">
-                        <div className="d-flex align-items-center mb-2">
-                          <strong className="me-2">{pregunta.usuario_nombre}</strong>
-                          <small className="text-muted">
-                            {new Date(pregunta.fecha_pregunta).toLocaleDateString()}
-                          </small>
-                        </div>
-                        <p className="mb-2">{pregunta.pregunta}</p>
-                        {pregunta.respuesta ? (
-                          <div className="ms-4 mt-2 p-2 bg-light rounded">
-                            <div className="d-flex align-items-center mb-2">
-                              <strong className="me-2">{pregunta.empleado_nombre}</strong>
-                              <small className="text-muted">
-                                {new Date(pregunta.fecha_respuesta!).toLocaleDateString()}
-                              </small>
-                            </div>
-                            <p className="mb-0">{pregunta.respuesta}</p>
-                          </div>
-                        ) : rol === 'empleado' && (
-                          <button
-                            className="btn btn-outline-primary btn-sm mt-2"
-                            onClick={() => abrirModalRespuesta(pregunta.id, pregunta.pregunta)}
-                          >
-                            Responder
-                          </button>
-                        )}
+          {/* Sección de comentarios */}
+          {maquinaria.calificaciones && maquinaria.calificaciones.calificaciones.length > 0 && (
+            <div className="mt-4 bg-white shadow-sm rounded p-4">
+              <h4>Comentarios</h4>
+              <div className="mt-3">
+                {maquinaria.calificaciones.calificaciones.map((cal) => (
+                  <div key={cal.id} className="border-bottom pb-3 mb-3">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{cal.usuario_nombre}</strong>
+                        <StarRating rating={cal.puntaje} readonly size={16} />
                       </div>
+                      <small className="text-muted">{new Date(cal.fecha).toLocaleDateString()}</small>
                     </div>
+                    {cal.comentario && (
+                      <p className="mt-2 mb-0">{cal.comentario}</p>
+                    )}
                   </div>
-                ))
-              ) : (
-                <p className="text-muted">No hay preguntas aún. ¡Sé el primero en preguntar!</p>
-              )}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Sección de preguntas y respuestas */}
+          {maquinaria.preguntas && maquinaria.preguntas.length > 0 && (
+            <div className="mt-4 bg-white shadow-sm rounded p-4">
+              <h4>Preguntas y Respuestas</h4>
+              <div className="mt-3">
+                {maquinaria.preguntas.map((preg) => (
+                  <div key={preg.id} className="border-bottom pb-3 mb-3">
+                    <div className="d-flex justify-content-between align-items-start">
+                      <div>
+                        <strong>{preg.usuario_nombre}</strong>
+                        <small className="text-muted ms-2">
+                          {new Date(preg.fecha_pregunta).toLocaleDateString()}
+                        </small>
+                      </div>
+                      {rol === 'empleado' && !preg.respuesta && (
+                        <button
+                          className="btn btn-outline-primary btn-sm"
+                          onClick={() => abrirModalRespuesta(preg.id, preg.pregunta)}
+                        >
+                          Responder
+                        </button>
+                      )}
+                    </div>
+                    <p className="mt-2 mb-0">{preg.pregunta}</p>
+                    {preg.respuesta && (
+                      <div className="mt-2 ps-3 border-start">
+                        <div className="d-flex justify-content-between align-items-start">
+                          <div>
+                            <strong>{preg.empleado_nombre}</strong>
+                            <small className="text-muted ms-2">
+                              {new Date(preg.fecha_respuesta!).toLocaleDateString()}
+                            </small>
+                          </div>
+                        </div>
+                        <p className="mt-2 mb-0">{preg.respuesta}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <EditMaquinariaModal
@@ -455,20 +510,69 @@ const DetalleMaquinariaContent: React.FC = () => {
         setComentario={setCalificacionComentario}
       />
 
-      {/* Modal de pregunta/respuesta */}
+      {/* Modal de preguntas */}
       <PreguntaModal
         show={showPreguntaModal}
         onClose={() => {
           setShowPreguntaModal(false);
+          setPreguntaTexto('');
+          setRespuestaTexto('');
           setPreguntaSeleccionada(null);
         }}
-        onSubmit={rol === 'empleado' ? handleRespuestaSubmit : handlePreguntaSubmit}
-        pregunta={preguntaTexto}
+        onSubmit={preguntaSeleccionada ? handleRespuestaSubmit : handlePreguntaSubmit}
+        pregunta={preguntaSeleccionada ? maquinaria.preguntas?.find(p => p.id === preguntaSeleccionada)?.pregunta || '' : preguntaTexto}
         setPregunta={setPreguntaTexto}
         respuesta={respuestaTexto}
         setRespuesta={setRespuestaTexto}
-        esEmpleado={rol === 'empleado'}
+        esEmpleado={!!preguntaSeleccionada}
       />
+
+      {/* Modal de mantenimiento */}
+      <MantenimientoModal
+        show={showMantenimientoModal}
+        onClose={() => {
+          setShowMantenimientoModal(false);
+          setMantenimientoDescripcion('');
+        }}
+        onSubmit={async () => {
+          await handleMantenimientoSubmit();
+          setShowMantenimientoModal(false);
+          setMantenimientoDescripcion('');
+          setShowMantenimientoSuccess(true);
+          setTimeout(() => setShowMantenimientoSuccess(false), 3000);
+        }}
+        descripcion={mantenimientoDescripcion}
+        setDescripcion={setMantenimientoDescripcion}
+        historial={maquinaria.historial_mantenimiento}
+        modoAgregar={modoAgregarMantenimiento}
+      />
+
+      {/* Mensaje de éxito al agregar mantenimiento */}
+      {showMantenimientoSuccess && (
+        <div
+          className="position-fixed top-0 end-0 p-3"
+          style={{ zIndex: 1050 }}
+        >
+          <div
+            className="toast show"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          >
+            <div className="toast-header bg-success text-white">
+              <strong className="me-auto">Éxito</strong>
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                onClick={() => setShowMantenimientoSuccess(false)}
+              ></button>
+            </div>
+            <div className="toast-body">
+              El mantenimiento se ha agregado correctamente.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

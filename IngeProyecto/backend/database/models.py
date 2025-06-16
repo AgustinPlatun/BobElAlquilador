@@ -62,3 +62,12 @@ class PreguntaMaquinaria(db.Model):
     empleado = db.relationship('Usuario', foreign_keys=[empleado_id], backref='respuestas')
     maquinaria_id = db.Column(db.Integer, db.ForeignKey('maquinaria.id'), nullable=False)
     maquinaria = db.relationship('Maquinaria', backref='preguntas')
+
+class HistorialMantenimiento(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    descripcion = db.Column(db.Text, nullable=False)
+    fecha = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    empleado_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    empleado = db.relationship('Usuario', backref='mantenimientos')
+    maquinaria_id = db.Column(db.Integer, db.ForeignKey('maquinaria.id'), nullable=False)
+    maquinaria = db.relationship('Maquinaria', backref='historial_mantenimiento')

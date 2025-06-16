@@ -33,6 +33,13 @@ export interface Maquinaria {
     empleado_id: number | null;
     empleado_nombre: string | null;
   }>;
+  historial_mantenimiento?: Array<{
+    id: number;
+    descripcion: string;
+    fecha: string;
+    empleado_id: number;
+    empleado_nombre: string;
+  }>;
 }
 
 export function useDetalleMaquinariaContent() {
@@ -60,6 +67,8 @@ export function useDetalleMaquinariaContent() {
   const [preguntaTexto, setPreguntaTexto] = useState('');
   const [respuestaTexto, setRespuestaTexto] = useState('');
   const [preguntaSeleccionada, setPreguntaSeleccionada] = useState<number | null>(null);
+  const [showMantenimientoModal, setShowMantenimientoModal] = useState(false);
+  const [mantenimientoDescripcion, setMantenimientoDescripcion] = useState('');
 
   useEffect(() => {
     setNoEncontrada(false);
@@ -82,11 +91,17 @@ export function useDetalleMaquinariaContent() {
                     fetch(`http://localhost:5000/preguntas-maquinaria/${codigo}`)
                       .then(res => res.json())
                       .then(preguntas => {
-                        setMaquinaria(prev => prev ? { 
-                          ...prev, 
-                          calificaciones,
-                          preguntas 
-                        } : null);
+                        // Cargar historial de mantenimiento
+                        fetch(`http://localhost:5000/historial-mantenimiento/${codigo}`)
+                          .then(res => res.json())
+                          .then(historial => {
+                            setMaquinaria(prev => prev ? { 
+                              ...prev, 
+                              calificaciones,
+                              preguntas,
+                              historial_mantenimiento: historial
+                            } : null);
+                          });
                       });
                   });
               })
@@ -236,6 +251,40 @@ export function useDetalleMaquinariaContent() {
     setShowPreguntaModal(true);
   };
 
+  const handleMantenimientoSubmit = async () => {
+    try {
+      const empleadoId = localStorage.getItem('usuarioId');
+      if (!empleadoId) {
+        alert('Error de autenticación');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/agregar-mantenimiento/${codigo}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          descripcion: mantenimientoDescripcion,
+          empleado_id: parseInt(empleadoId)
+        }),
+      });
+
+      if (response.ok) {
+        setMantenimientoDescripcion('');
+        // Recargar historial
+        const historialResponse = await fetch(`http://localhost:5000/historial-mantenimiento/${codigo}`);
+        const historial = await historialResponse.json();
+        setMaquinaria(prev => prev ? { ...prev, historial_mantenimiento: historial } : null);
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Error al registrar el mantenimiento');
+      }
+    } catch (error) {
+      alert('Error al registrar el mantenimiento');
+    }
+  };
+
   return {
     maquinaria, setMaquinaria,
     rol, setRol,
@@ -262,6 +311,9 @@ export function useDetalleMaquinariaContent() {
     handlePreguntaSubmit,
     handleRespuestaSubmit,
     abrirModalRespuesta,
-    setPreguntaSeleccionada
+    setPreguntaSeleccionada,
+    showMantenimientoModal, setShowMantenimientoModal,
+    mantenimientoDescripcion, setMantenimientoDescripcion,
+    handleMantenimientoSubmit
   };
 }
