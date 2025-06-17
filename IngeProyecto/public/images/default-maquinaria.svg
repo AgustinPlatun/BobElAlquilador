@@ -1,0 +1,10 @@
+<svg width="300" height="200" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f8f9fa"/>
+  <rect x="50" y="80" width="200" height="80" fill="#dee2e6" stroke="#6c757d" stroke-width="2"/>
+  <rect x="70" y="100" width="40" height="40" fill="#6c757d"/>
+  <rect x="190" y="100" width="40" height="40" fill="#6c757d"/>
+  <circle cx="80" cy="170" r="15" fill="#495057"/>
+  <circle cx="220" cy="170" r="15" fill="#495057"/>
+  <text x="150" y="50" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#6c757d">Maquinaria</text>
+  <text x="150" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">Sin imagen</text>
+</svg> 

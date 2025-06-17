@@ -36,7 +36,10 @@ const Navbar: React.FC = () => {
   };
 
   const getMenuOptions = (): MenuOption[] => {
-    const options: MenuOption[] = [{ label: 'Mis datos', path: '/mis-datos' }];
+    const options: MenuOption[] = [
+      { label: 'Mis datos', path: '/mis-datos' },
+      { label: 'Mis Reservas', path: '/mis-reservas' }
+    ];
     if (rol === 'administrador') {
       options.push({ label: 'Cambiar rol de cliente a empleado', path: '/alta-empleado' });
       options.push({ label: 'Baja de maquinaria', path: '/baja-maquinaria' });

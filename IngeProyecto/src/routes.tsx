@@ -21,6 +21,7 @@ import RecuperarPassword from './pages/RecuperarPassword';
 import NotFound from './pages/NotFound';
 import AltaCategoria from './pages/altas/altaCategoria';
 import BajaCategoria from './pages/bajas/bajaCategoria';
+import MisReservas from './pages/misReservas';
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
   {
     path: "/mis-datos",
     element: <MiCuenta />
+  },
+  {
+    path: "/mis-reservas",
+    element: <MisReservas />
   },
   {
     path: "/alta-maquinaria",
