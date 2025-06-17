@@ -4,12 +4,12 @@ from database.models import Usuario
 from werkzeug.security import generate_password_hash
 
 with app.app_context():
-    if not Usuario.query.filter_by(email="agusplatun@hotmail.com").first():
+    if not Usuario.query.filter_by(email="lautarobudini5@gmail.com").first():
         admin = Usuario(
-            nombre="Agustin",
-            apellido="Platun",
-            email="agusplatun@hotmail.com",
-            password=generate_password_hash("Agus123"),
+            nombre="Lauti",
+            apellido="Budini",
+            email="lautarobudini5@gmail.com",
+            password=generate_password_hash("Lauti123"),
             rol="administrador",
             estado="activa",  
             fecha_nacimiento="2000-01-01",
