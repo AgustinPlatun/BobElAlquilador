@@ -49,14 +49,16 @@ const PreguntaModal: React.FC<Props> = ({
               <>
                 <div className="mb-3">
                   <label className="form-label">Pregunta del cliente</label>
-                  <p className="form-control-plaintext">{pregunta}</p>
+                  <div className="form-control-plaintext bg-light p-3 rounded">
+                    {pregunta}
+                  </div>
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Tu respuesta</label>
                   <textarea
                     className="form-control"
                     rows={3}
-                    value={respuesta}
+                    value={respuesta || ''}
                     onChange={(e) => setRespuesta && setRespuesta(e.target.value)}
                     placeholder="Escribe tu respuesta..."
                   />

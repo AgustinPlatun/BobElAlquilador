@@ -174,8 +174,15 @@ export function useDetalleMaquinariaContent() {
   const handlePreguntaSubmit = async () => {
     try {
       const usuarioId = localStorage.getItem('usuarioId');
+      const usuarioRol = localStorage.getItem('usuarioRol');
+      
       if (!usuarioId) {
         alert('Debes iniciar sesión para hacer una pregunta');
+        return;
+      }
+
+      if (usuarioRol !== 'cliente') {
+        alert('Solo los clientes pueden hacer preguntas');
         return;
       }
 
@@ -211,8 +218,15 @@ export function useDetalleMaquinariaContent() {
 
     try {
       const empleadoId = localStorage.getItem('usuarioId');
+      const usuarioRol = localStorage.getItem('usuarioRol');
+      
       if (!empleadoId) {
         alert('Error de autenticación');
+        return;
+      }
+
+      if (usuarioRol !== 'empleado' && usuarioRol !== 'administrador') {
+        alert('Solo los empleados pueden responder preguntas');
         return;
       }
 
@@ -311,7 +325,7 @@ export function useDetalleMaquinariaContent() {
     handlePreguntaSubmit,
     handleRespuestaSubmit,
     abrirModalRespuesta,
-    setPreguntaSeleccionada,
+    preguntaSeleccionada, setPreguntaSeleccionada,
     showMantenimientoModal, setShowMantenimientoModal,
     mantenimientoDescripcion, setMantenimientoDescripcion,
     handleMantenimientoSubmit

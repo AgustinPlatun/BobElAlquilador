@@ -211,17 +211,6 @@ const DetalleMaquinariaContent: React.FC = () => {
                   ${maquinaria.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </span>
               </div>
-              {/* Botón de pregunta para clientes */}
-              {rol === 'cliente' && (
-                <div className="d-flex gap-2 mb-3">
-                  <button
-                    className="btn btn-outline-primary"
-                    onClick={() => setShowPreguntaModal(true)}
-                  >
-                    Hacer una pregunta
-                  </button>
-                </div>
-              )}
               <MaquinariaCalendario
                 rol={rol}
                 fechaInicio={fechaInicio}
@@ -316,9 +305,22 @@ const DetalleMaquinariaContent: React.FC = () => {
           )}
 
           {/* Sección de preguntas y respuestas */}
-          {maquinaria.preguntas && maquinaria.preguntas.length > 0 && (
-            <div className="mt-4 bg-white shadow-sm rounded p-4">
-              <h4>Preguntas y Respuestas</h4>
+          <div className="mt-4 bg-white shadow-sm rounded p-4">
+            <h4>Preguntas y Respuestas</h4>
+            
+            {/* Botón de pregunta para clientes */}
+            {rol === 'cliente' && (
+              <div className="d-flex gap-2 mb-3">
+                <button
+                  className="btn btn-outline-primary"
+                  onClick={() => setShowPreguntaModal(true)}
+                >
+                  Hacer una pregunta
+                </button>
+              </div>
+            )}
+            
+            {maquinaria.preguntas && maquinaria.preguntas.length > 0 ? (
               <div className="mt-3">
                 {maquinaria.preguntas.map((preg) => (
                   <div key={preg.id} className="border-bottom pb-3 mb-3">
@@ -355,8 +357,12 @@ const DetalleMaquinariaContent: React.FC = () => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-muted text-center py-3">
+                {rol === 'cliente' ? 'Sé el primero en hacer una pregunta' : 'No hay preguntas aún'}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <EditMaquinariaModal
@@ -521,7 +527,7 @@ const DetalleMaquinariaContent: React.FC = () => {
         }}
         onSubmit={preguntaSeleccionada ? handleRespuestaSubmit : handlePreguntaSubmit}
         pregunta={preguntaSeleccionada ? maquinaria.preguntas?.find(p => p.id === preguntaSeleccionada)?.pregunta || '' : preguntaTexto}
-        setPregunta={setPreguntaTexto}
+        setPregunta={preguntaSeleccionada ? () => {} : setPreguntaTexto}
         respuesta={respuestaTexto}
         setRespuesta={setRespuestaTexto}
         esEmpleado={!!preguntaSeleccionada}

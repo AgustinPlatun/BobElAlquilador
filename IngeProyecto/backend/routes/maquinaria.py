@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-from database.models import Maquinaria, Categoria, Reserva, CalificacionMaquinaria, PreguntaMaquinaria, HistorialMantenimiento
+from database.models import Maquinaria, Categoria, Reserva, CalificacionMaquinaria, PreguntaMaquinaria, HistorialMantenimiento, Usuario
 from database import db
 import os
 from datetime import timedelta, datetime
@@ -266,6 +266,14 @@ def preguntar_maquinaria(codigo):
         if not pregunta or not usuario_id:
             return jsonify({"message": "La pregunta y el usuario son obligatorios"}), 400
 
+        # Verificar que el usuario existe y es cliente
+        usuario = Usuario.query.get(usuario_id)
+        if not usuario:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+        
+        if usuario.rol != "cliente":
+            return jsonify({"message": "Solo los clientes pueden hacer preguntas"}), 403
+
         maquinaria = Maquinaria.query.filter_by(codigo=codigo).first()
         if not maquinaria:
             return jsonify({"message": "Maquinaria no encontrada"}), 404
@@ -293,6 +301,14 @@ def responder_pregunta(pregunta_id):
 
         if not respuesta or not empleado_id:
             return jsonify({"message": "La respuesta y el empleado son obligatorios"}), 400
+
+        # Verificar que el empleado existe y es empleado o administrador
+        empleado = Usuario.query.get(empleado_id)
+        if not empleado:
+            return jsonify({"message": "Empleado no encontrado"}), 404
+        
+        if empleado.rol not in ["empleado", "administrador"]:
+            return jsonify({"message": "Solo los empleados pueden responder preguntas"}), 403
 
         pregunta = PreguntaMaquinaria.query.get(pregunta_id)
         if not pregunta:
