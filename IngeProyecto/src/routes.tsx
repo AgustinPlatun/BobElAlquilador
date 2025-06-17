@@ -22,6 +22,7 @@ import NotFound from './pages/NotFound';
 import AltaCategoria from './pages/altas/altaCategoria';
 import BajaCategoria from './pages/bajas/bajaCategoria';
 import MisReservas from './pages/misReservas';
+import Ingresos from './pages/ingresos';
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
   {
     path: "/mis-reservas",
     element: <MisReservas />
+  },
+  {
+    path: "/ingresos",
+    element: <Ingresos />
   },
   {
     path: "/alta-maquinaria",
