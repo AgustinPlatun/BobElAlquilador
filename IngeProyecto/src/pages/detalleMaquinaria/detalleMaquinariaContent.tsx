@@ -101,6 +101,11 @@ const DetalleMaquinariaContent: React.FC = () => {
 
       const data = await response.json();
       if (data.init_point) {
+        // Guardar datos de la reserva para usarlos en pagoExitoso
+        localStorage.setItem('codigoMaquinaria', maquinaria.codigo);
+        localStorage.setItem('fechaInicio', fechaInicio.toISOString().slice(0, 10));
+        localStorage.setItem('fechaFin', fechaFin.toISOString().slice(0, 10));
+        localStorage.setItem('montoTotal', montoTotal.toString());
         window.location.href = data.init_point;
       } else {
         setShowMPError(true); // Mostrar modal de error
