@@ -99,13 +99,13 @@ const Servicios: React.FC = () => {
           </div>
           {/* Cards de maquinarias */}
           <div className="col-12 col-md-9 col-lg-10">
-            <div className="row gx-4 gy-4 justify-content-center">
+            <div className="row gx-5 gy-4 justify-content-center">
               {maquinariasFiltradas.length === 0 && (
                 <div className="text-muted mt-4">No hay maquinarias para esta categoría.</div>
               )}
               {maquinariasFiltradas.map((maquinaria) => (
                 <div
-                  className="col-10 col-sm-4 col-md-3 col-lg-2 mb-2 px-1"
+                  className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 px-2"
                   key={maquinaria.id}
                 >
                   <Card

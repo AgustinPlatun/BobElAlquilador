@@ -13,7 +13,7 @@ def baja_usuario():
     try:
         data = request.json
         email = data.get("email")
-        password = data.get("password")  # Nuevo: obtener contraseña
+        password = data.get("password")
 
         if not email or not password:
             return jsonify({"message": "Email y contraseña requeridos"}), 400

@@ -28,11 +28,9 @@ def register():
         if not nombre or not apellido or not email or not password or not fecha_nacimiento or not dni_foto or not dni_numero:
             return jsonify({"message": "Faltan datos"}), 400
 
-        # Validar que el DNI solo tenga números
         if not dni_numero.isdigit():
             return jsonify({"message": "El documento solo puede contener números."}), 400
 
-        # Validar contraseña: al menos una mayúscula y un número
         import re
         if (
             len(password) < 5
@@ -41,7 +39,6 @@ def register():
         ):
             return jsonify({"message": "La contraseña debe tener al menos 5 caracteres, una mayúscula y un número."}), 400
 
-        # Guardar la foto y definir dni_filename ANTES de actualizar usuario existente
         dni_folder = os.path.join(os.path.dirname(__file__), '../uploads/dni_clientes_fotos')
         os.makedirs(dni_folder, exist_ok=True)
         dni_filename = secure_filename(dni_foto.filename)
@@ -115,7 +112,6 @@ def registrar_empleado():
         if Usuario.query.filter_by(email=email).first():
             return jsonify({"message": "El email ya está registrado"}), 400
 
-        # Generar contraseña aleatoria con formato: al menos 5 caracteres, una mayúscula y un número
         def generar_password():
             while True:
                 pwd = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
@@ -139,7 +135,6 @@ def registrar_empleado():
         db.session.add(nuevo_empleado)
         db.session.commit()
 
-        # Enviar mail con la contraseña generada
         msg = MIMEText(
             f"¡Bienvenido/a {nombre}!\n\n"
             f"Te registraron como empleado en BobElAlquilador.\n"
@@ -183,7 +178,6 @@ def registrar_cliente():
         if Usuario.query.filter_by(email=email).first():
             return jsonify({"message": "El email ya está registrado"}), 400
 
-        # Generar contraseña aleatoria con formato: al menos 5 caracteres, una mayúscula y un número
         def generar_password():
             while True:
                 pwd = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
@@ -207,7 +201,6 @@ def registrar_cliente():
         db.session.add(nuevo_cliente)
         db.session.commit()
 
-        # Enviar mail con la contraseña generada
         msg = MIMEText(
             f"¡Bienvenido/a {nombre}!\n\n"
             f"Te registraron como cliente en BobElAlquilador.\n"

@@ -27,8 +27,8 @@ const Navbar: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setUsuario(localStorage.getItem('usuarioNombre'));
-    setRol(localStorage.getItem('usuarioRol'));
+    setUsuario(sessionStorage.getItem('usuarioNombre'));
+    setRol(sessionStorage.getItem('usuarioRol'));
   }, []);
 
   const handleLogout = () => {
@@ -40,7 +40,6 @@ const Navbar: React.FC = () => {
       { label: 'Mis datos', path: '/mis-datos' }
     ];
     
-    // Solo clientes y empleados ven "Mis Reservas"
     if (rol === 'cliente' || rol === 'empleado') {
       options.push({ label: 'Mis Reservas', path: '/mis-reservas' });
     }
@@ -199,8 +198,8 @@ const Navbar: React.FC = () => {
                 <button
                   className="btn btn-danger"
                   onClick={() => {
-                    localStorage.removeItem('usuarioNombre');
-                    localStorage.removeItem('usuarioRol');
+                    sessionStorage.removeItem('usuarioNombre');
+                    sessionStorage.removeItem('usuarioRol');
                     setUsuario(null);
                     setRol(null);
                     setShowLogoutModal(false);

@@ -98,7 +98,7 @@ def baja_maquinaria():
         codigo = data.get("codigo")
         maquinaria = Maquinaria.query.filter_by(codigo=codigo).first()
 
-        maquinaria.estado = False  # Baja lógica
+        maquinaria.estado = False 
         db.session.commit()
 
         return jsonify({"message": "Maquinaria dada de baja correctamente", "nombre": maquinaria.nombre}), 200

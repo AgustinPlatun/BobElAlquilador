@@ -42,11 +42,9 @@ def cambiar_password():
         if not check_password_hash(usuario.password, password_actual):
             return jsonify({"message": "Contraseña actual incorrecta"}), 401
 
-        # No permitir que la nueva contraseña sea igual a la actual
         if check_password_hash(usuario.password, nueva_password):
             return jsonify({"message": "La nueva contraseña no puede ser igual a la actual."}), 400
 
-        # Validar nueva contraseña
         if (
             len(nueva_password) < 5
             or not re.search(r"[A-Z]", nueva_password)
@@ -88,14 +86,11 @@ def solicitar_recuperacion():
     email = data.get("email")
     if not email:
         return jsonify({"message": "Email requerido"}), 400
-
     usuario = Usuario.query.filter_by(email=email).first()
-    # SIEMPRE responder igual, aunque el usuario no exista o no esté activo
+
     if not usuario or usuario.estado != "activa":
-        # Simular el envío para no revelar si existe o no
         return jsonify({"message": "Si existe una cuenta asociada a ese email, se enviará un enlace de recuperación."}), 200
 
-    # Si existe y está activo, enviar el mail normalmente
     token = generar_token(email)
     link = f"http://localhost:5173/recuperar-password/{token}"
     msg = MIMEText(f"Hola, nos comunicamos de Bob el alquilador! Para recuperar tu contraseña, haz clic aquí: {link}\nEste enlace es válido por 10 minutos.")
@@ -109,7 +104,6 @@ def solicitar_recuperacion():
             server.sendmail(msg["From"], [msg["To"]], msg.as_string())
     except Exception as e:
         print("Error enviando email:", e)
-        # Igual responder el mensaje genérico
         return jsonify({"message": "Si existe una cuenta asociada a ese email, se enviará un enlace de recuperación."}), 200
 
     return jsonify({"message": "Si existe una cuenta asociada a ese email, se enviará un enlace de recuperación."}), 200
@@ -131,11 +125,9 @@ def recuperar_password(token):
     if not usuario:
         return jsonify({"message": "Usuario no encontrado"}), 404
 
-    # Valida que la nueva contraseña sea distinta a la actual
     if check_password_hash(usuario.password, nueva_password):
         return jsonify({"message": "La nueva contraseña no puede ser igual a la actual."}), 400
 
-    # Valida la contraseña como en endpoint de cambio de password
     import re
     if (
         len(nueva_password) < 5

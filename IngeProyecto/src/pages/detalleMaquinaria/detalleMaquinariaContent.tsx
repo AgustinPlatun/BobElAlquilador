@@ -61,8 +61,8 @@ const DetalleMaquinariaContent: React.FC = () => {
   const montoTotal = maquinaria ? (maquinaria.precio * diasSeleccionados) : 0;
 
   const handleAlquilar = async () => {
-    const usuarioNombre = localStorage.getItem('usuarioNombre');
-    const usuarioEmail = localStorage.getItem('usuarioEmail');
+    const usuarioNombre = sessionStorage.getItem('usuarioNombre');
+    const usuarioEmail = sessionStorage.getItem('usuarioEmail');
     if (!usuarioNombre) {
       setShowLoginModal(true);
       return;

@@ -115,7 +115,7 @@ export function useDetalleMaquinariaContent() {
         }
       });
 
-    const storedRol = localStorage.getItem('usuarioRol');
+    const storedRol = sessionStorage.getItem('usuarioRol');
     setRol(storedRol);
 
     fetch('http://localhost:5000/categorias-activas')
@@ -136,7 +136,7 @@ export function useDetalleMaquinariaContent() {
 
   const handleCalificacionSubmit = async () => {
     try {
-      const usuarioId = localStorage.getItem('usuarioId');
+      const usuarioId = sessionStorage.getItem('usuarioId');
       if (!usuarioId) {
         alert('Debes iniciar sesión para calificar');
         return;
@@ -173,8 +173,8 @@ export function useDetalleMaquinariaContent() {
 
   const handlePreguntaSubmit = async () => {
     try {
-      const usuarioId = localStorage.getItem('usuarioId');
-      const usuarioRol = localStorage.getItem('usuarioRol');
+      const usuarioId = sessionStorage.getItem('usuarioId');
+      const usuarioRol = sessionStorage.getItem('usuarioRol');
       
       if (!usuarioId) {
         alert('Debes iniciar sesión para hacer una pregunta');
@@ -217,8 +217,8 @@ export function useDetalleMaquinariaContent() {
     if (!preguntaSeleccionada) return;
 
     try {
-      const empleadoId = localStorage.getItem('usuarioId');
-      const usuarioRol = localStorage.getItem('usuarioRol');
+      const empleadoId = sessionStorage.getItem('usuarioId');
+      const usuarioRol = sessionStorage.getItem('usuarioRol');
       
       if (!empleadoId) {
         alert('Error de autenticación');
@@ -267,7 +267,7 @@ export function useDetalleMaquinariaContent() {
 
   const handleMantenimientoSubmit = async () => {
     try {
-      const empleadoId = localStorage.getItem('usuarioId');
+      const empleadoId = sessionStorage.getItem('usuarioId');
       if (!empleadoId) {
         alert('Error de autenticación');
         return;

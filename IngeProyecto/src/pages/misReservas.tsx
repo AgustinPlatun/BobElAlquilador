@@ -25,7 +25,7 @@ const MisReservas: React.FC = () => {
   useEffect(() => {
     const cargarReservas = async () => {
       try {
-        const usuarioId = localStorage.getItem('usuarioId');
+        const usuarioId = sessionStorage.getItem('usuarioId');
         if (!usuarioId) {
           setError('Debes iniciar sesión para ver tus reservas');
           setLoading(false);

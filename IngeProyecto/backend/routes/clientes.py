@@ -19,7 +19,6 @@ def rechazar_usuario(usuario_id):
     usuario.estado = "rechazado"
     db.session.commit()
 
-    # Enviar mail con motivo
     msg = MIMEText(
         f"Hola, nos comunicamos de Bob el alquilador ! Le informamos que su cuenta fue rechazada por el siguiente motivo:\n\n{motivo}\n\nSaludos,\nEl equipo de Bob el alquilador",
         _charset="utf-8"
@@ -46,7 +45,6 @@ def activar_usuario(usuario_id):
     usuario.estado = "activa"
     db.session.commit()
 
-    # Enviar mail de activación
     msg = MIMEText(
         f"Hola, nos comunicamos de Bob El Alquilador.\n\n"
         "¡Tu cuenta fue activada! Ya podés ingresar al sistema y disfrutar de nuestros servicios.\n\n"

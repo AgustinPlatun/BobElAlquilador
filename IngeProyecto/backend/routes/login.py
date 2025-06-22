@@ -50,7 +50,6 @@ Para completar tu inicio de sesión como administrador, por favor ingresa el sig
                 print("Error enviando email:", e)
             return jsonify({"require_code": True}), 200
 
-        # Si no es admin, login normal
         return jsonify({
             "message": "Inicio de sesión exitoso",
             "nombre": usuario.nombre,
@@ -68,7 +67,6 @@ def verificar_codigo():
     email = data.get("email")
     codigo = data.get("codigo")
 
-    # Validación: debe tener exactamente 5 dígitos numéricos
     if not re.fullmatch(r"\d{5}", codigo or ""):
         return jsonify({"message": "Código inválido. Debe tener exactamente 5 dígitos numéricos."}), 400
 
@@ -81,7 +79,6 @@ def verificar_codigo():
         if not usuario:
             return jsonify({"message": "Usuario no encontrado"}), 404
 
-        # Borrar el código una vez usado
         session.pop(email, None)
 
         return jsonify({

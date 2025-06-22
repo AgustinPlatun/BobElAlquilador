@@ -29,10 +29,10 @@ const Login: React.FC = () => {
         return;
       }
       // Login normal
-      localStorage.setItem('usuarioNombre', response.data.nombre);
-      localStorage.setItem('usuarioRol', response.data.rol);
-      localStorage.setItem('usuarioEmail', response.data.email);
-      localStorage.setItem('usuarioId', response.data.id);
+      sessionStorage.setItem('usuarioNombre', response.data.nombre);
+      sessionStorage.setItem('usuarioRol', response.data.rol);
+      sessionStorage.setItem('usuarioEmail', response.data.email);
+      sessionStorage.setItem('usuarioId', response.data.id);
       navigate('/');
     } catch (error: any) {
       setError(error.response?.data?.message || 'Error al iniciar sesión');
@@ -65,10 +65,10 @@ const Login: React.FC = () => {
         { email, codigo },
         { withCredentials: true }
       );
-      localStorage.setItem('usuarioNombre', response.data.nombre);
-      localStorage.setItem('usuarioRol', response.data.rol);
-      localStorage.setItem('usuarioEmail', response.data.email);
-      localStorage.setItem('usuarioId', response.data.id);
+      sessionStorage.setItem('usuarioNombre', response.data.nombre);
+      sessionStorage.setItem('usuarioRol', response.data.rol);
+      sessionStorage.setItem('usuarioEmail', response.data.email);
+      sessionStorage.setItem('usuarioId', response.data.id);
       navigate('/');
     } catch (error: any) {
       setError(error.response?.data?.message || 'Código incorrecto');
