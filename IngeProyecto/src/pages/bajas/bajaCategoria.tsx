@@ -21,18 +21,6 @@ const BajaCategoria: React.FC = () => {
     fetchCategorias();
   }, []);
 
-  if (rol !== 'administrador') {
-    return (
-      <div>
-        <Navbar />
-        <div className="container py-5">
-          <div className="alert alert-danger text-center">
-            Solo el administrador puede dar de baja categorías.
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const handleBajaCategoria = async () => {
     setMensaje('');

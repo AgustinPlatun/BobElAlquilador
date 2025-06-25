@@ -147,7 +147,7 @@ const DetalleMaquinariaContent: React.FC = () => {
             />
             <div className="col-md-5 d-flex flex-column">
               {/* Botones de mantenimiento para empleados */}
-              {rol === 'empleado' && (
+              {rol === 'empleado'  && (
                 <div className="d-flex gap-2 mb-4">
                   <button
                     className="btn btn-primary"

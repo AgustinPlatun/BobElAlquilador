@@ -7,9 +7,9 @@ import { useNavigate } from 'react-router-dom';
 const MisDatos: React.FC = () => {
   const navigate = useNavigate();
 
-  const email = localStorage.getItem('usuarioEmail');
-  const nombre = localStorage.getItem('usuarioNombre');
-  const rol = localStorage.getItem('usuarioRol');
+  const email = sessionStorage.getItem('usuarioEmail');
+  const nombre = sessionStorage.getItem('usuarioNombre');
+  const rol = sessionStorage.getItem('usuarioRol');
 
   const [apellido, setApellido] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
@@ -124,7 +124,7 @@ const MisDatos: React.FC = () => {
       setShowConfirmModal(false);
 
       // Cerrar sesión limpiando localStorage y redirigiendo a login
-      localStorage.clear();
+      sessionStorage.clear();
       navigate('/login');
     } catch (error: any) {
       setErrorEliminar(error.response?.data?.message || 'Error al eliminar la cuenta');

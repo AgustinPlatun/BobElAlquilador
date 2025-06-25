@@ -7,19 +7,6 @@ const AltaCategoria: React.FC = () => {
   const [error, setError] = useState('');
   const rol = localStorage.getItem('usuarioRol');
 
-  if (rol !== 'administrador') {
-    return (
-      <div>
-        <Navbar />
-        <div className="container py-5">
-          <div className="alert alert-danger text-center">
-            Solo el administrador puede dar de alta categorías.
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const handleAltaCategoria = async () => {
     setMensaje('');
     setError('');

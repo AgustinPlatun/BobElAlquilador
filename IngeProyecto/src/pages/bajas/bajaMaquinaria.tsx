@@ -9,20 +9,6 @@ const BajaMaquinaria: React.FC = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const rol = localStorage.getItem('usuarioRol');
 
-  // Solo permitir acceso a administradores
-  if (rol !== 'administrador') {
-    return (
-      <div>
-        <Navbar />
-        <div className="container py-5">
-          <div className="alert alert-danger text-center">
-            Solo el administrador puede dar de baja maquinarias.
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Obtener todas las maquinarias activas al montar
   useEffect(() => {
     const fetchMaquinarias = async () => {

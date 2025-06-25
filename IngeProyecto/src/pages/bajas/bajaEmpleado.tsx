@@ -23,18 +23,6 @@ const BajaEmpleado: React.FC = () => {
     fetchEmpleados();
   }, []);
 
-  if (rol !== 'administrador') {
-    return (
-      <div>
-        <Navbar />
-        <div className="container py-5">
-          <div className="alert alert-danger text-center">
-            Solo el administrador puede dar de baja empleados.
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const handleBuscarEmpleado = () => {
     setMensaje('');
