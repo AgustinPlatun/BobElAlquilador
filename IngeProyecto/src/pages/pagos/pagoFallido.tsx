@@ -7,9 +7,9 @@ const PagoFallido: React.FC = () => {
       <div className="alert alert-danger p-5 shadow-sm">
         <h1 className="mb-4">¡Algo salió mal!</h1>
         <p className="lead">Tu pago no pudo ser procesado. Por favor, intentá nuevamente.</p>
-        <Link to="/" className="btn btn-danger mt-3">
-          Volver al inicio
-        </Link>
+          <a href="http://localhost:5173/" className="btn btn-success mt-3">
+            Volver al inicio
+          </a>
       </div>
     </div>
   );
