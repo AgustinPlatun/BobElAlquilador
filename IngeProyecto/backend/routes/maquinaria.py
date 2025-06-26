@@ -25,9 +25,9 @@ def alta_maquinaria():
 
         existente = Maquinaria.query.filter_by(codigo=codigo).first()
         if existente:
-            if existente.estado:  # Si está activa
+            if existente.estado: 
                 return jsonify({"message": "Ya existe una maquinaria con ese código."}), 400
-            else:  # Si está inactiva
+            else:
                 return jsonify({
                     "message": f"Existe una maquinaria inactiva con ese código: {existente.nombre}. ¿Desea reactivarla?",
                     "reactivar": True,
@@ -39,7 +39,6 @@ def alta_maquinaria():
         except ValueError:
             return jsonify({"message": "El precio debe ser un número válido"}), 400
 
-        # Validar categoría si se envía
         if categoria_id:
             categoria = Categoria.query.get(categoria_id)
             if not categoria:
@@ -128,7 +127,6 @@ def editar_maquinaria(codigo):
         maquinaria.precio = float(precio)
         maquinaria.politicas_reembolso = politicas_reembolso
 
-        # Validar categoría si se envía
         if categoria_id:
             categoria = Categoria.query.get(categoria_id)
             if not categoria:

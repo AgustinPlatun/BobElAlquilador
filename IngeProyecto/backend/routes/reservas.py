@@ -7,17 +7,14 @@ reservas_bp = Blueprint("reservas", __name__)
 @reservas_bp.route("/mis-reservas/<int:usuario_id>", methods=["GET"])
 def obtener_mis_reservas(usuario_id):
     try:
-        # Verificar que el usuario existe
         usuario = Usuario.query.get(usuario_id)
         if not usuario:
             return jsonify({"message": "Usuario no encontrado"}), 404
-
-        # Obtener todas las reservas del usuario
+        
         reservas = Reserva.query.filter_by(usuario_id=usuario_id).order_by(Reserva.fecha_inicio.desc()).all()
         
         resultado = []
         for reserva in reservas:
-            # Calcular duración en días
             duracion_dias = (reserva.fecha_fin - reserva.fecha_inicio).days + 1
             
             resultado.append({

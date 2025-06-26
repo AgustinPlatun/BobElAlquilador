@@ -15,7 +15,6 @@ def preguntar_maquinaria(codigo):
         if not pregunta or not usuario_id:
             return jsonify({"message": "La pregunta y el usuario son obligatorios"}), 400
 
-        # Verificar que el usuario existe y es cliente
         usuario = Usuario.query.get(usuario_id)
         if not usuario:
             return jsonify({"message": "Usuario no encontrado"}), 404
@@ -51,7 +50,6 @@ def responder_pregunta(pregunta_id):
         if not respuesta or not empleado_id:
             return jsonify({"message": "La respuesta y el empleado son obligatorios"}), 400
 
-        # Verificar que el empleado existe y es empleado o administrador
         empleado = Usuario.query.get(empleado_id)
         if not empleado:
             return jsonify({"message": "Empleado no encontrado"}), 404

@@ -47,37 +47,28 @@ const Ingresos: React.FC = () => {
       const response = await fetch('http://localhost:5000/anios-disponibles');
       if (response.ok) {
         const data = await response.json();
-        console.log('Datos recibidos del backend:', data); // Debug
         if (data.anio_minimo && data.anio_maximo) {
           const anios = [];
           for (let anio = data.anio_maximo; anio >= data.anio_minimo; anio--) {
             anios.push(anio);
           }
-          console.log('Años generados:', anios); // Debug
           setAniosDisponibles(anios);
         } else {
-          // Si no hay reservas, mostrar solo el año actual
           setAniosDisponibles([new Date().getFullYear()]);
         }
       } else {
-        console.error('Error en response:', response.status); // Debug
-        // En caso de error, mostrar los últimos 5 años como fallback
         setAniosDisponibles(Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i));
       }
     } catch (err) {
-      console.error('Error en fetch:', err); // Debug
-      // En caso de error, mostrar los últimos 5 años como fallback
       setAniosDisponibles(Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i));
     }
   };
 
   const cargarCategorias = async () => {
     try {
-      console.log('Cargando categorías...'); // Debug
       const response = await fetch('http://localhost:5000/categorias');
       if (response.ok) {
         const data = await response.json();
-        console.log('Categorías cargadas:', data); // Debug
         setCategorias(data);
       }
     } catch (err) {
@@ -94,7 +85,6 @@ const Ingresos: React.FC = () => {
         ? `http://localhost:5000/ingresos-mensuales/${anioSeleccionado}`
         : 'http://localhost:5000/ingresos-anuales';
       
-      // Agregar filtro por categoría si está seleccionada
       if (categoriaSeleccionada) {
         url += `?categoria_id=${categoriaSeleccionada}`;
       }
@@ -116,7 +106,6 @@ const Ingresos: React.FC = () => {
   };
 
   const handleVistaChange = (nuevaVista: 'mensual' | 'anual') => {
-    // Solo cambiar si es una vista diferente
     if (vista === nuevaVista) return;
     
     setVista(nuevaVista);

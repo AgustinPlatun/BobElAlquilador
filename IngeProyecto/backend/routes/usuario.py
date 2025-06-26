@@ -28,8 +28,7 @@ def baja_usuario():
 
         if usuario.estado.lower() != "activa":
             return jsonify({"message": "Solo se pueden desactivar cuentas activas"}), 400
-
-        # Validar contraseña
+        
         if not check_password_hash(usuario.password, password):
             return jsonify({"message": "Contraseña incorrecta"}), 401
 
