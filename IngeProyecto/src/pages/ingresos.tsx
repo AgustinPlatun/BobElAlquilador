@@ -14,6 +14,11 @@ interface IngresoAnual {
   cantidad_reservas: number;
 }
 
+interface Categoria {
+  id: number;
+  nombre: string;
+}
+
 const Ingresos: React.FC = () => {
   const [ingresosMensuales, setIngresosMensuales] = useState<IngresoMensual[]>([]);
   const [ingresosAnuales, setIngresosAnuales] = useState<IngresoAnual[]>([]);
@@ -21,51 +26,87 @@ const Ingresos: React.FC = () => {
   const [error, setError] = useState('');
   const [vista, setVista] = useState<'mensual' | 'anual' | null>(null);
   const [anioSeleccionado, setAnioSeleccionado] = useState(new Date().getFullYear());
+  const [aniosDisponibles, setAniosDisponibles] = useState<number[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
 
-  const meses = [
-    { numero: 1, nombre: 'Enero' },
-    { numero: 2, nombre: 'Febrero' },
-    { numero: 3, nombre: 'Marzo' },
-    { numero: 4, nombre: 'Abril' },
-    { numero: 5, nombre: 'Mayo' },
-    { numero: 6, nombre: 'Junio' },
-    { numero: 7, nombre: 'Julio' },
-    { numero: 8, nombre: 'Agosto' },
-    { numero: 9, nombre: 'Septiembre' },
-    { numero: 10, nombre: 'Octubre' },
-    { numero: 11, nombre: 'Noviembre' },
-    { numero: 12, nombre: 'Diciembre' }
-  ];
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   useEffect(() => {
-    if (vista) {
-      cargarIngresos();
+    cargarAniosDisponibles();
+    cargarCategorias();
+  }, []);
+
+  useEffect(() => {
+    if (vista) cargarIngresos();
+  }, [vista, anioSeleccionado, categoriaSeleccionada]);
+
+  const cargarAniosDisponibles = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/anios-disponibles');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Datos recibidos del backend:', data); // Debug
+        if (data.anio_minimo && data.anio_maximo) {
+          const anios = [];
+          for (let anio = data.anio_maximo; anio >= data.anio_minimo; anio--) {
+            anios.push(anio);
+          }
+          console.log('Años generados:', anios); // Debug
+          setAniosDisponibles(anios);
+        } else {
+          // Si no hay reservas, mostrar solo el año actual
+          setAniosDisponibles([new Date().getFullYear()]);
+        }
+      } else {
+        console.error('Error en response:', response.status); // Debug
+        // En caso de error, mostrar los últimos 5 años como fallback
+        setAniosDisponibles(Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i));
+      }
+    } catch (err) {
+      console.error('Error en fetch:', err); // Debug
+      // En caso de error, mostrar los últimos 5 años como fallback
+      setAniosDisponibles(Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i));
     }
-  }, [vista, anioSeleccionado]);
+  };
+
+  const cargarCategorias = async () => {
+    try {
+      console.log('Cargando categorías...'); // Debug
+      const response = await fetch('http://localhost:5000/categorias');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Categorías cargadas:', data); // Debug
+        setCategorias(data);
+      }
+    } catch (err) {
+      console.error('Error al cargar categorías:', err);
+    }
+  };
 
   const cargarIngresos = async () => {
     try {
       setLoading(true);
       setError('');
       
-      if (vista === 'mensual') {
-        const response = await fetch(`http://localhost:5000/ingresos-mensuales/${anioSeleccionado}`);
-        if (response.ok) {
-          const data = await response.json();
-          setIngresosMensuales(data);
-        } else {
-          const errorData = await response.json();
-          setError(errorData.message || 'Error al cargar los ingresos mensuales');
-        }
-      } else if (vista === 'anual') {
-        const response = await fetch('http://localhost:5000/ingresos-anuales');
-        if (response.ok) {
-          const data = await response.json();
-          setIngresosAnuales(data);
-        } else {
-          const errorData = await response.json();
-          setError(errorData.message || 'Error al cargar los ingresos anuales');
-        }
+      let url = vista === 'mensual' 
+        ? `http://localhost:5000/ingresos-mensuales/${anioSeleccionado}`
+        : 'http://localhost:5000/ingresos-anuales';
+      
+      // Agregar filtro por categoría si está seleccionada
+      if (categoriaSeleccionada) {
+        url += `?categoria_id=${categoriaSeleccionada}`;
+      }
+      
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        vista === 'mensual' ? setIngresosMensuales(data) : setIngresosAnuales(data);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || `Error al cargar los ingresos ${vista}es`);
       }
     } catch (err) {
       setError('Error de conexión al cargar los ingresos');
@@ -75,6 +116,9 @@ const Ingresos: React.FC = () => {
   };
 
   const handleVistaChange = (nuevaVista: 'mensual' | 'anual') => {
+    // Solo cambiar si es una vista diferente
+    if (vista === nuevaVista) return;
+    
     setVista(nuevaVista);
     setIngresosMensuales([]);
     setIngresosAnuales([]);
@@ -83,113 +127,66 @@ const Ingresos: React.FC = () => {
 
   const obtenerIngresoMensual = (mes: number) => {
     return ingresosMensuales.find(ingreso => ingreso.mes === mes) || {
-      mes: mes,
-      mes_nombre: meses.find(m => m.numero === mes)?.nombre || '',
-      total: 0,
-      cantidad_reservas: 0
+      mes, mes_nombre: meses[mes - 1], total: 0, cantidad_reservas: 0
     };
   };
 
-  if (!vista) {
-    return (
-      <div>
-        <Navbar />
-        <div className="container py-5">
-          <div className="row">
-            <div className="col-12">
-              <div className="text-center mb-5">
-                <h2 className="fw-bold mb-3">Reporte de Ingresos</h2>
-                <p className="text-muted">Selecciona el tipo de reporte que deseas ver</p>
-              </div>
-
-              {/* Selector de vista */}
-              <div className="d-flex justify-content-center">
-                <div className="btn-group" role="group">
-                  <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    onClick={() => handleVistaChange('mensual')}
-                  >
-                    Ingresos Mensuales
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    onClick={() => handleVistaChange('anual')}
-                  >
-                    Ingresos Anuales
-                  </button>
-                </div>
-              </div>
-            </div>
+  const renderContent = () => {
+    if (!vista) {
+      return (
+        <div className="text-center">
+          <h2 className="fw-bold mb-3">Reporte de Ingresos</h2>
+          <p className="text-muted mb-4">Selecciona el tipo de reporte que deseas ver</p>
+          <div className="btn-group">
+            <button className="btn btn-outline-primary" onClick={() => handleVistaChange('mensual')}>
+              Ingresos Mensuales
+            </button>
+            <button className="btn btn-outline-primary" onClick={() => handleVistaChange('anual')}>
+              Ingresos Anuales
+            </button>
           </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (loading) {
-    return (
-      <div>
-        <Navbar />
-        <div className="container py-5">
-          <div className="text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Cargando...</span>
-            </div>
-            <p className="mt-3">Cargando ingresos...</p>
+    if (loading) {
+      return (
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando...</span>
           </div>
+          <p className="mt-3">Cargando ingresos...</p>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (error) {
+    if (error) {
+      return <div className="alert alert-danger text-center">{error}</div>;
+    }
+
+    const hayDatos = vista === 'mensual' 
+      ? ingresosMensuales.some(item => item.total > 0)
+      : ingresosAnuales.length > 0;
+
     return (
-      <div>
-        <Navbar />
-        <div className="container py-5">
-          <div className="alert alert-danger text-center">
-            {error}
+      <>
+        <div className="text-center mb-4">
+          <h2 className="fw-bold mb-3">Reporte de Ingresos</h2>
+          <div className="btn-group mb-3">
+            {['mensual', 'anual'].map(tipo => (
+              <button
+                key={tipo}
+                className={`btn ${vista === tipo ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => handleVistaChange(tipo as 'mensual' | 'anual')}
+              >
+                Ingresos {tipo === 'mensual' ? 'Mensuales' : 'Anuales'}
+              </button>
+            ))}
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <Navbar />
-      <div className="container py-5">
-        <div className="row">
-          <div className="col-12">
-            <div className="text-center mb-5">
-              <h2 className="fw-bold mb-3">Reporte de Ingresos</h2>
-            </div>
-
-            {/* Selector de vista */}
-            <div className="d-flex justify-content-center mb-4">
-              <div className="btn-group" role="group">
-                <button
-                  type="button"
-                  className={`btn ${vista === 'mensual' ? 'btn-primary' : 'btn-outline-primary'}`}
-                  onClick={() => handleVistaChange('mensual')}
-                >
-                  Ingresos Mensuales
-                </button>
-                <button
-                  type="button"
-                  className={`btn ${vista === 'anual' ? 'btn-primary' : 'btn-outline-primary'}`}
-                  onClick={() => handleVistaChange('anual')}
-                >
-                  Ingresos Anuales
-                </button>
-              </div>
-            </div>
-
-            {/* Selector de año para vista mensual */}
-            {vista === 'mensual' && (
-              <div className="text-center mb-4">
+          
+          {vista === 'mensual' && (
+            <div className="d-flex justify-content-center align-items-center gap-3 flex-wrap">
+              <div>
                 <label htmlFor="anioSelector" className="form-label me-2">Año:</label>
                 <select
                   id="anioSelector"
@@ -197,94 +194,131 @@ const Ingresos: React.FC = () => {
                   value={anioSeleccionado}
                   onChange={(e) => setAnioSeleccionado(parseInt(e.target.value))}
                 >
-                  {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(anio => (
+                  {aniosDisponibles.map(anio => (
                     <option key={anio} value={anio}>{anio}</option>
                   ))}
                 </select>
               </div>
-            )}
-
-            {/* Tabla de ingresos */}
-            <div className="card border-0 shadow-sm">
-              <div className="card-header bg-primary text-white">
-                <h5 className="mb-0">
-                  {vista === 'mensual' ? `Ingresos Mensuales - ${anioSeleccionado}` : 'Ingresos Anuales'}
-                </h5>
-              </div>
-              <div className="card-body">
-                {vista === 'mensual' && (ingresosMensuales.length === 0 || ingresosMensuales.every(item => item.total === 0)) ? (
-                  <div className="text-center py-4">
-                    <p className="text-muted mb-0">No hay ingresos registrados para el año {anioSeleccionado}</p>
-                  </div>
-                ) : (
-                  <div className="table-responsive">
-                    <table className="table table-hover">
-                      <thead>
-                        <tr>
-                          <th>{vista === 'mensual' ? 'Mes' : 'Año'}</th>
-                          <th>Ingresos</th>
-                          <th>Reservas</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {vista === 'mensual' ? (
-                          // Mostrar todos los 12 meses
-                          meses.map((mes) => {
-                            const ingreso = obtenerIngresoMensual(mes.numero);
-                            return (
-                              <tr key={mes.numero}>
-                                <td className="fw-bold">
-                                  {mes.nombre}
-                                </td>
-                                <td className={`fw-bold ${ingreso.total > 0 ? 'text-success' : 'text-muted'}`}>
-                                  ${ingreso.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                                </td>
-                                <td>
-                                  <span className={`badge ${ingreso.cantidad_reservas > 0 ? 'bg-info' : 'bg-secondary'}`}>
-                                    {ingreso.cantidad_reservas}
-                                  </span>
-                                </td>
-                              </tr>
-                            );
-                          })
-                        ) : (
-                          // Mostrar años con datos
-                          ingresosAnuales.length > 0 ? (
-                            ingresosAnuales.map((item) => {
-                              const anualItem = item as IngresoAnual;
-                              return (
-                                <tr key={anualItem.anio}>
-                                  <td className="fw-bold">
-                                    {anualItem.anio}
-                                  </td>
-                                  <td className="text-success fw-bold">
-                                    ${anualItem.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                                  </td>
-                                  <td>
-                                    <span className="badge bg-info">{anualItem.cantidad_reservas}</span>
-                                  </td>
-                                </tr>
-                              );
-                            })
-                          ) : (
-                            <tr>
-                              <td colSpan={3} className="text-center text-muted py-4">
-                                No hay ingresos anuales registrados
-                              </td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+              
+              <div>
+                <label htmlFor="categoriaSelector" className="form-label me-2">Categoría:</label>
+                <select
+                  id="categoriaSelector"
+                  className="form-select d-inline-block w-auto"
+                  value={categoriaSeleccionada || ''}
+                  onChange={(e) => setCategoriaSeleccionada(e.target.value ? parseInt(e.target.value) : null)}
+                >
+                  <option value="">Todas las categorías</option>
+                  {categorias.map(categoria => (
+                    <option key={categoria.id} value={categoria.id}>
+                      {categoria.nombre}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
+          )}
+
+          {vista === 'anual' && (
+            <div className="d-flex justify-content-center align-items-center">
+              <div>
+                <label htmlFor="categoriaSelector" className="form-label me-2">Categoría:</label>
+                <select
+                  id="categoriaSelector"
+                  className="form-select d-inline-block w-auto"
+                  value={categoriaSeleccionada || ''}
+                  onChange={(e) => setCategoriaSeleccionada(e.target.value ? parseInt(e.target.value) : null)}
+                >
+                  <option value="">Todas las categorías</option>
+                  {categorias.map(categoria => (
+                    <option key={categoria.id} value={categoria.id}>
+                      {categoria.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="card border-0 shadow-sm">
+          <div className="card-header bg-primary text-white">
+            <h5 className="mb-0">
+              {vista === 'mensual' ? `Ingresos Mensuales - ${anioSeleccionado}` : 'Ingresos Anuales'}
+              {categoriaSeleccionada && (
+                <span className="badge bg-light text-primary ms-2">
+                  {categorias.find(c => c.id === categoriaSeleccionada)?.nombre}
+                </span>
+              )}
+            </h5>
+          </div>
+          <div className="card-body">
+            {!hayDatos ? (
+              <div className="text-center py-4">
+                <p className="text-muted mb-0">
+                  No hay ingresos registrados
+                  {vista === 'mensual' ? ` para el año ${anioSeleccionado}` : ''}
+                  {categoriaSeleccionada ? ` en la categoría ${categorias.find(c => c.id === categoriaSeleccionada)?.nombre}` : ''}
+                </p>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>{vista === 'mensual' ? 'Mes' : 'Año'}</th>
+                      <th>Ingresos</th>
+                      <th>Reservas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vista === 'mensual' 
+                      ? meses.map((mes, index) => {
+                          const ingreso = obtenerIngresoMensual(index + 1);
+                          return (
+                            <tr key={index + 1}>
+                              <td className="fw-bold">{mes}</td>
+                              <td className={`fw-bold ${ingreso.total > 0 ? 'text-success' : 'text-muted'}`}>
+                                ${ingreso.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td>
+                                <span className={`badge ${ingreso.cantidad_reservas > 0 ? 'bg-info' : 'bg-secondary'}`}>
+                                  {ingreso.cantidad_reservas}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      : ingresosAnuales.map((item) => (
+                          <tr key={item.anio}>
+                            <td className="fw-bold">{item.anio}</td>
+                            <td className="text-success fw-bold">
+                              ${item.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td>
+                              <span className="badge bg-info">{item.cantidad_reservas}</span>
+                            </td>
+                          </tr>
+                        ))
+                    }
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
+      </>
+    );
+  };
+
+  return (
+    <div>
+      <Navbar />
+      <div className="container py-5">
+        {renderContent()}
       </div>
     </div>
   );
 };
 
-export default Ingresos; 
+export default Ingresos;

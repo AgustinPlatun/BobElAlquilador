@@ -44,3 +44,12 @@ def categorias_activas():
         {"id": c.id, "nombre": c.nombre}
         for c in categorias
     ]), 200
+
+@categoria_bp.route('/categorias', methods=['GET'])
+def todas_las_categorias():
+    """Endpoint para obtener todas las categorías (activas e inactivas)"""
+    categorias = Categoria.query.all()
+    return jsonify([
+        {"id": c.id, "nombre": c.nombre, "estado": c.estado}
+        for c in categorias
+    ]), 200
