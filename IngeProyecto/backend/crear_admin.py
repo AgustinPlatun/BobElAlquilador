@@ -26,7 +26,7 @@ with app.app_context():
     # Cambiar rol de cliente a admin para el usuario especificado
     usuario = Usuario.query.filter_by(email="rodripincha7@gmail.com").first()
     if usuario:
-        usuario.rol = "admininstrador"
+        usuario.rol = "administrador"
         db.session.commit()
         print("Rol actualizado a admin para rodripincha7@gmail.com.")
     else:
@@ -36,7 +36,7 @@ with app.app_context():
     # Cambiar rol de cliente a admin para el usuario especificado
     usuario = Usuario.query.filter_by(email="violetavillavicencio@gmail.com").first()
     if usuario:
-        usuario.rol = "admininstrador"
+        usuario.rol = "administrador"
         db.session.commit()
         print("Rol actualizado a admin para violetavillavicencio@gmail.com.")
     else:
