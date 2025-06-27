@@ -22,8 +22,22 @@ with app.app_context():
     else:
         print("Ya existe un usuario con ese email.")
 
+with app.app_context():
+    # Cambiar rol de cliente a admin para el usuario especificado
+    usuario = Usuario.query.filter_by(email="rodripincha7@gmail.com").first()
+    if usuario:
+        usuario.rol = "admininstrador"
+        db.session.commit()
+        print("Rol actualizado a admin para rodripincha7@gmail.com.")
+    else:
+        print("No se encontró el usuario con ese email.")
 
-
-
-
-
+with app.app_context():
+    # Cambiar rol de cliente a admin para el usuario especificado
+    usuario = Usuario.query.filter_by(email="violetavillavicencio@gmail.com").first()
+    if usuario:
+        usuario.rol = "admininstrador"
+        db.session.commit()
+        print("Rol actualizado a admin para violetavillavicencio@gmail.com.")
+    else:
+        print("No se encontró el usuario con ese email.")
