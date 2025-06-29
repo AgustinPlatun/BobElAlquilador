@@ -102,3 +102,23 @@ def obtener_preguntas(codigo):
 
     except Exception as e:
         return jsonify({"message": "Hubo un problema al obtener las preguntas", "error": str(e)}), 500
+
+@preguntas_bp.route("/preguntas-sin-responder", methods=["GET"])
+def preguntas_sin_responder():
+    preguntas = PreguntaMaquinaria.query.filter(
+        (PreguntaMaquinaria.respuesta == None) | (PreguntaMaquinaria.respuesta == "")
+    ).order_by(PreguntaMaquinaria.fecha_pregunta.desc()).all()
+    resultado = [
+        {
+            "id": p.id,
+            "pregunta": p.pregunta,
+            "fecha_pregunta": p.fecha_pregunta.strftime("%Y-%m-%d %H:%M:%S"),
+            "usuario_id": p.usuario_id,
+            "usuario_nombre": p.usuario.nombre if p.usuario else "",
+            "maquinaria_id": p.maquinaria_id,
+            "maquinaria_nombre": p.maquinaria.nombre if p.maquinaria else "",
+            "maquinaria_codigo": p.maquinaria.codigo if p.maquinaria else ""
+        }
+        for p in preguntas
+    ]
+    return jsonify(resultado), 200

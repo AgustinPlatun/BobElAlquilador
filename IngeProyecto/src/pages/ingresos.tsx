@@ -29,6 +29,8 @@ const Ingresos: React.FC = () => {
   const [aniosDisponibles, setAniosDisponibles] = useState<number[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
+  const [ordenarPorMonto, setOrdenarPorMonto] = useState(false);
+  const [ordenarAniosPorMonto, setOrdenarAniosPorMonto] = useState(false);
 
   const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
                  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -205,11 +207,18 @@ const Ingresos: React.FC = () => {
                   ))}
                 </select>
               </div>
+
+              <button
+                className={`btn btn-sm ${ordenarPorMonto ? 'btn-secondary' : 'btn-outline-secondary'} ms-2`}
+                onClick={() => setOrdenarPorMonto((prev) => !prev)}
+              >
+                {ordenarPorMonto ? 'Ver por mes' : 'Ordenar por monto'}
+              </button>
             </div>
           )}
 
           {vista === 'anual' && (
-            <div className="d-flex justify-content-center align-items-center">
+            <div className="d-flex justify-content-center align-items-center gap-3 flex-wrap">
               <div>
                 <label htmlFor="categoriaSelector" className="form-label me-2">Categoría:</label>
                 <select
@@ -226,6 +235,12 @@ const Ingresos: React.FC = () => {
                   ))}
                 </select>
               </div>
+              <button
+                className={`btn btn-sm ${ordenarAniosPorMonto ? 'btn-secondary' : 'btn-outline-secondary'} ms-2`}
+                onClick={() => setOrdenarAniosPorMonto((prev) => !prev)}
+              >
+                {ordenarAniosPorMonto ? 'Ver por año' : 'Ordenar por monto'}
+              </button>
             </div>
           )}
         </div>
@@ -261,12 +276,17 @@ const Ingresos: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {vista === 'mensual' 
-                      ? meses.map((mes, index) => {
-                          const ingreso = obtenerIngresoMensual(index + 1);
-                          return (
-                            <tr key={index + 1}>
-                              <td className="fw-bold">{mes}</td>
+                    {vista === 'mensual'
+                      ? (
+                          (ordenarPorMonto
+                            ? [...ingresosMensuales].sort((a, b) => b.total - a.total)
+                            : meses.map((mes, index) => {
+                                const ingreso = obtenerIngresoMensual(index + 1);
+                                return { ...ingreso, mes_nombre: mes };
+                              })
+                          ).map((ingreso, idx) => (
+                            <tr key={ingreso.mes || idx}>
+                              <td className="fw-bold">{ingreso.mes_nombre}</td>
                               <td className={`fw-bold ${ingreso.total > 0 ? 'text-success' : 'text-muted'}`}>
                                 ${ingreso.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                               </td>
@@ -276,19 +296,24 @@ const Ingresos: React.FC = () => {
                                 </span>
                               </td>
                             </tr>
-                          );
-                        })
-                      : ingresosAnuales.map((item) => (
-                          <tr key={item.anio}>
-                            <td className="fw-bold">{item.anio}</td>
-                            <td className="text-success fw-bold">
-                              ${item.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                            </td>
-                            <td>
-                              <span className="badge bg-info">{item.cantidad_reservas}</span>
-                            </td>
-                          </tr>
-                        ))
+                          ))
+                        )
+                      : (
+                          (ordenarAniosPorMonto
+                            ? [...ingresosAnuales].sort((a, b) => b.total - a.total)
+                            : ingresosAnuales
+                          ).map((item) => (
+                            <tr key={item.anio}>
+                              <td className="fw-bold">{item.anio}</td>
+                              <td className="text-success fw-bold">
+                                ${item.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td>
+                                <span className="badge bg-info">{item.cantidad_reservas}</span>
+                              </td>
+                            </tr>
+                          ))
+                        )
                     }
                   </tbody>
                 </table>
@@ -303,8 +328,10 @@ const Ingresos: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="container py-5">
-        {renderContent()}
+      <div style={{ paddingLeft: 16, paddingRight: 16 }}>
+        <div className="container py-5">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );

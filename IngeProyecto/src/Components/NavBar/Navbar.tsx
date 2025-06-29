@@ -56,6 +56,7 @@ const Navbar: React.FC = () => {
     } else if (rol === 'empleado') {
       options.push({ label: 'Verificar cuentas', path: '/verificar-cuentas' });
       options.push({ label: 'Registrar cliente', path: '/registrar-cliente' });
+      options.push({ label: 'Preguntas sin responder', path: '/preguntas-sin-responder' });
     }
     options.push({ label: 'Cerrar sesión', action: handleLogout });
     return options;

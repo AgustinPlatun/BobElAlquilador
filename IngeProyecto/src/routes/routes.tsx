@@ -25,6 +25,7 @@ import MisReservas from '../pages/misReservas';
 import Ingresos from '../pages/ingresos';
 import RequireAdmin from './requireAdmin';
 import RequireEmpleado from './requireEmpleado';
+import PreguntasSinResponder from '../pages/preguntas_sin_responder';
 
 const router = createBrowserRouter([
   {
@@ -157,6 +158,14 @@ const router = createBrowserRouter([
       <RequireAdmin>
         <BajaCategoria />
       </RequireAdmin>
+    )
+  },
+  {
+    path: "/preguntas-sin-responder",
+    element: (
+      <RequireEmpleado>
+        <PreguntasSinResponder />
+      </RequireEmpleado>
     )
   }
 ]);

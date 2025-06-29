@@ -94,7 +94,7 @@ const MisReservas: React.FC = () => {
   return (
     <div>
       <Navbar />
-      <div className="container py-5">
+      <div className="container py-5" style={{ paddingLeft: 12, paddingRight: 12 }}>
         <div className="row">
           <div className="col-12">
             <div className="text-center mb-5">
@@ -117,15 +117,22 @@ const MisReservas: React.FC = () => {
             ) : (
               <div className="row g-4">
                 {reservas.map((reserva) => (
-                  <div key={reserva.id} className="col-12 col-md-6 col-lg-4">
-                    <div className="card h-100 shadow-sm border-0" style={{ borderRadius: '12px' }}>
+                  <div key={reserva.id} className="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div
+                      className="card h-100 shadow-sm border-0"
+                      style={{
+                        borderRadius: '12px',
+                        maxWidth: 320, // <-- antes 270, ahora más ancho
+                        margin: '0 auto'
+                      }}
+                    >
                       <div className="position-relative">
                         <img
                           src={`http://localhost:5000/uploads/maquinarias_fotos/${reserva.maquinaria_foto}`}
                           className="card-img-top"
                           alt={reserva.maquinaria_nombre}
                           style={{ 
-                            height: '200px', 
+                            height: '160px', 
                             objectFit: 'cover',
                             borderTopLeftRadius: '12px',
                             borderTopRightRadius: '12px'
@@ -145,24 +152,24 @@ const MisReservas: React.FC = () => {
                         </span>
                       </div>
                       
-                      <div className="card-body p-4">
-                        <h5 className="card-title fw-bold mb-3">{reserva.maquinaria_nombre}</h5>
-                        <p className="card-text text-muted mb-3">
+                      <div className="card-body p-3">
+                        <h5 className="card-title fw-bold mb-2" style={{ fontSize: '1.05rem' }}>{reserva.maquinaria_nombre}</h5>
+                        <p className="card-text text-muted mb-2">
                           <small>Código: {reserva.maquinaria_codigo}</small>
                         </p>
                         
-                        <div className="row mb-3">
+                        <div className="row mb-2">
                           <div className="col-6">
                             <small className="text-muted d-block">Desde</small>
-                            <div className="fw-bold">{formatearFecha(reserva.fecha_inicio)}</div>
+                            <div className="fw-bold" style={{ fontSize: '0.95rem' }}>{formatearFecha(reserva.fecha_inicio)}</div>
                           </div>
                           <div className="col-6">
                             <small className="text-muted d-block">Hasta</small>
-                            <div className="fw-bold">{formatearFecha(reserva.fecha_fin)}</div>
+                            <div className="fw-bold" style={{ fontSize: '0.95rem' }}>{formatearFecha(reserva.fecha_fin)}</div>
                           </div>
                         </div>
                         
-                        <div className="row mb-3">
+                        <div className="row mb-2">
                           <div className="col-6">
                             <small className="text-muted d-block">Duración</small>
                             <div className="fw-bold">{reserva.duracion_dias} día{reserva.duracion_dias !== 1 ? 's' : ''}</div>
@@ -173,11 +180,11 @@ const MisReservas: React.FC = () => {
                           </div>
                         </div>
                         
-                        <div className="border-top pt-3">
+                        <div className="border-top pt-2">
                           <div className="d-flex justify-content-between align-items-center">
                             <div>
                               <small className="text-muted d-block">Total</small>
-                              <div className="fw-bold fs-5 text-success">
+                              <div className="fw-bold text-success" style={{ fontSize: '1.1rem' }}>
                                 ${reserva.precio_total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                               </div>
                             </div>
@@ -202,4 +209,4 @@ const MisReservas: React.FC = () => {
   );
 };
 
-export default MisReservas; 
+export default MisReservas;

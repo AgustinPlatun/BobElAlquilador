@@ -57,6 +57,8 @@ def register():
                 usuario_existente.rol = "cliente"
                 db.session.commit()
                 return jsonify({"message": "Registro actualizado correctamente. Tu cuenta será revisada nuevamente."}), 200
+            elif usuario_existente.estado == "pendiente":
+                return jsonify({"message": "Tu registro se encuentra en estado pendiente de aceptación, un empleado revisara los datos y podrás utilizar las funcionalidades de cliente"}), 400
             else:
                 return jsonify({"message": "El email ya está registrado"}), 400
 
