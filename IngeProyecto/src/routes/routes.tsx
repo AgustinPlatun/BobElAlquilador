@@ -23,6 +23,7 @@ import AltaCategoria from '../pages/altas/altaCategoria';
 import BajaCategoria from '../pages/bajas/bajaCategoria';
 import MisReservas from '../pages/misReservas';
 import Ingresos from '../pages/ingresos';
+import ReservasHoy from '../pages/reservasHoy';
 import RequireAdmin from './requireAdmin';
 import RequireEmpleado from './requireEmpleado';
 import PreguntasSinResponder from '../pages/preguntas_sin_responder';
@@ -58,6 +59,13 @@ const router = createBrowserRouter([
       <RequireAdmin>
         <Ingresos />
       </RequireAdmin>
+  },
+  {
+    path: "/reservas-hoy",
+    element:
+      <RequireEmpleado>
+        <ReservasHoy />
+      </RequireEmpleado>
   },
   {
     path: "/alta-maquinaria",

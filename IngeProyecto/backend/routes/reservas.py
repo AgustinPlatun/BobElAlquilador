@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
-from database.models import Reserva, Usuario, Maquinaria
+from database.models import Reserva, Usuario, Maquinaria, Categoria
 from datetime import datetime, timedelta
+from sqlalchemy import and_
 
 reservas_bp = Blueprint("reservas", __name__)
 
@@ -50,3 +51,71 @@ def fechas_reservadas(codigo):
             fechas.append(dia.strftime("%Y-%m-%d"))
             dia += timedelta(days=1)
     return jsonify(fechas)
+
+@reservas_bp.route("/reservas-inicio-hoy", methods=["GET"])
+def obtener_reservas_inicio_hoy():
+    try:
+        fecha_hoy = datetime.now().date()
+        
+        reservas = Reserva.query.join(Usuario).join(Maquinaria).join(Categoria).filter(
+            Reserva.fecha_inicio == fecha_hoy
+        ).order_by(Reserva.fecha_inicio.asc()).all()
+        
+        resultado = []
+        for reserva in reservas:
+            usuario = reserva.usuario
+            maquinaria = reserva.maquinaria
+            categoria = maquinaria.categoria
+            
+            resultado.append({
+                "id": reserva.id,
+                "fecha_inicio": reserva.fecha_inicio.strftime("%Y-%m-%d"),
+                "fecha_fin": reserva.fecha_fin.strftime("%Y-%m-%d"),
+                "monto_total": float(reserva.precio),
+                "estado": "Confirmada",  # Puedes ajustar esto según tu lógica de estados
+                "cliente_nombre": usuario.nombre,
+                "cliente_apellido": usuario.apellido,
+                "maquinaria_nombre": maquinaria.nombre,
+                "maquinaria_marca": "",  # Campo no disponible en el modelo
+                "maquinaria_modelo": "",  # Campo no disponible en el modelo
+                "categoria_nombre": categoria.nombre
+            })
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al obtener las reservas que inician hoy", "error": str(e)}), 500
+
+@reservas_bp.route("/reservas-fin-hoy", methods=["GET"])
+def obtener_reservas_fin_hoy():
+    try:
+        fecha_hoy = datetime.now().date()
+        
+        reservas = Reserva.query.join(Usuario).join(Maquinaria).join(Categoria).filter(
+            Reserva.fecha_fin == fecha_hoy
+        ).order_by(Reserva.fecha_fin.asc()).all()
+        
+        resultado = []
+        for reserva in reservas:
+            usuario = reserva.usuario
+            maquinaria = reserva.maquinaria
+            categoria = maquinaria.categoria
+            
+            resultado.append({
+                "id": reserva.id,
+                "fecha_inicio": reserva.fecha_inicio.strftime("%Y-%m-%d"),
+                "fecha_fin": reserva.fecha_fin.strftime("%Y-%m-%d"),
+                "monto_total": float(reserva.precio),
+                "estado": "Completada",  # Las que finalizan hoy se consideran completadas
+                "cliente_nombre": usuario.nombre,
+                "cliente_apellido": usuario.apellido,
+                "maquinaria_nombre": maquinaria.nombre,
+                "maquinaria_marca": "",  # Campo no disponible en el modelo
+                "maquinaria_modelo": "",  # Campo no disponible en el modelo
+                "categoria_nombre": categoria.nombre
+            })
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al obtener las reservas que finalizan hoy", "error": str(e)}), 500
