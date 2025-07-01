@@ -115,14 +115,14 @@ const MisReservas: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="row g-4">
+              <div className="row g-1">
                 {reservas.map((reserva) => (
-                  <div key={reserva.id} className="col-12 col-md-6 col-lg-4 col-xl-3">
+                  <div key={reserva.id} className="col-12 col-md-6 col-lg-4 col-xl-3 mb-2">
                     <div
                       className="card h-100 shadow-sm border-0"
                       style={{
                         borderRadius: '12px',
-                        maxWidth: 320, // <-- antes 270, ahora más ancho
+                        maxWidth: 320,
                         margin: '0 auto'
                       }}
                     >

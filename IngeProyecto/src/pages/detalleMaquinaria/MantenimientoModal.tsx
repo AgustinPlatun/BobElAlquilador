@@ -12,6 +12,7 @@ interface Props {
     fecha: string;
     empleado_id: number;
     empleado_nombre: string;
+    empleado_email: string;
   }>;
   modoAgregar?: boolean;
 }
@@ -67,6 +68,9 @@ const MantenimientoModal: React.FC<Props> = ({
                       <div className="d-flex justify-content-between align-items-start">
                         <div>
                           <strong>{mant.empleado_nombre}</strong>
+                          <small className="text-muted ms-2">
+                            ({mant.empleado_email})
+                          </small>
                           <small className="text-muted ms-2">
                             {new Date(mant.fecha).toLocaleDateString()}
                           </small>

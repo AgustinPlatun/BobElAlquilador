@@ -39,6 +39,7 @@ export interface Maquinaria {
     fecha: string;
     empleado_id: number;
     empleado_nombre: string;
+    empleado_email: string;
   }>;
 }
 

@@ -146,19 +146,23 @@ const DetalleMaquinariaContent: React.FC = () => {
               rol={rol}
             />
             <div className="col-md-5 d-flex flex-column">
-              {/* Botones de mantenimiento para empleados */}
-              {rol === 'empleado'  && (
+              {/* Botones de mantenimiento */}
+              {(rol === 'empleado' || rol === 'administrador') && (
                 <div className="d-flex gap-2 mb-4">
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      setMantenimientoDescripcion('');
-                      setModoAgregarMantenimiento(true);
-                      setShowMantenimientoModal(true);
-                    }}
-                  >
-                    Agregar Mantenimiento
-                  </button>
+                  {/* Solo empleados pueden agregar mantenimiento */}
+                  {rol === 'empleado' && (
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => {
+                        setMantenimientoDescripcion('');
+                        setModoAgregarMantenimiento(true);
+                        setShowMantenimientoModal(true);
+                      }}
+                    >
+                      Agregar Mantenimiento
+                    </button>
+                  )}
+                  {/* Tanto empleados como administradores pueden ver historial */}
                   <button
                     className="btn btn-outline-primary"
                     onClick={() => {
@@ -221,45 +225,47 @@ const DetalleMaquinariaContent: React.FC = () => {
                 montoTotal={montoTotal}
                 handleAlquilar={handleAlquilar}
               />
-              {/* Checkbox de envío debajo del botón de reservar */}
-              <div>
-                <div className="form-check mb-3 mt-2">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id="envioCheckbox"
-                    checked={envio}
-                    onChange={e => {
-                      setEnvio(e.target.checked);
-                      if (!e.target.checked) setDireccion('');
-                      setShowDireccionError(false);
-                    }}
-                  />
-                  <label className="form-check-label" htmlFor="envioCheckbox">
-                    Envío
-                  </label>
-                </div>
-                {/* Campo de dirección si envío está activado */}
-                {envio && (
-                  <div className="mb-4">
-                    <label htmlFor="direccionEnvio" className="form-label">Dirección de envío:</label>
+              {/* Checkbox de envío debajo del botón de reservar - Para clientes y empleados */}
+              {(rol === 'cliente' || rol === 'empleado') && (
+                <div>
+                  <div className="form-check mb-3 mt-2">
                     <input
-                      type="text"
-                      id="direccionEnvio"
-                      className="form-control"
-                      value={direccion}
+                      className="form-check-input"
+                      type="checkbox"
+                      id="envioCheckbox"
+                      checked={envio}
                       onChange={e => {
-                        setDireccion(e.target.value);
+                        setEnvio(e.target.checked);
+                        if (!e.target.checked) setDireccion('');
                         setShowDireccionError(false);
                       }}
-                      placeholder="Ingresá la dirección"
                     />
-                    {showDireccionError && (
-                      <div className="text-danger mt-1">Debes ingresar una dirección para el envío.</div>
-                    )}
+                    <label className="form-check-label" htmlFor="envioCheckbox">
+                      Envío
+                    </label>
                   </div>
-                )}
-              </div>
+                  {/* Campo de dirección si envío está activado */}
+                  {envio && (
+                    <div className="mb-4">
+                      <label htmlFor="direccionEnvio" className="form-label">Dirección de envío:</label>
+                      <input
+                        type="text"
+                        id="direccionEnvio"
+                        className="form-control"
+                        value={direccion}
+                        onChange={e => {
+                          setDireccion(e.target.value);
+                          setShowDireccionError(false);
+                        }}
+                        placeholder="Ingresá la dirección"
+                      />
+                      {showDireccionError && (
+                        <div className="text-danger mt-1">Debes ingresar una dirección para el envío.</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
               {/* Política de reembolso debajo del checkbox */}
               <div style={{ marginTop: 0 }}>
                 <span className="fw-bold">Política de reembolso: </span>

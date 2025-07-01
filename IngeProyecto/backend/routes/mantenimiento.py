@@ -46,7 +46,8 @@ def obtener_historial_mantenimiento(codigo):
                 "descripcion": h.descripcion,
                 "fecha": h.fecha.strftime("%Y-%m-%d %H:%M:%S"),
                 "empleado_id": h.empleado_id,
-                "empleado_nombre": h.empleado.nombre
+                "empleado_nombre": h.empleado.nombre,
+                "empleado_email": h.empleado.email
             }
             for h in historial
         ]
