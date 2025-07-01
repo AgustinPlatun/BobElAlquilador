@@ -21,19 +21,6 @@ const AltaEmpleado: React.FC = () => {
     fetchClientes();
   }, []);
 
-  if (rol !== 'administrador') {
-    return (
-      <div>
-        <Navbar />
-        <div className="container py-5">
-          <div className="alert alert-danger text-center">
-            Solo el administrador puede dar de alta empleados.
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const handleAltaEmpleado = async () => {
     setMensaje('');
     setError('');
