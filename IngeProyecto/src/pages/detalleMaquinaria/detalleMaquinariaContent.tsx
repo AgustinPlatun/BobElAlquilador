@@ -12,7 +12,7 @@ const DetalleMaquinariaContent: React.FC = () => {
   const {
     maquinaria, rol, showEditModal, setShowEditModal,
     editNombre, setEditNombre, editDescripcion, setEditDescripcion,
-    editPrecio, setEditPrecio, editFoto, setEditFoto,
+    editPrecio, setEditPrecio, setEditFoto,
     editPoliticas, setEditPoliticas, editCategoriaId, setEditCategoriaId,
     categorias, editError, setEditError, noEncontrada,
     rangoFechas, setRangoFechas, fechasReservadas, navigate,
@@ -327,12 +327,22 @@ const DetalleMaquinariaContent: React.FC = () => {
             )}
             
             {maquinaria.preguntas && maquinaria.preguntas.length > 0 ? (
-              <div className="mt-3">
+              <div
+                className="mt-3"
+                style={{
+                  maxHeight: '350px',
+                  overflowY: 'auto',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  background: '#fafbfc'
+                }}
+              >
                 {maquinaria.preguntas.map((preg) => (
                   <div key={preg.id} className="border-bottom pb-3 mb-3">
                     <div className="d-flex justify-content-between align-items-start">
                       <div>
-                        <strong>{preg.usuario_nombre}</strong>
+                        <strong>{preg.usuario_email || '-'}</strong>
                         <small className="text-muted ms-2">
                           {new Date(preg.fecha_pregunta).toLocaleDateString()}
                         </small>
@@ -348,12 +358,19 @@ const DetalleMaquinariaContent: React.FC = () => {
                     </div>
                     <p className="mt-2 mb-0">{preg.pregunta}</p>
                     {preg.respuesta && (
-                      <div className="mt-2 ps-3 border-start">
+                      <div
+                        className="mt-2 ps-3 border-start"
+                        style={{
+                          background: '#e5e7eb', // gris claro
+                          borderRadius: '6px',
+                          padding: '10px 12px'
+                        }}
+                      >
                         <div className="d-flex justify-content-between align-items-start">
                           <div>
-                            <strong>{preg.empleado_nombre}</strong>
+                            <strong>{preg.empleado_email || '-'}</strong>
                             <small className="text-muted ms-2">
-                              {new Date(preg.fecha_respuesta!).toLocaleDateString()}
+                              {preg.fecha_respuesta ? new Date(preg.fecha_respuesta).toLocaleDateString() : ''}
                             </small>
                           </div>
                         </div>

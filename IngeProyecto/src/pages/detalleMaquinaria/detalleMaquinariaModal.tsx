@@ -27,7 +27,6 @@ const EditMaquinariaModal: React.FC<Props> = ({
   editNombre, setEditNombre,
   editDescripcion, setEditDescripcion,
   editPrecio, setEditPrecio,
-  editFoto,
   editPoliticas, setEditPoliticas,
   editCategoriaId, setEditCategoriaId,
   categorias,

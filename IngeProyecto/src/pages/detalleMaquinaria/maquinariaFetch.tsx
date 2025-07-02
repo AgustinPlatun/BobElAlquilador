@@ -32,6 +32,8 @@ export interface Maquinaria {
     usuario_nombre: string;
     empleado_id: number | null;
     empleado_nombre: string | null;
+    usuario_email: string;
+    empleado_email: string | null;
   }>;
   historial_mantenimiento?: Array<{
     id: number;

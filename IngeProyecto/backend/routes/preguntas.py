@@ -92,8 +92,10 @@ def obtener_preguntas(codigo):
                 "fecha_respuesta": p.fecha_respuesta.strftime("%Y-%m-%d %H:%M:%S") if p.fecha_respuesta else None,
                 "usuario_id": p.usuario_id,
                 "usuario_nombre": p.usuario.nombre,
+                "usuario_email": p.usuario.email if p.usuario else None,
                 "empleado_id": p.empleado_id,
-                "empleado_nombre": p.empleado.nombre if p.empleado else None
+                "empleado_nombre": p.empleado.nombre if p.empleado else None,
+                "empleado_email": p.empleado.email if p.empleado else None
             }
             for p in preguntas
         ]
