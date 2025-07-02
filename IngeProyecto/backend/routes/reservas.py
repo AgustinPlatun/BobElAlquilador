@@ -1,7 +1,8 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from database.models import Reserva, Usuario, Maquinaria, Categoria
 from datetime import datetime, timedelta
 from sqlalchemy import and_
+from database import db
 
 reservas_bp = Blueprint("reservas", __name__)
 
@@ -119,3 +120,36 @@ def obtener_reservas_fin_hoy():
 
     except Exception as e:
         return jsonify({"message": "Error al obtener las reservas que finalizan hoy", "error": str(e)}), 500
+
+@reservas_bp.route('/api/reservas/empleado-para-cliente', methods=['POST'])
+def reserva_para_cliente():
+    data = request.json
+    email = data.get('usuario_email')
+    codigo_maquinaria = data.get('codigo_maquinaria')
+    fecha_inicio = data.get('fecha_inicio')
+    fecha_fin = data.get('fecha_fin')
+    precio = data.get('precio')
+    envio = data.get('envio', False)
+    direccion = data.get('direccion')
+
+    usuario = Usuario.query.filter_by(email=email, rol='cliente').first()
+    if not usuario:
+        return jsonify({'error': 'El email no corresponde a un cliente válido.'}), 400
+    maquinaria = Maquinaria.query.filter_by(codigo=codigo_maquinaria).first()
+    if not maquinaria:
+        return jsonify({'error': 'Maquinaria no encontrada.'}), 400
+    try:
+        reserva = Reserva(
+            fecha_inicio=datetime.strptime(fecha_inicio, "%Y-%m-%d").date(),
+            fecha_fin=datetime.strptime(fecha_fin, "%Y-%m-%d").date(),
+            precio=precio,
+            usuario_id=usuario.id,
+            maquinaria_id=maquinaria.id,
+            estado='esperando_retiro'
+        )
+        db.session.add(reserva)
+        db.session.commit()
+        return jsonify({'message': 'Reserva creada exitosamente para el cliente.'}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Error al crear la reserva.', 'detalle': str(e)}), 500

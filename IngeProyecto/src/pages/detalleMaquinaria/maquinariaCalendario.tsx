@@ -11,12 +11,43 @@ interface Props {
   diasSeleccionados: number;
   montoTotal: number;
   handleAlquilar: () => void;
+  reservarParaCliente: boolean;
+  abrirInputEmail: () => void;
+  mostrarInputEmail: boolean;
+  setEmailCliente: (email: string) => void;
+  emailCliente: string;
+  confirmarReservaCliente: () => void;
+  errorEmailCliente: string | null;
+  confirmacionReservaCliente: string | null;
+  setShowFechaModal: (show: boolean) => void;
+  envio: boolean;
+  setEnvio: (v: boolean) => void;
+  direccion: string;
+  setDireccion: (v: string) => void;
+  showDireccionError: boolean;
+  setShowDireccionError: (v: boolean) => void;
+  setShowMinDiasError: (show: boolean) => void;
+  setConfirmacionReservaCliente: (v: string) => void;
 }
 
 const MaquinariaCalendario: React.FC<Props> = ({
-  rol, fechaInicio, fechaFin, setRangoFechas, fechasReservadas, diasSeleccionados, montoTotal, handleAlquilar
+  rol, fechaInicio, fechaFin, setRangoFechas, fechasReservadas, diasSeleccionados, montoTotal, handleAlquilar,
+  reservarParaCliente, abrirInputEmail, mostrarInputEmail, setEmailCliente, emailCliente, confirmarReservaCliente, errorEmailCliente, confirmacionReservaCliente, setShowFechaModal,
+  envio, setEnvio, direccion, setDireccion, showDireccionError, setShowDireccionError, setShowMinDiasError, setConfirmacionReservaCliente
 }) => {
   const [error, setError] = useState<string | null>(null);
+
+  const handleAbrirInputEmail = () => {
+    if (!fechaInicio || !fechaFin) {
+      setShowFechaModal(true);
+      return;
+    }
+    if (diasSeleccionados < 7) {
+      setShowMinDiasError(true);
+      return;
+    }
+    abrirInputEmail();
+  };
 
   return (
     <>
@@ -67,20 +98,88 @@ const MaquinariaCalendario: React.FC<Props> = ({
               {error}
             </div>
           )}
-          <div className="mt-2 text-start">
-            <span className="fw-bold" style={{ color: "#198754", fontSize: "1.2rem" }}>
-              {diasSeleccionados > 0
-                ? `Monto total: $${montoTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
-                : 'Seleccioná un rango de fechas'}
-            </span>
+          {diasSeleccionados > 0 && (
+            <div className="mt-2 text-start">
+              <span className="fw-bold" style={{ color: '#198754', fontSize: '1.1rem' }}>
+                Monto total: ${montoTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+          )}
+          <div className="form-check mb-3 mt-2">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="envioCheckbox"
+              checked={envio}
+              onChange={e => {
+                setEnvio(e.target.checked);
+                if (!e.target.checked) setDireccion('');
+                setShowDireccionError(false);
+              }}
+            />
+            <label className="form-check-label fw-bold" htmlFor="envioCheckbox" style={{ fontSize: '1.1rem' }}>
+              Envío
+            </label>
           </div>
+          {envio && (
+            <div className="mb-4">
+              <label htmlFor="direccionEnvio" className="form-label">Dirección de envío:</label>
+              <input
+                type="text"
+                id="direccionEnvio"
+                className="form-control"
+                value={direccion}
+                onChange={e => {
+                  setDireccion(e.target.value);
+                  setShowDireccionError(false);
+                }}
+                placeholder="Ingresá la dirección"
+              />
+              {showDireccionError && (
+                <div className="text-danger mt-1">Debes ingresar una dirección para el envío.</div>
+              )}
+            </div>
+          )}
           <button
             className="btn btn-danger fw-bold"
             style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
             onClick={handleAlquilar}
+            disabled={envio && direccion.trim() === ''}
           >
             Reservar
           </button>
+          {rol === 'empleado' && reservarParaCliente && (
+            <div className="mt-3 d-flex flex-column align-items-start">
+              <button
+                className="btn btn-secondary fw-bold"
+                style={{ fontSize: '1rem', padding: '8px 20px' }}
+                onClick={handleAbrirInputEmail}
+              >
+                Reservar para cliente
+              </button>
+              {mostrarInputEmail && (
+                <div className="mt-2 w-100">
+                  <input
+                    type="email"
+                    className="form-control mb-2"
+                    placeholder="Email del cliente"
+                    value={emailCliente}
+                    onChange={e => setEmailCliente(e.target.value)}
+                  />
+                  <button
+                    className="btn btn-success w-100"
+                    onClick={confirmarReservaCliente}
+                    disabled={!emailCliente || (envio && direccion.trim() === '')}
+                  >
+                    Confirmar reserva para cliente
+                  </button>
+                  {errorEmailCliente && (
+                    <div className="text-danger mt-1">{errorEmailCliente}</div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </>
