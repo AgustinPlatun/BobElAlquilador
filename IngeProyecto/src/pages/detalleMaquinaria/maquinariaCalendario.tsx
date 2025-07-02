@@ -36,6 +36,7 @@ const MaquinariaCalendario: React.FC<Props> = ({
   envio, setEnvio, direccion, setDireccion, showDireccionError, setShowDireccionError, setShowMinDiasError, setConfirmacionReservaCliente
 }) => {
   const [error, setError] = useState<string | null>(null);
+  const [errorReserva, setErrorReserva] = useState<string | null>(null);
 
   const handleAbrirInputEmail = () => {
     if (!fechaInicio || !fechaFin) {
@@ -149,11 +150,20 @@ const MaquinariaCalendario: React.FC<Props> = ({
               <button
                 className="btn btn-danger fw-bold"
                 style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
-                onClick={handleAlquilar}
-                disabled={!fechaInicio || !fechaFin || (envio && direccion.trim() === '')}
+                onClick={() => {
+                  if (!fechaInicio || !fechaFin) {
+                    setShowFechaModal(true);
+                    return;
+                  }
+                  handleAlquilar();
+                }}
+                disabled={envio && direccion.trim() === ''}
               >
                 Reservar
               </button>
+              {errorReserva && (
+                <div className="text-danger mt-1">{errorReserva}</div>
+              )}
               {rol === 'empleado' && reservarParaCliente && (
                 <div className="mt-3 d-flex flex-column align-items-start">
                   <button
