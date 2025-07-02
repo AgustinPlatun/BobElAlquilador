@@ -105,80 +105,88 @@ const MaquinariaCalendario: React.FC<Props> = ({
               </span>
             </div>
           )}
-          <div className="form-check mb-3 mt-2">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="envioCheckbox"
-              checked={envio}
-              onChange={e => {
-                setEnvio(e.target.checked);
-                if (!e.target.checked) setDireccion('');
-                setShowDireccionError(false);
-              }}
-            />
-            <label className="form-check-label fw-bold" htmlFor="envioCheckbox" style={{ fontSize: '1.1rem' }}>
-              Envío
-            </label>
-          </div>
-          {envio && (
-            <div className="mb-4">
-              <label htmlFor="direccionEnvio" className="form-label">Dirección de envío:</label>
-              <input
-                type="text"
-                id="direccionEnvio"
-                className="form-control"
-                value={direccion}
-                onChange={e => {
-                  setDireccion(e.target.value);
-                  setShowDireccionError(false);
-                }}
-                placeholder="Ingresá la dirección"
-              />
-              {showDireccionError && (
-                <div className="text-danger mt-1">Debes ingresar una dirección para el envío.</div>
-              )}
+          {rol === null ? (
+            <div className="alert alert-warning text-center p-2 mt-3 mb-3" style={{ fontSize: '1rem' }}>
+              Debes iniciar sesión para poder reservar.
             </div>
-          )}
-          <button
-            className="btn btn-danger fw-bold"
-            style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
-            onClick={handleAlquilar}
-            disabled={envio && direccion.trim() === ''}
-          >
-            Reservar
-          </button>
-          {rol === 'empleado' && reservarParaCliente && (
-            <div className="mt-3 d-flex flex-column align-items-start">
-              <button
-                className="btn btn-secondary fw-bold"
-                style={{ fontSize: '1rem', padding: '8px 20px' }}
-                onClick={handleAbrirInputEmail}
-              >
-                Reservar para cliente
-              </button>
-              {mostrarInputEmail && (
-                <div className="mt-2 w-100">
+          ) : (
+            <>
+              <div className="form-check mb-3 mt-2">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="envioCheckbox"
+                  checked={envio}
+                  onChange={e => {
+                    setEnvio(e.target.checked);
+                    if (!e.target.checked) setDireccion('');
+                    setShowDireccionError(false);
+                  }}
+                />
+                <label className="form-check-label fw-bold" htmlFor="envioCheckbox" style={{ fontSize: '1.1rem' }}>
+                  Envío
+                </label>
+              </div>
+              {envio && (
+                <div className="mb-4">
+                  <label htmlFor="direccionEnvio" className="form-label">Dirección de envío:</label>
                   <input
-                    type="email"
-                    className="form-control mb-2"
-                    placeholder="Email del cliente"
-                    value={emailCliente}
-                    onChange={e => setEmailCliente(e.target.value)}
+                    type="text"
+                    id="direccionEnvio"
+                    className="form-control"
+                    value={direccion}
+                    onChange={e => {
+                      setDireccion(e.target.value);
+                      setShowDireccionError(false);
+                    }}
+                    placeholder="Ingresá la dirección"
                   />
-                  <button
-                    className="btn btn-success w-100"
-                    onClick={confirmarReservaCliente}
-                    disabled={!emailCliente || (envio && direccion.trim() === '')}
-                  >
-                    Confirmar reserva para cliente
-                  </button>
-                  {errorEmailCliente && (
-                    <div className="text-danger mt-1">{errorEmailCliente}</div>
+                  {showDireccionError && (
+                    <div className="text-danger mt-1">Debes ingresar una dirección para el envío.</div>
                   )}
                 </div>
               )}
-            </div>
+              <button
+                className="btn btn-danger fw-bold"
+                style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
+                onClick={handleAlquilar}
+                disabled={!fechaInicio || !fechaFin || (envio && direccion.trim() === '')}
+              >
+                Reservar
+              </button>
+              {rol === 'empleado' && reservarParaCliente && (
+                <div className="mt-3 d-flex flex-column align-items-start">
+                  <button
+                    className="btn btn-secondary fw-bold"
+                    style={{ fontSize: '1rem', padding: '8px 20px' }}
+                    onClick={handleAbrirInputEmail}
+                  >
+                    Reservar para cliente
+                  </button>
+                  {mostrarInputEmail && (
+                    <div className="mt-2 w-100">
+                      <input
+                        type="email"
+                        className="form-control mb-2"
+                        placeholder="Email del cliente"
+                        value={emailCliente}
+                        onChange={e => setEmailCliente(e.target.value)}
+                      />
+                      <button
+                        className="btn btn-success w-100"
+                        onClick={confirmarReservaCliente}
+                        disabled={!emailCliente || (envio && direccion.trim() === '')}
+                      >
+                        Confirmar reserva para cliente
+                      </button>
+                      {errorEmailCliente && (
+                        <div className="text-danger mt-1">{errorEmailCliente}</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
