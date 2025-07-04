@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from '../Components/NavBar/Navbar';
+import Footer from '../Components/Footer/Footer';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -161,6 +162,7 @@ const Login: React.FC = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

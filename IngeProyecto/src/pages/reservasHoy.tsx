@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../Components/NavBar/Navbar';
+import Footer from '../Components/Footer/Footer';
 
 interface Reserva {
   id: number;
@@ -221,6 +222,7 @@ const ReservasHoy: React.FC = () => {
           {renderContent()}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

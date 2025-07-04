@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Navbar from '../Components/NavBar/Navbar';
+import Footer from '../Components/Footer/Footer';
 import { useNavigate } from 'react-router-dom';
 
 const Register: React.FC = () => {
@@ -122,6 +123,7 @@ const Register: React.FC = () => {
           </form>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

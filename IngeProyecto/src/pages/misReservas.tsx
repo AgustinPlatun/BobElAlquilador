@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Components/NavBar/Navbar';
+import Footer from '../Components/Footer/Footer';
 
 interface Reserva {
   id: number;
@@ -205,6 +206,7 @@ const MisReservas: React.FC = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

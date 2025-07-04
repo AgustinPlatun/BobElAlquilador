@@ -12,6 +12,7 @@ from .reservas import reservas_bp
 from .reportes import reportes_bp
 from .preguntas import preguntas_bp
 from .mantenimiento import mantenimiento_bp
+from .soporte import soporte_bp
 
 def register_blueprints(app):
     app.register_blueprint(maquinaria_bp)
@@ -28,3 +29,4 @@ def register_blueprints(app):
     app.register_blueprint(reportes_bp)
     app.register_blueprint(preguntas_bp)
     app.register_blueprint(mantenimiento_bp)
+    app.register_blueprint(soporte_bp)

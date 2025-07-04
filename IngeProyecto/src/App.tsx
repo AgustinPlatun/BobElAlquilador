@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from './Components/NavBar/Navbar';
+import Footer from './Components/Footer/Footer';
 import { useLocation } from 'react-router-dom';
 
 const App: React.FC = () => {
@@ -77,6 +78,7 @@ const App: React.FC = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

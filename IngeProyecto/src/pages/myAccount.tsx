@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../Components/NavBar/Navbar';
+import Footer from '../Components/Footer/Footer';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
@@ -301,6 +302,8 @@ const MisDatos: React.FC = () => {
           <Button variant="danger" onClick={eliminarCuentaDefinitiva}>Eliminar Cuenta</Button>
         </Modal.Footer>
       </Modal>
+
+      <Footer />
     </div>
   );
 };

@@ -72,3 +72,11 @@ class HistorialMantenimiento(db.Model):
     empleado = db.relationship('Usuario', backref='mantenimientos')
     maquinaria_id = db.Column(db.Integer, db.ForeignKey('maquinaria.id'), nullable=False)
     maquinaria = db.relationship('Maquinaria', backref='historial_mantenimiento')
+
+class TicketSoporteTecnico(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    contacto = db.Column(db.String(255), nullable=False)  # Email o teléfono
+    asunto = db.Column(db.String(255), nullable=False)
+    descripcion = db.Column(db.Text, nullable=False)
+    estado = db.Column(db.String(50), nullable=False, default='Pendiente')  # Pendiente, En proceso, Resuelto
+    fecha_creacion = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

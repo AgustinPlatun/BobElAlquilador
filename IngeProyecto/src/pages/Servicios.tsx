@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Card from '../Components/Card';
 import Navbar from '../Components/NavBar/Navbar';
+import Footer from '../Components/Footer/Footer';
 
 interface Maquinaria {
   id: number;
@@ -122,6 +123,7 @@ const Servicios: React.FC = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
