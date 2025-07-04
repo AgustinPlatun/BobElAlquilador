@@ -23,31 +23,32 @@ const MisReservas: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const cargarReservas = async () => {
-      try {
-        const usuarioId = sessionStorage.getItem('usuarioId');
-        if (!usuarioId) {
-          setError('Debes iniciar sesión para ver tus reservas');
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch(`http://localhost:5000/mis-reservas/${usuarioId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setReservas(data);
-        } else {
-          const errorData = await response.json();
-          setError(errorData.message || 'Error al cargar las reservas');
-        }
-      } catch (err) {
-        setError('Error de conexión al cargar las reservas');
-      } finally {
+  const cargarReservas = async () => {
+    try {
+      setLoading(true);
+      const usuarioId = sessionStorage.getItem('usuarioId');
+      if (!usuarioId) {
+        setError('Debes iniciar sesión para ver tus reservas');
         setLoading(false);
+        return;
       }
-    };
 
+      const response = await fetch(`http://localhost:5000/mis-reservas/${usuarioId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setReservas(data);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Error al cargar las reservas');
+      }
+    } catch (err) {
+      setError('Error de conexión al cargar las reservas');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     cargarReservas();
   }, []);
 
@@ -61,6 +62,27 @@ const MisReservas: React.FC = () => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const confirmarRetiro = async (reservaId: number) => {
+    try {
+      const response = await fetch(`http://localhost:5000/confirmar-retiro/${reservaId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Recargar las reservas después de confirmar el retiro
+        cargarReservas();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Error al confirmar el retiro');
+      }
+    } catch (err) {
+      setError('Error de conexión al confirmar el retiro');
+    }
   };
 
   if (loading) {
@@ -190,12 +212,22 @@ const MisReservas: React.FC = () => {
                                 ${reserva.precio_total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                               </div>
                             </div>
-                            <button
-                              className="btn btn-outline-primary btn-sm"
-                              onClick={() => handleVerDetalle(reserva.maquinaria_codigo)}
-                            >
-                              Ver Detalle
-                            </button>
+                            <div className="d-flex gap-2">
+                              {reserva.estado === 'esperando_retiro' && (
+                                <button
+                                  className="btn btn-success btn-sm"
+                                  onClick={() => confirmarRetiro(reserva.id)}
+                                >
+                                  Confirmar Retiro
+                                </button>
+                              )}
+                              <button
+                                className="btn btn-outline-primary btn-sm"
+                                onClick={() => handleVerDetalle(reserva.maquinaria_codigo)}
+                              >
+                                Ver Detalle
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>

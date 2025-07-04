@@ -30,7 +30,7 @@ def obtener_mis_reservas(usuario_id):
                 "duracion_dias": duracion_dias,
                 "precio_total": reserva.precio,
                 "precio_por_dia": round(reserva.precio / duracion_dias, 2) if duracion_dias > 0 else 0,
-                "estado": "Completada" if reserva.fecha_fin < datetime.now().date() else "Activa"
+                "estado": reserva.estado if hasattr(reserva, 'estado') and reserva.estado else ("Completada" if reserva.fecha_fin < datetime.now().date() else "Activa")
             })
 
         return jsonify(resultado), 200
@@ -53,73 +53,6 @@ def fechas_reservadas(codigo):
             dia += timedelta(days=1)
     return jsonify(fechas)
 
-@reservas_bp.route("/reservas-inicio-hoy", methods=["GET"])
-def obtener_reservas_inicio_hoy():
-    try:
-        fecha_hoy = datetime.now().date()
-        
-        reservas = Reserva.query.join(Usuario).join(Maquinaria).join(Categoria).filter(
-            Reserva.fecha_inicio == fecha_hoy
-        ).order_by(Reserva.fecha_inicio.asc()).all()
-        
-        resultado = []
-        for reserva in reservas:
-            usuario = reserva.usuario
-            maquinaria = reserva.maquinaria
-            categoria = maquinaria.categoria
-            
-            resultado.append({
-                "id": reserva.id,
-                "fecha_inicio": reserva.fecha_inicio.strftime("%Y-%m-%d"),
-                "fecha_fin": reserva.fecha_fin.strftime("%Y-%m-%d"),
-                "monto_total": float(reserva.precio),
-                "estado": "Confirmada",  # Puedes ajustar esto según tu lógica de estados
-                "cliente_nombre": usuario.nombre,
-                "cliente_apellido": usuario.apellido,
-                "maquinaria_nombre": maquinaria.nombre,
-                "maquinaria_marca": "",  # Campo no disponible en el modelo
-                "maquinaria_modelo": "",  # Campo no disponible en el modelo
-                "categoria_nombre": categoria.nombre
-            })
-
-        return jsonify(resultado), 200
-
-    except Exception as e:
-        return jsonify({"message": "Error al obtener las reservas que inician hoy", "error": str(e)}), 500
-
-@reservas_bp.route("/reservas-fin-hoy", methods=["GET"])
-def obtener_reservas_fin_hoy():
-    try:
-        fecha_hoy = datetime.now().date()
-        
-        reservas = Reserva.query.join(Usuario).join(Maquinaria).join(Categoria).filter(
-            Reserva.fecha_fin == fecha_hoy
-        ).order_by(Reserva.fecha_fin.asc()).all()
-        
-        resultado = []
-        for reserva in reservas:
-            usuario = reserva.usuario
-            maquinaria = reserva.maquinaria
-            categoria = maquinaria.categoria
-            
-            resultado.append({
-                "id": reserva.id,
-                "fecha_inicio": reserva.fecha_inicio.strftime("%Y-%m-%d"),
-                "fecha_fin": reserva.fecha_fin.strftime("%Y-%m-%d"),
-                "monto_total": float(reserva.precio),
-                "estado": "Completada",  # Las que finalizan hoy se consideran completadas
-                "cliente_nombre": usuario.nombre,
-                "cliente_apellido": usuario.apellido,
-                "maquinaria_nombre": maquinaria.nombre,
-                "maquinaria_marca": "",  # Campo no disponible en el modelo
-                "maquinaria_modelo": "",  # Campo no disponible en el modelo
-                "categoria_nombre": categoria.nombre
-            })
-
-        return jsonify(resultado), 200
-
-    except Exception as e:
-        return jsonify({"message": "Error al obtener las reservas que finalizan hoy", "error": str(e)}), 500
 
 @reservas_bp.route('/api/reservas/empleado-para-cliente', methods=['POST'])
 def reserva_para_cliente():
@@ -153,3 +86,96 @@ def reserva_para_cliente():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Error al crear la reserva.', 'detalle': str(e)}), 500
+
+@reservas_bp.route("/reservas-esperando-retiro", methods=["GET"])
+def obtener_reservas_esperando_retiro():
+    try:
+        fecha_hoy = datetime.now().date()
+        
+        # Buscar reservas con estado 'esperando_retiro' y fecha fin posterior a hoy
+        reservas = Reserva.query.join(Usuario).join(Maquinaria).join(Categoria).filter(
+            and_(
+                Reserva.estado == 'esperando_retiro',
+                Reserva.fecha_fin > fecha_hoy
+            )
+        ).order_by(Reserva.fecha_inicio.asc()).all()
+        
+        resultado = []
+        for reserva in reservas:
+            usuario = reserva.usuario
+            maquinaria = reserva.maquinaria
+            categoria = maquinaria.categoria
+            
+            resultado.append({
+                "id": reserva.id,
+                "fecha_inicio": reserva.fecha_inicio.strftime("%Y-%m-%d"),
+                "fecha_fin": reserva.fecha_fin.strftime("%Y-%m-%d"),
+                "monto_total": float(reserva.precio),
+                "estado": reserva.estado,
+                "cliente_nombre": usuario.nombre,
+                "cliente_apellido": usuario.apellido,
+                "maquinaria_nombre": maquinaria.nombre,
+                "maquinaria_marca": "",  # Campo no disponible en el modelo
+                "maquinaria_modelo": "",  # Campo no disponible en el modelo
+                "categoria_nombre": categoria.nombre
+            })
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al obtener las reservas esperando retiro", "error": str(e)}), 500
+
+@reservas_bp.route("/confirmar-retiro/<int:reserva_id>", methods=["PUT"])
+def confirmar_retiro(reserva_id):
+    try:
+        # Buscar la reserva
+        reserva = Reserva.query.get(reserva_id)
+        if not reserva:
+            return jsonify({"message": "Reserva no encontrada"}), 404
+        
+        # Verificar que la reserva esté en estado esperando_retiro
+        if reserva.estado != 'esperando_retiro':
+            return jsonify({"message": "La reserva no está en estado esperando retiro"}), 400
+        
+        # Cambiar el estado a esperando_devolucion
+        reserva.estado = 'esperando_devolucion'
+        db.session.commit()
+        
+        return jsonify({"message": "Retiro confirmado exitosamente"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Error al confirmar el retiro", "error": str(e)}), 500
+
+@reservas_bp.route("/reservas-esperando-devolucion", methods=["GET"])
+def obtener_reservas_esperando_devolucion():
+    try:
+        # Buscar reservas con estado 'esperando_devolucion'
+        reservas = Reserva.query.join(Usuario).join(Maquinaria).join(Categoria).filter(
+            Reserva.estado == 'esperando_devolucion'
+        ).order_by(Reserva.fecha_fin.asc()).all()
+        
+        resultado = []
+        for reserva in reservas:
+            usuario = reserva.usuario
+            maquinaria = reserva.maquinaria
+            categoria = maquinaria.categoria
+            
+            resultado.append({
+                "id": reserva.id,
+                "fecha_inicio": reserva.fecha_inicio.strftime("%Y-%m-%d"),
+                "fecha_fin": reserva.fecha_fin.strftime("%Y-%m-%d"),
+                "monto_total": float(reserva.precio),
+                "estado": reserva.estado,
+                "cliente_nombre": usuario.nombre,
+                "cliente_apellido": usuario.apellido,
+                "maquinaria_nombre": maquinaria.nombre,
+                "maquinaria_marca": "",  # Campo no disponible en el modelo
+                "maquinaria_modelo": "",  # Campo no disponible en el modelo
+                "categoria_nombre": categoria.nombre
+            })
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al obtener las reservas esperando devolución", "error": str(e)}), 500
