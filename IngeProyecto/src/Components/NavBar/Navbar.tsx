@@ -46,8 +46,6 @@ const Navbar: React.FC = () => {
     
     if (rol === 'administrador') {
       options.push({ label: 'Ver Ingresos', path: '/ingresos' });
-      options.push({ label: 'Reservas de Hoy', path: '/reservas-hoy' });
-      options.push({ label: 'Gestión de Soporte', path: '/gestion-soporte' });
       options.push({ label: 'Cambiar rol de cliente a empleado', path: '/alta-empleado' });
       options.push({ label: 'Baja de maquinaria', path: '/baja-maquinaria' });
       options.push({ label: 'Registrar empleado', path: '/registrar-empleado' });
