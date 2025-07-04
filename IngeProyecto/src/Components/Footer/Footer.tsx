@@ -82,18 +82,23 @@ const Footer: React.FC = () => {
       <footer className="bg-dark text-white py-2 mt-4">
         <div className="container">
           <div className="row align-items-center position-relative">
-            <div className="col-md-4">
+            <div className="col-md-4 d-flex justify-content-start">
               <button
                 className="btn btn-outline-light btn-sm ms-3"
                 onClick={() => setShowModal(true)}
-                style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+                style={{ 
+                  fontSize: '0.75rem', 
+                  padding: '0.4rem 0.8rem',
+                  zIndex: 1000,
+                  position: 'relative'
+                }}
               >
                 <i className="fas fa-headset me-1" style={{ fontSize: '0.7rem' }}></i>
                 Soporte
               </button>
             </div>
-            <div className="col-12 position-absolute text-center" style={{ pointerEvents: 'none' }}>
-              <p className="mb-0" style={{ pointerEvents: 'auto', fontSize: '0.75rem' }}>
+            <div className="col-12 position-absolute text-center" style={{ pointerEvents: 'none', left: 0, right: 0 }}>
+              <p className="mb-0" style={{ fontSize: '0.75rem' }}>
                 © 2025 Bob el Alquilador. Todos los derechos reservados.
               </p>
             </div>

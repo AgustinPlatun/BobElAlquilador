@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../Components/NavBar/Navbar';
+import Footer from '../Components/Footer/Footer';
 
 interface TicketSoporte {
   id: number;
@@ -98,9 +99,9 @@ const GestionSoporte: React.FC = () => {
 
   if (loading) {
     return (
-      <div>
+      <div className="full-page-layout">
         <Navbar />
-        <div className="container py-3">
+        <div className="main-content-centered">
           <div className="text-center">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Cargando...</span>
@@ -108,123 +109,128 @@ const GestionSoporte: React.FC = () => {
             <p className="mt-2 small">Cargando tickets de soporte...</p>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div>
+      <div className="full-page-layout">
         <Navbar />
-        <div className="container py-3">
+        <div className="main-content-centered">
           <div className="alert alert-danger text-center small">{error}</div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="container py-3">
-        <div className="text-center mb-3">
-          <h4 className="fw-bold mb-2">Gestión de Soporte Técnico</h4>
-          <p className="text-muted small">Tickets de soporte pendientes</p>
-        </div>
+      <div className="main-content-flex">
+        <div className="container py-3">
+          <div className="text-center mb-3">
+            <h4 className="fw-bold mb-2">Gestión de Soporte Técnico</h4>
+            <p className="text-muted small">Tickets de soporte pendientes</p>
+          </div>
 
-        <div className="mx-3">
-          {/* Lista de tickets */}
-          {tickets.length === 0 ? (
-            <div className="text-center py-3">
-              <div className="card border-0 shadow-sm" style={{ maxWidth: '400px', margin: '0 auto' }}>
-                <div className="card-body py-3">
-                  <div className="mb-2">
-                    <i className="fas fa-ticket-alt fa-2x text-muted"></i>
+          <div className="mx-3">
+            {/* Lista de tickets */}
+            {tickets.length === 0 ? (
+              <div className="text-center py-3">
+                <div className="card border-0 shadow-sm" style={{ maxWidth: '400px', margin: '0 auto' }}>
+                  <div className="card-body py-3">
+                    <div className="mb-2">
+                      <i className="fas fa-ticket-alt fa-2x text-muted"></i>
+                    </div>
+                    <h6 className="text-muted mb-2">No hay tickets pendientes</h6>
+                    <p className="text-muted small mb-0">
+                      Cuando lleguen tickets de soporte, aparecerán aquí
+                    </p>
                   </div>
-                  <h6 className="text-muted mb-2">No hay tickets pendientes</h6>
-                  <p className="text-muted small mb-0">
-                    Cuando lleguen tickets de soporte, aparecerán aquí
-                  </p>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="d-flex flex-column gap-2">
-            {tickets.map((ticket) => (
-              <div key={ticket.id} className="card shadow-sm border-0" style={{ borderRadius: '6px' }}>
-                <div className="card-body py-2 px-3">
-                  <div className="d-flex justify-content-between align-items-start mb-2">
-                    <div className="d-flex align-items-center gap-2">
-                      <span className="text-muted fw-bold small">#{ticket.id}</span>
-                      <h6 className="card-title fw-bold mb-0 small">{ticket.asunto}</h6>
-                    </div>
-                    <span className={`badge ${obtenerColorEstado(ticket.estado)} small`}>
-                      {ticket.estado}
-                    </span>
-                  </div>
-                  
-                  <hr className="my-2" style={{ borderColor: '#dee2e6', opacity: 0.5 }} />
-                  
-                  <div className="row">
-                    <div className="col-md-3">
-                      <small className="text-muted d-block">Contacto:</small>
-                      <div className="fw-bold small">{ticket.contacto}</div>
-                    </div>
-                    
-                    <div className="col-md-6">
-                      <small className="text-muted d-block">Descripción:</small>
-                      <p className="mb-0 small">
-                        {ticket.descripcion.length > 150 
-                          ? `${ticket.descripcion.substring(0, 150)}...` 
-                          : ticket.descripcion
-                        }
-                      </p>
-                    </div>
-                    
-                    <div className="col-md-3">
-                      <small className="text-muted d-block">Fecha:</small>
-                      <div className="mb-2 small">{formatearFecha(ticket.fecha_creacion)}</div>
+            ) : (
+              <div className="d-flex flex-column gap-2">
+                {tickets.map((ticket) => (
+                  <div key={ticket.id} className="card shadow-sm border-0" style={{ borderRadius: '6px' }}>
+                    <div className="card-body py-2 px-3">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <div className="d-flex align-items-center gap-2">
+                          <span className="text-muted fw-bold small">#{ticket.id}</span>
+                          <h6 className="card-title fw-bold mb-0 small">{ticket.asunto}</h6>
+                        </div>
+                        <span className={`badge ${obtenerColorEstado(ticket.estado)} small`}>
+                          {ticket.estado}
+                        </span>
+                      </div>
                       
-                      <div className="d-flex gap-1">
-                        {ticket.estado === 'Pendiente' && (
-                          <button
-                            className="btn btn-success btn-sm small"
-                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                            onClick={() => actualizarEstado(ticket.id, 'En proceso')}
-                          >
-                            Hecho
-                          </button>
-                        )}
+                      <hr className="my-2" style={{ borderColor: '#dee2e6', opacity: 0.5 }} />
+                      
+                      <div className="row">
+                        <div className="col-md-3">
+                          <small className="text-muted d-block">Contacto:</small>
+                          <div className="fw-bold small">{ticket.contacto}</div>
+                        </div>
                         
-                        {ticket.estado === 'En proceso' && (
-                          <button
-                            className="btn btn-success btn-sm small"
-                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                            onClick={() => actualizarEstado(ticket.id, 'Resuelto')}
-                          >
-                            Resolver
-                          </button>
-                        )}
+                        <div className="col-md-6">
+                          <small className="text-muted d-block">Descripción:</small>
+                          <p className="mb-0 small">
+                            {ticket.descripcion.length > 150 
+                              ? `${ticket.descripcion.substring(0, 150)}...` 
+                              : ticket.descripcion
+                            }
+                          </p>
+                        </div>
                         
-                        {ticket.estado === 'Resuelto' && (
-                          <button
-                            className="btn btn-outline-secondary btn-sm small"
-                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                            disabled
-                          >
-                            Completado
-                          </button>
-                        )}
+                        <div className="col-md-3">
+                          <small className="text-muted d-block">Fecha:</small>
+                          <div className="mb-2 small">{formatearFecha(ticket.fecha_creacion)}</div>
+                          
+                          <div className="d-flex gap-1">
+                            {ticket.estado === 'Pendiente' && (
+                              <button
+                                className="btn btn-success btn-sm small"
+                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                                onClick={() => actualizarEstado(ticket.id, 'En proceso')}
+                              >
+                                Hecho
+                              </button>
+                            )}
+                            
+                            {ticket.estado === 'En proceso' && (
+                              <button
+                                className="btn btn-success btn-sm small"
+                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                                onClick={() => actualizarEstado(ticket.id, 'Resuelto')}
+                              >
+                                Resolver
+                              </button>
+                            )}
+                            
+                            {ticket.estado === 'Resuelto' && (
+                              <button
+                                className="btn btn-outline-secondary btn-sm small"
+                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                                disabled
+                              >
+                                Completado
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

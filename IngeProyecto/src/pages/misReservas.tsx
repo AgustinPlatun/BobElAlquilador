@@ -207,8 +207,8 @@ const MisReservas: React.FC = () => {
           </div>
         </div>
       </div>
+      </div>
       <Footer />
-    </div>
     </div>
   );
 };

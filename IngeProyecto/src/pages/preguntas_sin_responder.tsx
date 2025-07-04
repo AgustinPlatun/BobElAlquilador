@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../Components/NavBar/Navbar";
+import Footer from "../Components/Footer/Footer";
 
 const PreguntasSinResponder: React.FC = () => {
   const [preguntas, setPreguntas] = useState<any[]>([]);
@@ -52,21 +53,22 @@ const PreguntasSinResponder: React.FC = () => {
 
   if (usuarioRol !== "empleado" && usuarioRol !== "administrador") {
     return (
-      <div>
+      <div className="full-page-layout">
         <Navbar />
-        <div className="container py-5" style={{ marginLeft: 16, marginRight: 16 }}>
+        <div className="main-content-centered">
           <div className="alert alert-danger text-center">
             Solo los empleados pueden ver esta página.
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div style={{ marginLeft: 16, marginRight: 16 }}>
+      <div className="main-content-flex">
         <div className="container py-2">
           <h2 className="mb-4 text-center">Preguntas sin responder</h2>
           {mensaje && <div className="alert alert-success">{mensaje}</div>}
@@ -125,6 +127,7 @@ const PreguntasSinResponder: React.FC = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

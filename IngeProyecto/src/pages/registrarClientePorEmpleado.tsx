@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Navbar from '../Components/NavBar/Navbar';
+import Footer from '../Components/Footer/Footer';
 
 const RegistrarCliente: React.FC = () => {
   const [nombre, setNombre] = useState('');
@@ -47,15 +48,9 @@ const RegistrarCliente: React.FC = () => {
   };
 
   return (
-    <div style={{ background: "#f8f9fa", minHeight: "100vh" }}>
+    <div className="full-page-layout">
       <Navbar />
-      <div
-        className="container d-flex justify-content-center align-items-center"
-        style={{
-          minHeight: "calc(100vh - 80px)",
-          marginTop: "80px", 
-        }}
-      >
+      <div className="main-content-centered">
         <div className="card p-4 shadow" style={{ maxWidth: '400px', width: '100%' }}>
           <h2 className="text-center mb-4 text-danger">Registrar Cliente</h2>
           <form onSubmit={handleSubmit}>
@@ -111,6 +106,7 @@ const RegistrarCliente: React.FC = () => {
           </form>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

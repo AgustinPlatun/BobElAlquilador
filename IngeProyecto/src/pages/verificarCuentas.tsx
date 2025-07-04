@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import Navbar from "../Components/NavBar/Navbar";
+import Footer from "../Components/Footer/Footer";
 import { Modal, Button } from "react-bootstrap";
 
 interface Usuario {
@@ -72,12 +73,13 @@ const UsuariosPendientes: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="container mt-5">
-        <h2 className="text-danger text-center mb-4">Usuarios Pendientes</h2>
-        {error && <div className="alert alert-danger">{error}</div>}
-        <div className="list-group">
+      <div className="main-content-flex">
+        <div className="container mt-5">
+          <h2 className="text-danger text-center mb-4">Usuarios Pendientes</h2>
+          {error && <div className="alert alert-danger">{error}</div>}
+          <div className="list-group">
           {usuarios.map((usuario) => (
             <div key={usuario.id} className="list-group-item mb-2 mx-auto w-100" style={{     
                 border: "1px solid red",
@@ -169,6 +171,8 @@ const UsuariosPendientes: React.FC = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      </div>
+      <Footer />
     </div>
   );
 };
