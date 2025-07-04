@@ -80,14 +80,13 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="container d-flex justify-content-center align-items-center min-vh-100">
-        <div className="login-page-container">
-          <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '98%', border: '1px solid red'}}>
-            <h2 className="text-center mb-4 text-danger">Iniciar Sesión</h2>
-            {!esperandoCodigo ? (
-              <form onSubmit={handleLogin}>
+      <div className="main-content-centered">
+        <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '98%', border: '1px solid red'}}>
+          <h2 className="text-center mb-4 text-danger">Iniciar Sesión</h2>
+          {!esperandoCodigo ? (
+            <form onSubmit={handleLogin}>
                 <div className="mb-3">
                   <label htmlFor="email" className="form-label">Email:</label>
                   <input
@@ -159,7 +158,6 @@ const Login: React.FC = () => {
                 {error}
               </div>
             )}
-          </div>
         </div>
       </div>
       <Footer />

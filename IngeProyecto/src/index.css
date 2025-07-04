@@ -92,3 +92,79 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Estilos para layout de página completa */
+.full-page-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content-flex {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content-centered {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 20px; /* Espacio antes del footer */
+}
+
+/* Estilos específicos para el footer */
+footer {
+  margin-top: auto !important;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+  border-top: 2px solid #444;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 10;
+}
+
+footer .container {
+  max-width: 1200px;
+}
+
+footer .btn-outline-light {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  font-size: 0.8rem !important;
+  padding: 0.4rem 0.8rem !important;
+}
+
+footer .btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+footer .btn-outline-light i {
+  font-size: 0.75rem !important;
+}
+
+footer p {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  font-size: 0.8rem !important;
+  margin-bottom: 0 !important;
+}
+
+/* Mejor responsividad para el footer */
+@media (max-width: 768px) {
+  footer .col-md-4 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  footer .col-12 {
+    position: relative !important;
+    text-align: center;
+  }
+}

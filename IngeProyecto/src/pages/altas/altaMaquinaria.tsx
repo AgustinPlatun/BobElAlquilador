@@ -125,9 +125,9 @@ const AltaMaquinaria: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="container d-flex justify-content-center align-items-center min-vh-100 pt-5">
+      <div className="main-content-centered">
         <div className="bg-white border border-danger rounded shadow p-4 mb-5" style={{ maxWidth: '500px', width: '100%' }}>
           <h2 className="text-center text-dark mb-4">Alta de Maquinaria</h2>
           <form onSubmit={handleSubmit}>

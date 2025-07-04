@@ -63,62 +63,64 @@ const Servicios: React.FC = () => {
     : maquinarias;
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="container py-5 text-center" style={{ paddingLeft: '15px', paddingRight: '15px' }}>
-        <h1 className="mb-4">Nuestras Maquinarias</h1>
-        {error && <div className="alert alert-danger">{error}</div>}
-        <div className="row gx-4 gy-4 justify-content-center" style={{ marginLeft: '10px', marginRight: '10px' }}>
-          {/* Filtros a la izquierda */}
-          <div className="col-12 col-md-3 col-lg-2 mb-4 text-start">
-            <div className="bg-white border rounded shadow-sm p-3">
-              <h5 className="fw-bold mb-3">Filtros</h5>
-              <div>
-                {categorias.length === 0 && (
-                  <div className="text-muted">No hay categorías</div>
-                )}
-                {categorias.map((cat) => (
-                  <button
-                    key={cat.id}
-                    className={`btn btn-sm w-100 text-start mb-2 ${categoriaSeleccionada === cat.nombre ? 'bg-secondary text-white' : 'bg-light text-dark'}`}
-                    style={{
-                      border: 'none',
-                      borderRadius: '20px',
-                      boxShadow: categoriaSeleccionada === cat.nombre ? '0 0 0 2px #6c757d' : 'none'
-                    }}
-                    onClick={() =>
-                      setCategoriaSeleccionada(
-                        categoriaSeleccionada === cat.nombre ? null : cat.nombre
-                      )
-                    }
-                  >
-                    {cat.nombre}
-                  </button>
-                ))}
+      <div className="main-content-flex">
+        <div className="container py-5 text-center" style={{ paddingLeft: '15px', paddingRight: '15px' }}>
+          <h1 className="mb-4">Nuestras Maquinarias</h1>
+          {error && <div className="alert alert-danger">{error}</div>}
+          <div className="row gx-4 gy-4 justify-content-center" style={{ marginLeft: '10px', marginRight: '10px' }}>
+            {/* Filtros a la izquierda */}
+            <div className="col-12 col-md-3 col-lg-2 mb-4 text-start">
+              <div className="bg-white border rounded shadow-sm p-3">
+                <h5 className="fw-bold mb-3">Filtros</h5>
+                <div>
+                  {categorias.length === 0 && (
+                    <div className="text-muted">No hay categorías</div>
+                  )}
+                  {categorias.map((cat) => (
+                    <button
+                      key={cat.id}
+                      className={`btn btn-sm w-100 text-start mb-2 ${categoriaSeleccionada === cat.nombre ? 'bg-secondary text-white' : 'bg-light text-dark'}`}
+                      style={{
+                        border: 'none',
+                        borderRadius: '20px',
+                        boxShadow: categoriaSeleccionada === cat.nombre ? '0 0 0 2px #6c757d' : 'none'
+                      }}
+                      onClick={() =>
+                        setCategoriaSeleccionada(
+                          categoriaSeleccionada === cat.nombre ? null : cat.nombre
+                        )
+                      }
+                    >
+                      {cat.nombre}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-          {/* Cards de maquinarias */}
-          <div className="col-12 col-md-9 col-lg-10">
-            <div className="row gx-5 gy-4 justify-content-center">
-              {maquinariasFiltradas.length === 0 && (
-                <div className="text-muted mt-4">No hay maquinarias para esta categoría.</div>
-              )}
-              {maquinariasFiltradas.map((maquinaria) => (
-                <div
-                  className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 px-2"
-                  key={maquinaria.id}
-                >
-                  <Card
-                    image={`http://localhost:5000/uploads/maquinarias_fotos/${maquinaria.foto}`}
-                    name={maquinaria.nombre}
-                    description={maquinaria.descripcion}
-                    precio={Number(maquinaria.precio)}
-                    codigo={maquinaria.codigo}
-                    categoria={maquinaria.categoria}
-                  />
-                </div>
-              ))}
+            {/* Cards de maquinarias */}
+            <div className="col-12 col-md-9 col-lg-10">
+              <div className="row gx-5 gy-4 justify-content-center">
+                {maquinariasFiltradas.length === 0 && (
+                  <div className="text-muted mt-4">No hay maquinarias para esta categoría.</div>
+                )}
+                {maquinariasFiltradas.map((maquinaria) => (
+                  <div
+                    className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 px-2"
+                    key={maquinaria.id}
+                  >
+                    <Card
+                      image={`http://localhost:5000/uploads/maquinarias_fotos/${maquinaria.foto}`}
+                      name={maquinaria.nombre}
+                      description={maquinaria.descripcion}
+                      precio={Number(maquinaria.precio)}
+                      codigo={maquinaria.codigo}
+                      categoria={maquinaria.categoria}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

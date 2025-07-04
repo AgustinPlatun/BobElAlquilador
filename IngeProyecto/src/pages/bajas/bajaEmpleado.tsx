@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../Components/NavBar/Navbar';
+import Footer from '../../Components/Footer/Footer';
 
 const BajaEmpleado: React.FC = () => {
   const [empleados, setEmpleados] = useState<any[]>([]);
@@ -8,7 +9,6 @@ const BajaEmpleado: React.FC = () => {
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [nombreEmpleado, setNombreEmpleado] = useState('');
-  const rol = localStorage.getItem('usuarioRol');
 
   useEffect(() => {
     const fetchEmpleados = async () => {
@@ -67,9 +67,9 @@ const BajaEmpleado: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="baja-cuenta-page d-flex justify-content-center align-items-center" style={{ width: '100vw', height: '100vh' }}>
+      <div className="main-content-centered">
         <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '90%', border: '1px solid red' }}>
           <h2 className="text-center mb-4">Degradar empleado a cliente</h2>
           <div className="mb-3">
@@ -128,6 +128,7 @@ const BajaEmpleado: React.FC = () => {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 };

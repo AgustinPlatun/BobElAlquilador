@@ -141,9 +141,10 @@ const MisDatos: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="container mt-5">
+      <div className="main-content-flex">
+        <div className="container mt-5">
         {showPasswordChangedAlert && (
           <Alert variant="success" onClose={() => setShowPasswordChangedAlert(false)} dismissible>
             ¡Contraseña cambiada correctamente!
@@ -303,6 +304,7 @@ const MisDatos: React.FC = () => {
         </Modal.Footer>
       </Modal>
 
+      </div>
       <Footer />
     </div>
   );

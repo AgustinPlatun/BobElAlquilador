@@ -4,9 +4,9 @@ import Footer from '../Components/Footer/Footer';
 
 const Contacto: React.FC = () => {
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+      <div className="main-content-centered">
         <div className="card shadow" style={{ maxWidth: 450, width: '100%' }}>
           <div className="card-body">
             <h2 className="card-title mb-4 text-center">Contacto</h2>

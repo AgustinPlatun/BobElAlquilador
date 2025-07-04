@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../Components/NavBar/Navbar';
+import Footer from '../../Components/Footer/Footer';
 
 const BajaMaquinaria: React.FC = () => {
   const [maquinarias, setMaquinarias] = useState<any[]>([]);
@@ -7,7 +8,6 @@ const BajaMaquinaria: React.FC = () => {
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const rol = localStorage.getItem('usuarioRol');
 
   // Obtener todas las maquinarias activas al montar
   useEffect(() => {
@@ -57,9 +57,9 @@ const BajaMaquinaria: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="baja-maquinaria-page d-flex justify-content-center align-items-center min-vh-100 pt-5">
+      <div className="main-content-centered">
         <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '90%', border: '1px solid red' }}>
           <h2 className="text-center mb-4">Baja de Maquinaria</h2>
           <div className="mb-3">
@@ -122,6 +122,7 @@ const BajaMaquinaria: React.FC = () => {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 };

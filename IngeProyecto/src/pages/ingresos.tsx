@@ -327,11 +327,13 @@ const Ingresos: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div style={{ paddingLeft: 16, paddingRight: 16 }}>
-        <div className="container py-5">
-          {renderContent()}
+      <div className="main-content-flex">
+        <div style={{ paddingLeft: 16, paddingRight: 16 }}>
+          <div className="container py-5">
+            {renderContent()}
+          </div>
         </div>
       </div>
       <Footer />

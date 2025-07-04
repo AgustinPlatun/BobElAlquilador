@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from '../../Components/NavBar/Navbar';
+import Footer from '../../Components/Footer/Footer';
 
 const AltaCategoria: React.FC = () => {
   const [nombre, setNombre] = useState('');
@@ -33,9 +34,9 @@ const AltaCategoria: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="baja-cuenta-page d-flex justify-content-center align-items-center" style={{ width: '100vw', height: '70vh' }}>
+      <div className="main-content-centered">
         <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '90%', border: '1px solid green' }}>
           <h2 className="text-center mb-4">Alta de categoría</h2>
           <div className="mb-3">
@@ -62,6 +63,7 @@ const AltaCategoria: React.FC = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

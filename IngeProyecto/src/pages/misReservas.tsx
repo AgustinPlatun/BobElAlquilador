@@ -93,9 +93,10 @@ const MisReservas: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="full-page-layout">
       <Navbar />
-      <div className="container py-5" style={{ paddingLeft: 12, paddingRight: 12 }}>
+      <div className="main-content-flex">
+        <div className="container py-5" style={{ paddingLeft: 12, paddingRight: 12 }}>
         <div className="row">
           <div className="col-12">
             <div className="text-center mb-5">
@@ -207,6 +208,7 @@ const MisReservas: React.FC = () => {
         </div>
       </div>
       <Footer />
+    </div>
     </div>
   );
 };
