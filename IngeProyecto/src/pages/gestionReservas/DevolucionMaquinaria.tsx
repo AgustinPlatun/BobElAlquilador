@@ -22,6 +22,7 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
   const [reservas, setReservas] = useState<Reserva[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [procesandoDevolucion, setProcesandoDevolucion] = useState<number | null>(null);
 
   const fechaHoy = new Date().toLocaleDateString('es-AR');
 
@@ -47,6 +48,33 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
       setError('Error de conexión al cargar las reservas');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const confirmarDevolucion = async (reservaId: number) => {
+    try {
+      setProcesandoDevolucion(reservaId);
+      setError('');
+      
+      const response = await fetch(`http://localhost:5000/confirmar-devolucion/${reservaId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // Recargar las reservas para actualizar la lista
+        await cargarReservas();
+        alert('Devolución confirmada exitosamente');
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Error al confirmar la devolución');
+      }
+    } catch (err) {
+      setError('Error de conexión al confirmar la devolución');
+    } finally {
+      setProcesandoDevolucion(null);
     }
   };
 
@@ -142,6 +170,7 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                     <th>Fecha Fin</th>
                     <th>Monto Total</th>
                     <th>Estado</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -174,6 +203,19 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                         <span className={`badge ${obtenerColorEstado(reserva.estado)} text-white`}>
                           {reserva.estado}
                         </span>
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-success"
+                          onClick={() => confirmarDevolucion(reserva.id)}
+                          disabled={procesandoDevolucion === reserva.id}
+                        >
+                          {procesandoDevolucion === reserva.id ? (
+                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                          ) : (
+                            'Confirmar Devolución'
+                          )}
+                        </button>
                       </td>
                     </tr>
                   ))}

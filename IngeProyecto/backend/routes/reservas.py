@@ -179,3 +179,25 @@ def obtener_reservas_esperando_devolucion():
 
     except Exception as e:
         return jsonify({"message": "Error al obtener las reservas esperando devolución", "error": str(e)}), 500
+
+@reservas_bp.route("/confirmar-devolucion/<int:reserva_id>", methods=["PUT"])
+def confirmar_devolucion(reserva_id):
+    try:
+        # Buscar la reserva
+        reserva = Reserva.query.get(reserva_id)
+        if not reserva:
+            return jsonify({"message": "Reserva no encontrada"}), 404
+        
+        # Verificar que la reserva esté en estado esperando_devolucion
+        if reserva.estado != 'esperando_devolucion':
+            return jsonify({"message": "La reserva no está en estado esperando devolución"}), 400
+        
+        # Cambiar el estado a terminada
+        reserva.estado = 'terminada'
+        db.session.commit()
+        
+        return jsonify({"message": "Devolución confirmada exitosamente"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Error al confirmar la devolución", "error": str(e)}), 500
