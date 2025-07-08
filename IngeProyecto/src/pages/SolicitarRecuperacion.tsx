@@ -19,7 +19,6 @@ const SolicitarRecuperacion: React.FC = () => {
       interval = setInterval(() => {
         setCountdown(prev => {
           if (prev === 1) {
-            // Cuando llega a 1, en el próximo tick será 0 y se redirige
             setTimeout(() => navigate('/login'), 100);
           }
           return prev - 1;
@@ -42,9 +41,7 @@ const SolicitarRecuperacion: React.FC = () => {
     setLoading(true);
     try {
       const res = await axios.post('http://localhost:5000/solicitar-recuperacion', { email });
-      // Mostrar SIEMPRE el mensaje del backend
       setMensaje(res.data.message);
-      // Iniciar countdown de 10 segundos
       setCountdown(10);
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.message) {
