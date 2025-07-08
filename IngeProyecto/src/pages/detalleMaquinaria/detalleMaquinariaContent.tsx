@@ -326,6 +326,7 @@ const DetalleMaquinariaContent: React.FC = () => {
                     ? `${maquinaria.politicas_reembolso}%`
                     : '-'}
                 </span>
+                <span> (Siempre y cuando esta no sea en mismo dia de retiro)</span>
               </div>
               {rol === 'administrador' && (
                 <button

@@ -5,8 +5,8 @@ from datetime import date
 
 with app.app_context():
     reserva = Reserva(
-        fecha_inicio=date(2025, 6, 2),  # Cambiar fecha
-        fecha_fin=date(2025, 6, 20),     # Cambiar fecha
+        fecha_inicio=date(2025, 7, 10),  # Cambiar fecha
+        fecha_fin=date(2025, 10, 20),     # Cambiar fecha
         precio=15.0,                    # Cambiar precio
         usuario_id=4,                     # Cambiar ID de usuario
         maquinaria_id=3                   # Cambiar ID de maquinaria

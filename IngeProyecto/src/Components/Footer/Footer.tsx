@@ -47,7 +47,7 @@ const Footer: React.FC = () => {
       });
 
       if (response.ok) {
-        setMensaje('Ticket de soporte creado exitosamente. Nos pondremos en contacto contigo pronto.');
+        setMensaje('Ticket de soporte creado exitosamente. Nos pondremos en contacto contigo en caso de ser necesario.');
         setTipoMensaje('success');
         setFormData({ contacto: '', asunto: '', descripcion: '' });
         

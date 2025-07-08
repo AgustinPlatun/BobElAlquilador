@@ -15,6 +15,8 @@ const GestionSoporte: React.FC = () => {
   const [tickets, setTickets] = useState<TicketSoporte[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [ticketToUpdate, setTicketToUpdate] = useState<{ id: number; estado: string } | null>(null);
 
   useEffect(() => {
     cargarTickets();
@@ -70,6 +72,24 @@ const GestionSoporte: React.FC = () => {
     } catch (err) {
       alert('Error de conexión al actualizar el ticket');
     }
+  };
+
+  const handleConfirmAction = (ticketId: number, nuevoEstado: string) => {
+    setTicketToUpdate({ id: ticketId, estado: nuevoEstado });
+    setShowConfirmModal(true);
+  };
+
+  const confirmUpdate = async () => {
+    if (ticketToUpdate) {
+      await actualizarEstado(ticketToUpdate.id, ticketToUpdate.estado);
+      setShowConfirmModal(false);
+      setTicketToUpdate(null);
+    }
+  };
+
+  const cancelUpdate = () => {
+    setShowConfirmModal(false);
+    setTicketToUpdate(null);
   };
 
   const obtenerColorEstado = (estado: string) => {
@@ -194,7 +214,7 @@ const GestionSoporte: React.FC = () => {
                               <button
                                 className="btn btn-success btn-sm small"
                                 style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                                onClick={() => actualizarEstado(ticket.id, 'En proceso')}
+                                onClick={() => handleConfirmAction(ticket.id, 'En proceso')}
                               >
                                 Hecho
                               </button>
@@ -230,6 +250,32 @@ const GestionSoporte: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Modal de confirmación */}
+      {showConfirmModal && (
+        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirmar acción</h5>
+                <button type="button" className="btn-close" onClick={cancelUpdate}></button>
+              </div>
+              <div className="modal-body">
+                <p>¿Estás seguro de que quieres marcar este ticket como "Solucionado"?</p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={cancelUpdate}>
+                  Cancelar
+                </button>
+                <button type="button" className="btn btn-success" onClick={confirmUpdate}>
+                  Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <Footer />
     </div>
   );
