@@ -11,7 +11,6 @@ const SolicitarRecuperacion: React.FC = () => {
   const [countdown, setCountdown] = useState(0);
   const navigate = useNavigate();
 
-  // Efecto para manejar el countdown y redirección
   useEffect(() => {
     let interval: number;
     
