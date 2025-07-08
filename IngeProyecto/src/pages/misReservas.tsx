@@ -21,6 +21,8 @@ const MisReservas: React.FC = () => {
   const [reservas, setReservas] = useState<Reserva[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [reservaACancelar, setReservaACancelar] = useState<{id: number, nombre: string, politica: number, precioTotal: number} | null>(null);
   const navigate = useNavigate();
 
   const cargarReservas = async () => {
@@ -64,9 +66,45 @@ const MisReservas: React.FC = () => {
     });
   };
 
-  const confirmarRetiro = async (reservaId: number) => {
+  const puedeCancelarReserva = (fechaInicio: string) => {
+    const hoy = new Date();
+    const fechaRetiro = new Date(fechaInicio);
+    const diferenciaDias = Math.ceil((fechaRetiro.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+    return diferenciaDias > 1;
+  };
+
+  const abrirModalCancelacion = async (reservaId: number) => {
     try {
-      const response = await fetch(`http://localhost:5000/confirmar-retiro/${reservaId}`, {
+      const reserva = reservas.find(r => r.id === reservaId);
+      if (!reserva) {
+        setError('Reserva no encontrada');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/info-cancelacion/${reservaId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setReservaACancelar({
+          id: reservaId,
+          nombre: data.maquinaria_nombre,
+          politica: data.politica_reembolso,
+          precioTotal: reserva.precio_total
+        });
+        setShowCancelModal(true);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Error al obtener información de cancelación');
+      }
+    } catch (err) {
+      setError('Error de conexión al obtener información de cancelación');
+    }
+  };
+
+  const cancelarReserva = async () => {
+    if (!reservaACancelar) return;
+
+    try {
+      const response = await fetch(`http://localhost:5000/cancelar-reserva/${reservaACancelar.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -74,16 +112,24 @@ const MisReservas: React.FC = () => {
       });
 
       if (response.ok) {
-        // Recargar las reservas después de confirmar el retiro
+        // Recargar las reservas después de cancelar
         cargarReservas();
+        setShowCancelModal(false);
+        setReservaACancelar(null);
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Error al confirmar el retiro');
+        setError(errorData.message || 'Error al cancelar la reserva');
+        setShowCancelModal(false);
+        setReservaACancelar(null);
       }
     } catch (err) {
-      setError('Error de conexión al confirmar el retiro');
+      setError('Error de conexión al cancelar la reserva');
+      setShowCancelModal(false);
+      setReservaACancelar(null);
     }
   };
+
+
 
   if (loading) {
     return (
@@ -212,13 +258,14 @@ const MisReservas: React.FC = () => {
                                 ${reserva.precio_total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                               </div>
                             </div>
-                            <div className="d-flex gap-2">
-                              {reserva.estado === 'esperando_retiro' && (
+                            <div className="d-flex gap-2 flex-wrap">
+                              {puedeCancelarReserva(reserva.fecha_inicio) && 
+                               (reserva.estado === 'esperando_retiro' || reserva.estado === 'Activa') && (
                                 <button
-                                  className="btn btn-success btn-sm"
-                                  onClick={() => confirmarRetiro(reserva.id)}
+                                  className="btn btn-danger btn-sm"
+                                  onClick={() => abrirModalCancelacion(reserva.id)}
                                 >
-                                  Confirmar Retiro
+                                  Cancelar Reserva
                                 </button>
                               )}
                               <button
@@ -240,6 +287,52 @@ const MisReservas: React.FC = () => {
         </div>
       </div>
       </div>
+      
+      {/* Modal de confirmación de cancelación */}
+      {showCancelModal && reservaACancelar && (
+        <div
+          className="modal fade show"
+          style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}
+          tabIndex={-1}
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title text-warning">Confirmar Cancelación</h5>
+              </div>
+              <div className="modal-body">
+                <p className="mb-3">¿Estás seguro de que deseas cancelar esta reserva?</p>
+                <div className="alert alert-info">
+                  <strong>Política de reembolso:</strong><br />
+                  El porcentaje de reembolso de <strong>{reservaACancelar.nombre}</strong> es del <strong>{reservaACancelar.politica}%</strong>
+                  <br /><br />
+                  <strong>Monto a reembolsar:</strong><br />
+                  ${((reservaACancelar.precioTotal * reservaACancelar.politica) / 100).toLocaleString('es-AR', { minimumFractionDigits: 2 })} de ${reservaACancelar.precioTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowCancelModal(false);
+                    setReservaACancelar(null);
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={cancelarReserva}
+                >
+                  Confirmar Cancelación
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <Footer />
     </div>
   );

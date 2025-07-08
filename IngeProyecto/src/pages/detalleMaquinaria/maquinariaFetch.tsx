@@ -7,7 +7,7 @@ export interface Maquinaria {
   foto: string;
   precio: number;
   codigo: string;
-  politicas_reembolso?: string;
+  politicas_reembolso?: number;
   categoria_id?: number;
   categoria?: string;
   calificaciones?: {

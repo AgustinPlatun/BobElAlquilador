@@ -39,6 +39,15 @@ def alta_maquinaria():
         except ValueError:
             return jsonify({"message": "El precio debe ser un número válido"}), 400
 
+        # Convertir politicas_reembolso a float si se proporciona
+        if politicas_reembolso:
+            try:
+                politicas_reembolso = float(politicas_reembolso)
+            except ValueError:
+                return jsonify({"message": "Las políticas de reembolso deben ser un número válido"}), 400
+        else:
+            politicas_reembolso = None
+
         if categoria_id:
             categoria = Categoria.query.get(categoria_id)
             if not categoria:
@@ -125,7 +134,15 @@ def editar_maquinaria(codigo):
         maquinaria.nombre = nombre
         maquinaria.descripcion = descripcion
         maquinaria.precio = float(precio)
-        maquinaria.politicas_reembolso = politicas_reembolso
+        
+        # Convertir politicas_reembolso a float si se proporciona
+        if politicas_reembolso:
+            try:
+                maquinaria.politicas_reembolso = float(politicas_reembolso)
+            except ValueError:
+                return jsonify({"message": "Las políticas de reembolso deben ser un número válido"}), 400
+        else:
+            maquinaria.politicas_reembolso = None
 
         if categoria_id:
             categoria = Categoria.query.get(categoria_id)

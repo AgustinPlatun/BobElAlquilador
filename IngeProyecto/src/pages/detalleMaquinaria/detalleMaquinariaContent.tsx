@@ -123,7 +123,7 @@ const DetalleMaquinariaContent: React.FC = () => {
       setEditNombre(maquinaria.nombre);
       setEditDescripcion(maquinaria.descripcion);
       setEditPrecio(maquinaria.precio);
-      setEditPoliticas(maquinaria.politicas_reembolso || '');
+      setEditPoliticas(maquinaria.politicas_reembolso?.toString() || '');
       setEditCategoriaId(maquinaria.categoria_id?.toString() || '');
       setShowEditModal(true);
     }
@@ -318,11 +318,12 @@ const DetalleMaquinariaContent: React.FC = () => {
                 setConfirmacionReservaCliente={setConfirmacionReservaCliente}
               />
               {/* Política de reembolso debajo del checkbox */}
-              <div style={{ marginTop: 0 }}>
+              <div style={{ marginTop: 0, marginBottom: '1rem' }}>
                 <span className="fw-bold">Política de reembolso: </span>
-                <span>
-                  {maquinaria.politicas_reembolso && maquinaria.politicas_reembolso.trim() !== ''
-                    ? maquinaria.politicas_reembolso
+                <span>Si desea cancelar una reserva de esta maquinaria el reembolso será del </span>
+                <span className='fw-bold'>
+                  {maquinaria.politicas_reembolso !== null && maquinaria.politicas_reembolso !== undefined
+                    ? `${maquinaria.politicas_reembolso}%`
                     : '-'}
                 </span>
               </div>

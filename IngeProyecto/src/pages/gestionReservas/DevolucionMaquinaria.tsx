@@ -23,6 +23,8 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [procesandoDevolucion, setProcesandoDevolucion] = useState<number | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [reservaADevolver, setReservaADevolver] = useState<Reserva | null>(null);
 
   const fechaHoy = new Date().toLocaleDateString('es-AR');
 
@@ -51,12 +53,19 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
     }
   };
 
-  const confirmarDevolucion = async (reservaId: number) => {
+  const abrirModalConfirmacion = (reserva: Reserva) => {
+    setReservaADevolver(reserva);
+    setShowConfirmModal(true);
+  };
+
+  const confirmarDevolucion = async () => {
+    if (!reservaADevolver) return;
+
     try {
-      setProcesandoDevolucion(reservaId);
+      setProcesandoDevolucion(reservaADevolver.id);
       setError('');
       
-      const response = await fetch(`http://localhost:5000/confirmar-devolucion/${reservaId}`, {
+      const response = await fetch(`http://localhost:5000/confirmar-devolucion/${reservaADevolver.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -66,6 +75,8 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
       if (response.ok) {
         // Recargar las reservas para actualizar la lista
         await cargarReservas();
+        setShowConfirmModal(false);
+        setReservaADevolver(null);
         alert('Devolución confirmada exitosamente');
       } else {
         const errorData = await response.json();
@@ -90,6 +101,24 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
       currency: 'ARS',
       minimumFractionDigits: 2 
     });
+  };
+
+  const calcularDiasRetraso = (fechaFin: string) => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // Resetear horas para comparar solo fechas
+    
+    const [year, month, day] = fechaFin.split('-');
+    const fechaFinReserva = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    fechaFinReserva.setHours(0, 0, 0, 0);
+    
+    const diferenciaMilisegundos = hoy.getTime() - fechaFinReserva.getTime();
+    const diasRetraso = Math.ceil(diferenciaMilisegundos / (1000 * 60 * 60 * 24));
+    
+    console.log('Fecha hoy:', hoy);
+    console.log('Fecha fin reserva:', fechaFinReserva);
+    console.log('Días de retraso:', diasRetraso);
+    
+    return diasRetraso > 0 ? diasRetraso : 0;
   };
 
   const obtenerColorEstado = (estado: string) => {
@@ -207,7 +236,7 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                       <td>
                         <button
                           className="btn btn-sm btn-success"
-                          onClick={() => confirmarDevolucion(reserva.id)}
+                          onClick={() => abrirModalConfirmacion(reserva)}
                           disabled={procesandoDevolucion === reserva.id}
                         >
                           {procesandoDevolucion === reserva.id ? (
@@ -225,6 +254,98 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
           )}
         </div>
       </div>
+
+      {/* Modal de confirmación */}
+      {showConfirmModal && reservaADevolver && (
+        <div
+          className="modal fade show"
+          style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}
+          tabIndex={-1}
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title text-success">Confirmar Devolución</h5>
+              </div>
+              <div className="modal-body">
+                <p className="mb-3">¿Estás seguro de que deseas confirmar la devolución de esta maquinaria?</p>
+                
+                {/* Verificar si hay retraso */}
+                {(() => {
+                  const diasRetraso = calcularDiasRetraso(reservaADevolver.fecha_fin);
+                  console.log('Días de retraso en modal:', diasRetraso);
+                  
+                  if (diasRetraso > 0) {
+                    return (
+                      <div className="alert alert-danger">
+                        <strong>⚠️ Devolución Tardía</strong><br />
+                        El cliente está devolviendo la maquinaria con <strong>{diasRetraso} día{diasRetraso !== 1 ? 's' : ''} de retraso</strong>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
+                <div className="card border-0 bg-light">
+                  <div className="card-body">
+                    <div className="row">
+                      <div className="col-6">
+                        <strong>Cliente:</strong><br />
+                        {reservaADevolver.cliente_nombre} {reservaADevolver.cliente_apellido}
+                      </div>
+                      <div className="col-6">
+                        <strong>Maquinaria:</strong><br />
+                        {reservaADevolver.maquinaria_nombre}
+                      </div>
+                    </div>
+                    <div className="row mt-3">
+                      <div className="col-6">
+                        <strong>Fecha fin:</strong><br />
+                        <span className={calcularDiasRetraso(reservaADevolver.fecha_fin) > 0 ? 'text-danger fw-bold' : ''}>
+                          {formatearFecha(reservaADevolver.fecha_fin)}
+                        </span>
+                      </div>
+                      <div className="col-6">
+                        <strong>Monto total:</strong><br />
+                        <span className="text-success fw-bold">
+                          {formatearMonto(reservaADevolver.monto_total)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowConfirmModal(false);
+                    setReservaADevolver(null);
+                  }}
+                  disabled={procesandoDevolucion === reservaADevolver.id}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn btn-success"
+                  onClick={confirmarDevolucion}
+                  disabled={procesandoDevolucion === reservaADevolver.id}
+                >
+                  {procesandoDevolucion === reservaADevolver.id ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Procesando...
+                    </>
+                  ) : (
+                    'Confirmar Devolución'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

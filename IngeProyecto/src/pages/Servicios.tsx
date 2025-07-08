@@ -11,7 +11,7 @@ interface Maquinaria {
   precio: number;
   codigo: string;
   categoria: string;
-  politicas_reembolso: string;
+  politicas_reembolso: number;
 }
 
 interface Categoria {

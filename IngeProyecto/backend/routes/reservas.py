@@ -201,3 +201,63 @@ def confirmar_devolucion(reserva_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"message": "Error al confirmar la devolución", "error": str(e)}), 500
+
+@reservas_bp.route("/cancelar-reserva/<int:reserva_id>", methods=["PUT"])
+def cancelar_reserva(reserva_id):
+    try:
+        reserva = Reserva.query.get(reserva_id)
+        if not reserva:
+            return jsonify({"message": "Reserva no encontrada"}), 404
+        
+        # Verificar que la reserva se pueda cancelar (más de 1 día antes del retiro)
+        from datetime import date
+        hoy = date.today()
+        diferencia_dias = (reserva.fecha_inicio - hoy).days
+        
+        if diferencia_dias <= 1:
+            return jsonify({"message": "No se puede cancelar la reserva. Debe hacerlo con más de 1 día de anticipación"}), 400
+        
+        # Verificar que la reserva esté en un estado cancelable
+        if reserva.estado not in ['esperando_retiro', 'Activa']:
+            return jsonify({"message": "La reserva no se puede cancelar en su estado actual"}), 400
+        
+        # Cambiar el estado a cancelada
+        reserva.estado = 'cancelada'
+        db.session.commit()
+        
+        return jsonify({
+            "message": "Reserva cancelada exitosamente",
+            "maquinaria_nombre": reserva.maquinaria.nombre,
+            "politica_reembolso": reserva.maquinaria.politicas_reembolso
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Error al cancelar la reserva", "error": str(e)}), 500
+
+@reservas_bp.route("/info-cancelacion/<int:reserva_id>", methods=["GET"])
+def obtener_info_cancelacion(reserva_id):
+    try:
+        reserva = Reserva.query.get(reserva_id)
+        if not reserva:
+            return jsonify({"message": "Reserva no encontrada"}), 404
+        
+        # Verificar que la reserva se pueda cancelar (más de 1 día antes del retiro)
+        from datetime import date
+        hoy = date.today()
+        diferencia_dias = (reserva.fecha_inicio - hoy).days
+        
+        if diferencia_dias <= 1:
+            return jsonify({"message": "No se puede cancelar la reserva. Debe hacerlo con más de 1 día de anticipación"}), 400
+        
+        # Verificar que la reserva esté en un estado cancelable
+        if reserva.estado not in ['esperando_retiro', 'Activa']:
+            return jsonify({"message": "La reserva no se puede cancelar en su estado actual"}), 400
+        
+        return jsonify({
+            "maquinaria_nombre": reserva.maquinaria.nombre,
+            "politica_reembolso": reserva.maquinaria.politicas_reembolso if reserva.maquinaria.politicas_reembolso is not None else 0
+        }), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al obtener información de cancelación", "error": str(e)}), 500
