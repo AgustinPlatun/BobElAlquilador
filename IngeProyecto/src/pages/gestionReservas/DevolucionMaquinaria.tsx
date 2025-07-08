@@ -8,6 +8,7 @@ interface Reserva {
   estado: string;
   cliente_nombre: string;
   cliente_apellido: string;
+  cliente_email: string;
   maquinaria_nombre: string;
   maquinaria_marca: string;
   maquinaria_modelo: string;
@@ -205,8 +206,13 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                 <tbody>
                   {reservas.map((reserva) => (
                     <tr key={reserva.id}>
-                      <td className="fw-bold">
-                        {reserva.cliente_nombre} {reserva.cliente_apellido}
+                      <td>
+                        <div>
+                          <div className="fw-bold">{reserva.cliente_email}</div>
+                          <small className="text-muted">
+                            {reserva.cliente_nombre} {reserva.cliente_apellido}
+                          </small>
+                        </div>
                       </td>
                       <td>
                         <div>
@@ -292,7 +298,10 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                     <div className="row">
                       <div className="col-6">
                         <strong>Cliente:</strong><br />
-                        {reservaADevolver.cliente_nombre} {reservaADevolver.cliente_apellido}
+                        <div>{reservaADevolver.cliente_email}</div>
+                        <small className="text-muted">
+                          {reservaADevolver.cliente_nombre} {reservaADevolver.cliente_apellido}
+                        </small>
                       </div>
                       <div className="col-6">
                         <strong>Maquinaria:</strong><br />

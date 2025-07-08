@@ -26,12 +26,10 @@ const Ingresos: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [vista, setVista] = useState<'mensual' | 'anual' | null>(null);
-  const [anioSeleccionado, setAnioSeleccionado] = useState(new Date().getFullYear());
+  const [anioSeleccionado, setAnioSeleccionado] = useState<number | null>(null);
   const [aniosDisponibles, setAniosDisponibles] = useState<number[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
-  const [ordenarPorMonto, setOrdenarPorMonto] = useState(false);
-  const [ordenarAniosPorMonto, setOrdenarAniosPorMonto] = useState(false);
 
   const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
                  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -40,10 +38,6 @@ const Ingresos: React.FC = () => {
     cargarAniosDisponibles();
     cargarCategorias();
   }, []);
-
-  useEffect(() => {
-    if (vista) cargarIngresos();
-  }, [vista, anioSeleccionado, categoriaSeleccionada]);
 
   const cargarAniosDisponibles = async () => {
     try {
@@ -84,6 +78,12 @@ const Ingresos: React.FC = () => {
       setLoading(true);
       setError('');
       
+      // Validar que se haya seleccionado un año para vista mensual
+      if (vista === 'mensual' && !anioSeleccionado) {
+        setError('Por favor selecciona un año');
+        return;
+      }
+      
       let url = vista === 'mensual' 
         ? `http://localhost:5000/ingresos-mensuales/${anioSeleccionado}`
         : 'http://localhost:5000/ingresos-anuales';
@@ -115,6 +115,8 @@ const Ingresos: React.FC = () => {
     setIngresosMensuales([]);
     setIngresosAnuales([]);
     setError('');
+    setAnioSeleccionado(null);
+    setCategoriaSeleccionada(null);
   };
 
   const obtenerIngresoMensual = (mes: number) => {
@@ -183,9 +185,10 @@ const Ingresos: React.FC = () => {
                 <select
                   id="anioSelector"
                   className="form-select d-inline-block w-auto"
-                  value={anioSeleccionado}
-                  onChange={(e) => setAnioSeleccionado(parseInt(e.target.value))}
+                  value={anioSeleccionado || ''}
+                  onChange={(e) => setAnioSeleccionado(e.target.value ? parseInt(e.target.value) : null)}
                 >
+                  <option value="">Seleccionar año</option>
                   {aniosDisponibles.map(anio => (
                     <option key={anio} value={anio}>{anio}</option>
                   ))}
@@ -210,10 +213,12 @@ const Ingresos: React.FC = () => {
               </div>
 
               <button
-                className={`btn btn-sm ${ordenarPorMonto ? 'btn-secondary' : 'btn-outline-secondary'} ms-2`}
-                onClick={() => setOrdenarPorMonto((prev) => !prev)}
+                className="btn btn-primary ms-2"
+                onClick={cargarIngresos}
+                disabled={!anioSeleccionado}
               >
-                {ordenarPorMonto ? 'Ver por mes' : 'Ordenar por monto'}
+                <i className="fas fa-search me-1"></i>
+                Buscar
               </button>
             </div>
           )}
@@ -236,11 +241,13 @@ const Ingresos: React.FC = () => {
                   ))}
                 </select>
               </div>
+              
               <button
-                className={`btn btn-sm ${ordenarAniosPorMonto ? 'btn-secondary' : 'btn-outline-secondary'} ms-2`}
-                onClick={() => setOrdenarAniosPorMonto((prev) => !prev)}
+                className="btn btn-primary ms-2"
+                onClick={cargarIngresos}
               >
-                {ordenarAniosPorMonto ? 'Ver por año' : 'Ordenar por monto'}
+                <i className="fas fa-search me-1"></i>
+                Buscar
               </button>
             </div>
           )}
@@ -249,7 +256,10 @@ const Ingresos: React.FC = () => {
         <div className="card border-0 shadow-sm">
           <div className="card-header bg-primary text-white">
             <h5 className="mb-0">
-              {vista === 'mensual' ? `Ingresos Mensuales - ${anioSeleccionado}` : 'Ingresos Anuales'}
+              {vista === 'mensual' 
+                ? `Ingresos Mensuales${anioSeleccionado ? ` - ${anioSeleccionado}` : ''}`
+                : 'Ingresos Anuales'
+              }
               {categoriaSeleccionada && (
                 <span className="badge bg-light text-primary ms-2">
                   {categorias.find(c => c.id === categoriaSeleccionada)?.nombre}
@@ -262,8 +272,6 @@ const Ingresos: React.FC = () => {
               <div className="text-center py-4">
                 <p className="text-muted mb-0">
                   No hay ingresos registrados
-                  {vista === 'mensual' ? ` para el año ${anioSeleccionado}` : ''}
-                  {categoriaSeleccionada ? ` en la categoría ${categorias.find(c => c.id === categoriaSeleccionada)?.nombre}` : ''}
                 </p>
               </div>
             ) : (
@@ -279,13 +287,10 @@ const Ingresos: React.FC = () => {
                   <tbody>
                     {vista === 'mensual'
                       ? (
-                          (ordenarPorMonto
-                            ? [...ingresosMensuales].sort((a, b) => b.total - a.total)
-                            : meses.map((mes, index) => {
-                                const ingreso = obtenerIngresoMensual(index + 1);
-                                return { ...ingreso, mes_nombre: mes };
-                              })
-                          ).map((ingreso, idx) => (
+                          meses.map((mes, index) => {
+                            const ingreso = obtenerIngresoMensual(index + 1);
+                            return { ...ingreso, mes_nombre: mes };
+                          }).map((ingreso, idx) => (
                             <tr key={ingreso.mes || idx}>
                               <td className="fw-bold">{ingreso.mes_nombre}</td>
                               <td className={`fw-bold ${ingreso.total > 0 ? 'text-success' : 'text-muted'}`}>
@@ -300,10 +305,7 @@ const Ingresos: React.FC = () => {
                           ))
                         )
                       : (
-                          (ordenarAniosPorMonto
-                            ? [...ingresosAnuales].sort((a, b) => b.total - a.total)
-                            : ingresosAnuales
-                          ).map((item) => (
+                          ingresosAnuales.map((item) => (
                             <tr key={item.anio}>
                               <td className="fw-bold">{item.anio}</td>
                               <td className="text-success fw-bold">

@@ -147,25 +147,25 @@ const MaquinariaCalendario: React.FC<Props> = ({
                   )}
                 </div>
               )}
-              <button
-                className="btn btn-danger fw-bold"
-                style={{ fontSize: '1rem', padding: '8px 20px', alignSelf: 'start' }}
-                onClick={() => {
-                  if (!fechaInicio || !fechaFin) {
-                    setShowFechaModal(true);
-                    return;
-                  }
-                  handleAlquilar();
-                }}
-                disabled={envio && direccion.trim() === ''}
-              >
-                Reservar
-              </button>
-              {errorReserva && (
-                <div className="text-danger mt-1">{errorReserva}</div>
-              )}
-              {rol === 'empleado' && reservarParaCliente && (
-                <div className="mt-3 d-flex flex-column align-items-start">
+              
+              {/* Contenedor para los botones lado a lado */}
+              <div className="d-flex gap-2 flex-wrap">
+                <button
+                  className="btn btn-danger fw-bold"
+                  style={{ fontSize: '1rem', padding: '8px 20px' }}
+                  onClick={() => {
+                    if (!fechaInicio || !fechaFin) {
+                      setShowFechaModal(true);
+                      return;
+                    }
+                    handleAlquilar();
+                  }}
+                  disabled={envio && direccion.trim() === ''}
+                >
+                  Reservar
+                </button>
+                
+                {rol === 'empleado' && reservarParaCliente && (
                   <button
                     className="btn btn-secondary fw-bold"
                     style={{ fontSize: '1rem', padding: '8px 20px' }}
@@ -173,26 +173,31 @@ const MaquinariaCalendario: React.FC<Props> = ({
                   >
                     Reservar para cliente
                   </button>
-                  {mostrarInputEmail && (
-                    <div className="mt-2 w-100">
-                      <input
-                        type="email"
-                        className="form-control mb-2"
-                        placeholder="Email del cliente"
-                        value={emailCliente}
-                        onChange={e => setEmailCliente(e.target.value)}
-                      />
-                      <button
-                        className="btn btn-success w-100"
-                        onClick={confirmarReservaCliente}
-                        disabled={!emailCliente || (envio && direccion.trim() === '')}
-                      >
-                        Confirmar reserva para cliente
-                      </button>
-                      {errorEmailCliente && (
-                        <div className="text-danger mt-1">{errorEmailCliente}</div>
-                      )}
-                    </div>
+                )}
+              </div>
+              
+              {errorReserva && (
+                <div className="text-danger mt-1">{errorReserva}</div>
+              )}
+              
+              {rol === 'empleado' && reservarParaCliente && mostrarInputEmail && (
+                <div className="mt-3 w-100">
+                  <input
+                    type="email"
+                    className="form-control mb-2"
+                    placeholder="Email del cliente"
+                    value={emailCliente}
+                    onChange={e => setEmailCliente(e.target.value)}
+                  />
+                  <button
+                    className="btn btn-success w-100"
+                    onClick={confirmarReservaCliente}
+                    disabled={!emailCliente || (envio && direccion.trim() === '')}
+                  >
+                    Confirmar reserva para cliente
+                  </button>
+                  {errorEmailCliente && (
+                    <div className="text-danger mt-1">{errorEmailCliente}</div>
                   )}
                 </div>
               )}

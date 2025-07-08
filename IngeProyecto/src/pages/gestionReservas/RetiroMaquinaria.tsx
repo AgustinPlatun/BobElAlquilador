@@ -8,6 +8,7 @@ interface Reserva {
   estado: string;
   cliente_nombre: string;
   cliente_apellido: string;
+  cliente_email: string;
   maquinaria_nombre: string;
   maquinaria_marca: string;
   maquinaria_modelo: string;
@@ -184,8 +185,13 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                 <tbody>
                   {reservas.map((reserva) => (
                     <tr key={reserva.id}>
-                      <td className="fw-bold">
-                        {reserva.cliente_nombre} {reserva.cliente_apellido}
+                      <td>
+                        <div>
+                          <div className="fw-bold">{reserva.cliente_email}</div>
+                          <small className="text-muted">
+                            {reserva.cliente_nombre} {reserva.cliente_apellido}
+                          </small>
+                        </div>
                       </td>
                       <td>
                         <div>
@@ -256,7 +262,11 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                     <div className="card bg-light">
                       <div className="card-body">
                         <h6 className="card-title">Detalles de la Reserva</h6>
-                        <p><strong>Cliente:</strong> {reservaSeleccionada.cliente_nombre} {reservaSeleccionada.cliente_apellido}</p>
+                        <p><strong>Cliente:</strong></p>
+                        <div className="ms-3">
+                          <div>{reservaSeleccionada.cliente_email}</div>
+                          <small className="text-muted">{reservaSeleccionada.cliente_nombre} {reservaSeleccionada.cliente_apellido}</small>
+                        </div>
                         <p><strong>Maquinaria:</strong> {reservaSeleccionada.maquinaria_nombre}</p>
                         <p><strong>Categoría:</strong> {reservaSeleccionada.categoria_nombre}</p>
                         <p><strong>Fecha Inicio:</strong> {formatearFecha(reservaSeleccionada.fecha_inicio)}</p>

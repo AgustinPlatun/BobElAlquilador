@@ -49,11 +49,11 @@ const DetalleMaquinariaContent: React.FC = () => {
   const [showDireccionError, setShowDireccionError] = useState(false);
 
   // Estados para reservar para cliente
-  const [mostrarInputEmail, setMostrarInputEmail] = useState(false);
   const [emailCliente, setEmailCliente] = useState("");
   const [errorEmailCliente, setErrorEmailCliente] = useState("");
   const [confirmacionReservaCliente, setConfirmacionReservaCliente] = useState("");
   const [showReservaClienteModal, setShowReservaClienteModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   const [fechaInicio, fechaFin] = rangoFechas;
 
@@ -133,9 +133,10 @@ const DetalleMaquinariaContent: React.FC = () => {
   const [showMantenimientoSuccess, setShowMantenimientoSuccess] = useState(false);
 
   const abrirInputEmail = () => {
-    setMostrarInputEmail(true);
+    setEmailCliente("");
     setErrorEmailCliente("");
     setConfirmacionReservaCliente("");
+    setShowEmailModal(true);
   };
 
   const reservarParaCliente = rol === 'empleado';
@@ -185,7 +186,7 @@ const DetalleMaquinariaContent: React.FC = () => {
       });
       if (response.ok) {
         setConfirmacionReservaCliente("Se registró el alquiler para el cliente con éxito");
-        setMostrarInputEmail(false);
+        setShowEmailModal(false);
         setEmailCliente("");
         setShowReservaClienteModal(true);
         setErrorEmailCliente("");
@@ -301,7 +302,7 @@ const DetalleMaquinariaContent: React.FC = () => {
                 handleAlquilar={handleAlquilar}
                 reservarParaCliente={reservarParaCliente}
                 abrirInputEmail={abrirInputEmail}
-                mostrarInputEmail={mostrarInputEmail}
+                mostrarInputEmail={false}
                 emailCliente={emailCliente}
                 setEmailCliente={setEmailCliente}
                 confirmarReservaCliente={confirmarReservaCliente}
@@ -656,6 +657,81 @@ const DetalleMaquinariaContent: React.FC = () => {
         </div>
       )}
 
+      {/* Modal para ingresar email del cliente */}
+      {showEmailModal && (
+        <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }} tabIndex={-1}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Reservar para Cliente</h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => {
+                    setShowEmailModal(false);
+                    setEmailCliente("");
+                    setErrorEmailCliente("");
+                    setConfirmacionReservaCliente("");
+                  }}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p className="mb-3">Ingresa el email del cliente para quien deseas realizar la reserva:</p>
+                <div className="mb-3">
+                  <label htmlFor="emailClienteInput" className="form-label">Email del cliente:</label>
+                  <input
+                    type="email"
+                    id="emailClienteInput"
+                    className="form-control"
+                    placeholder="cliente@ejemplo.com"
+                    value={emailCliente}
+                    onChange={e => setEmailCliente(e.target.value)}
+                    onKeyPress={e => {
+                      if (e.key === 'Enter') {
+                        confirmarReservaCliente();
+                      }
+                    }}
+                  />
+                  {errorEmailCliente && (
+                    <div className="text-danger mt-2">{errorEmailCliente}</div>
+                  )}
+                </div>
+                {diasSeleccionados > 0 && (
+                  <div className="alert alert-info">
+                    <strong>Resumen de la reserva:</strong><br/>
+                    Días: {diasSeleccionados}<br/>
+                    Monto total: ${montoTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                    {envio && <><br/>Envío: Sí<br/>Dirección: {direccion}</>}
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowEmailModal(false);
+                    setEmailCliente("");
+                    setErrorEmailCliente("");
+                    setConfirmacionReservaCliente("");
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={confirmarReservaCliente}
+                  disabled={!emailCliente || (envio && direccion.trim() === '')}
+                >
+                  Confirmar Reserva
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal de éxito para reserva de cliente */}
       {showReservaClienteModal && (
         <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.4)' }} tabIndex={-1}>
@@ -666,7 +742,6 @@ const DetalleMaquinariaContent: React.FC = () => {
                 <button type="button" className="btn-close" onClick={() => {
                   setShowReservaClienteModal(false);
                   setConfirmacionReservaCliente("");
-                  setMostrarInputEmail(false);
                   setEmailCliente("");
                   setErrorEmailCliente("");
                   window.location.reload();

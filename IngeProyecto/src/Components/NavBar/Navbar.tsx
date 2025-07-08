@@ -41,7 +41,7 @@ const Navbar: React.FC = () => {
     ];
     
     if (rol === 'cliente' || rol === 'empleado') {
-      options.push({ label: 'Mis Reservas', path: '/mis-reservas' });
+      options.push({ label: 'Mis Reservas y alquileres', path: '/mis-reservas' });
     }
     
     if (rol === 'administrador') {
