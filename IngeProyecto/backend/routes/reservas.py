@@ -176,7 +176,8 @@ def obtener_reservas_esperando_devolucion():
                 "maquinaria_nombre": maquinaria.nombre,
                 "maquinaria_marca": "",  # Campo no disponible en el modelo
                 "maquinaria_modelo": "",  # Campo no disponible en el modelo
-                "categoria_nombre": categoria.nombre
+                "categoria_nombre": categoria.nombre,
+                "precio_maquinaria": maquinaria.precio
             })
 
         return jsonify(resultado), 200

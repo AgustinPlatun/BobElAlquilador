@@ -13,6 +13,7 @@ interface Reserva {
   maquinaria_marca: string;
   maquinaria_modelo: string;
   categoria_nombre: string;
+  precio_maquinaria: number; // Added for calculating delay
 }
 
 interface Props {
@@ -299,10 +300,18 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                   console.log('Días de retraso en modal:', diasRetraso);
                   
                   if (diasRetraso > 0) {
+                    // El monto de retraso es diasRetraso x precio de la maquinaria (precioMaquinaria = precio_maquinaria de la reserva)
+                    const precioMaquinaria = reservaADevolver.precio_maquinaria;
+                    const montoRetraso = diasRetraso * precioMaquinaria;
                     return (
                       <div className="alert alert-danger">
                         <strong>⚠️ Devolución Tardía</strong><br />
-                        El cliente está devolviendo la maquinaria con <strong>{diasRetraso} día{diasRetraso !== 1 ? 's' : ''} de retraso</strong>
+                        El cliente está devolviendo la maquinaria con <strong>{diasRetraso} día{diasRetraso !== 1 ? 's' : ''} de retraso</strong>.<br />
+                        <hr style={{ margin: '10px 0' }} />
+                        <span className="fw-bold">Monto a cobrar por retraso:</span> {diasRetraso} × {formatearMonto(precioMaquinaria)} = <span className="text-danger fw-bold">{formatearMonto(montoRetraso)}</span><br />
+                        <span className="text-muted" style={{ fontSize: '0.95em' }}>
+                          (Se cobrará el precio de la maquinaria por cada día de retraso.)
+                        </span>
                       </div>
                     );
                   }
