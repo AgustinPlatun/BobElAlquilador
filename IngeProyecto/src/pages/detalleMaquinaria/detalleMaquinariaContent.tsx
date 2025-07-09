@@ -433,63 +433,69 @@ const DetalleMaquinariaContent: React.FC = () => {
                     paddingRight: '8px',
                   }}
                 >
-                  {(maquinaria.preguntas || []).map((preg, idx, arr) => (
-                    <React.Fragment key={preg.id}>
-                      <div
-                        style={{
-                          background: '#f8f9fa',
-                          border: '2px solid #bdbdbd',
-                          borderRadius: '10px',
-                          padding: '16px',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          color: '#222',
-                        }}
-                      >
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                          <div>
-                            <strong>{preg.usuario_email || '-'}</strong>
-                            <small className="text-muted ms-2">
-                              {new Date(preg.fecha_pregunta).toLocaleDateString()}
-                            </small>
-                          </div>
-                          {rol === 'empleado' && !preg.respuesta && (
-                            <button
-                              className="btn btn-outline-primary btn-sm"
-                              onClick={() => abrirModalRespuesta(preg.id, preg.pregunta)}
-                            >
-                              Responder
-                            </button>
-                          )}
-                        </div>
-                        <p className="mt-2 mb-0">{preg.pregunta}</p>
-                        {preg.respuesta && (
-                          <div
-                            className="mt-2 ps-3 border-start"
-                            style={{
-                              background: '#e5e7eb',
-                              borderRadius: '6px',
-                              padding: '10px 12px',
-                            }}
-                          >
-                            <div className="d-flex justify-content-between align-items-start">
-                              <div>
-                                <strong>{preg.empleado_email || '-'}</strong>
-                                <small className="text-muted ms-2">
-                                  {preg.fecha_respuesta ? new Date(preg.fecha_respuesta).toLocaleDateString() : ''}
-                                </small>
-                              </div>
-                            </div>
-                            <p className="mt-2 mb-0">{preg.respuesta}</p>
-                          </div>
-                        )}
-                      </div>
-                      {idx < arr.length - 1 && (
-                        <div style={{ borderTop: '2px solid #e0e0e0', margin: '8px 0' }}></div>
-                      )}
-                    </React.Fragment>
-                  ))}
+                 {(maquinaria.preguntas && maquinaria.preguntas.length > 0) ? (
+                   (maquinaria.preguntas).map((preg, idx, arr) => (
+                     <React.Fragment key={preg.id}>
+                       <div
+                         style={{
+                           background: '#f8f9fa',
+                           border: '2px solid #bdbdbd',
+                           borderRadius: '10px',
+                           padding: '16px',
+                           boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                           display: 'flex',
+                           flexDirection: 'column',
+                           color: '#222',
+                         }}
+                       >
+                         <div className="d-flex justify-content-between align-items-center mb-2">
+                           <div>
+                             <strong>{preg.usuario_email || '-'}</strong>
+                             <small className="text-muted ms-2">
+                               {new Date(preg.fecha_pregunta).toLocaleDateString()}
+                             </small>
+                           </div>
+                           {rol === 'empleado' && !preg.respuesta && (
+                             <button
+                               className="btn btn-outline-primary btn-sm"
+                               onClick={() => abrirModalRespuesta(preg.id, preg.pregunta)}
+                             >
+                               Responder
+                             </button>
+                           )}
+                         </div>
+                         <p className="mt-2 mb-0">{preg.pregunta}</p>
+                         {preg.respuesta && (
+                           <div
+                             className="mt-2 ps-3 border-start"
+                             style={{
+                               background: '#e5e7eb',
+                               borderRadius: '6px',
+                               padding: '10px 12px',
+                             }}
+                           >
+                             <div className="d-flex justify-content-between align-items-start">
+                               <div>
+                                 <strong>{preg.empleado_email || '-'}</strong>
+                                 <small className="text-muted ms-2">
+                                   {preg.fecha_respuesta ? new Date(preg.fecha_respuesta).toLocaleDateString() : ''}
+                                 </small>
+                               </div>
+                             </div>
+                             <p className="mt-2 mb-0">{preg.respuesta}</p>
+                           </div>
+                         )}
+                       </div>
+                       {idx < arr.length - 1 && (
+                         <div style={{ borderTop: '2px solid #e0e0e0', margin: '8px 0' }}></div>
+                       )}
+                     </React.Fragment>
+                   ))
+                 ) : (
+                   <div className="text-muted text-center py-3">
+                     No hay preguntas ni respuestas aún.
+                   </div>
+                 )}
                 </div>
               </div>
             </div>
@@ -544,6 +550,15 @@ const DetalleMaquinariaContent: React.FC = () => {
                   </div>
                 </div>
               )}
+               {(!maquinaria.calificaciones || !maquinaria.calificaciones.calificaciones.length) && (
+                 <div className="shadow-sm rounded p-4 h-100 d-flex flex-column"
+                   style={{ border: '2.5px solid #d32f2f', background: '#fff', color: '#222' }}>
+                   <h4>Comentarios</h4>
+                   <div className="text-muted text-center py-3">
+                     No hay calificaciones aún.
+                   </div>
+                 </div>
+               )}
             </div>
           </div>
         </div>
