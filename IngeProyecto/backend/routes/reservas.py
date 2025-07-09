@@ -335,8 +335,8 @@ def cancelar_reserva_empleado(reserva_id):
         from datetime import date
         hoy = date.today()
         diferencia_dias = (reserva.fecha_inicio - hoy).days
-        if diferencia_dias <= 1:
-            return jsonify({"message": "No se puede cancelar la reserva. Debe hacerlo con más de 1 día de anticipación"}), 400
+        if diferencia_dias < 1:
+            return jsonify({"message": "No se puede cancelar la reserva. Debe hacerlo al menos 1 día antes"}), 400
         if reserva.estado not in ['esperando_retiro', 'Activa']:
             return jsonify({"message": "La reserva no se puede cancelar en su estado actual"}), 400
         reserva.estado = 'cancelada'
