@@ -55,7 +55,6 @@ const Navbar: React.FC = () => {
       options.push({ label: 'Baja de Categoria', path: '/baja-categoria' });
     } else if (rol === 'empleado') {
       options.push({ label: 'Gestión de Reservas', path: '/reservas-hoy' });
-      options.push({ label: 'Gestión de Soporte', path: '/gestion-soporte' });
       options.push({ label: 'Verificar cuentas', path: '/verificar-cuentas' });
       options.push({ label: 'Registrar cliente', path: '/registrar-cliente' });
       options.push({ label: 'Preguntas sin responder', path: '/preguntas-sin-responder' });
