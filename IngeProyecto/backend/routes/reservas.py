@@ -118,6 +118,7 @@ def obtener_reservas_esperando_retiro():
                 "cliente_apellido": usuario.apellido,
                 "cliente_email": usuario.email,
                 "maquinaria_nombre": maquinaria.nombre,
+                "maquinaria_codigo": maquinaria.codigo,
                 "maquinaria_marca": "",  # Campo no disponible en el modelo
                 "maquinaria_modelo": "",  # Campo no disponible en el modelo
                 "categoria_nombre": categoria.nombre
@@ -174,6 +175,7 @@ def obtener_reservas_esperando_devolucion():
                 "cliente_apellido": usuario.apellido,
                 "cliente_email": usuario.email,
                 "maquinaria_nombre": maquinaria.nombre,
+                "maquinaria_codigo": maquinaria.codigo,
                 "maquinaria_marca": "",  # Campo no disponible en el modelo
                 "maquinaria_modelo": "",  # Campo no disponible en el modelo
                 "categoria_nombre": categoria.nombre,

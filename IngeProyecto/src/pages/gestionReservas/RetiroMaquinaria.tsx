@@ -10,6 +10,7 @@ interface Reserva {
   cliente_apellido: string;
   cliente_email: string;
   maquinaria_nombre: string;
+  maquinaria_codigo: string;
   maquinaria_marca: string;
   maquinaria_modelo: string;
   categoria_nombre: string;
@@ -194,12 +195,17 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                         </div>
                       </td>
                       <td>
-                        <div>
+                        <div className="text-center">
                           <div className="fw-bold">{reserva.maquinaria_nombre}</div>
+                          <small className="text-muted">
+                            ({reserva.maquinaria_codigo})
+                          </small>
                           {(reserva.maquinaria_marca || reserva.maquinaria_modelo) && (
-                            <small className="text-muted">
-                              {reserva.maquinaria_marca} {reserva.maquinaria_modelo}
-                            </small>
+                            <div>
+                              <small className="text-muted">
+                                {reserva.maquinaria_marca} {reserva.maquinaria_modelo}
+                              </small>
+                            </div>
                           )}
                         </div>
                       </td>
