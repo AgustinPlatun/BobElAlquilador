@@ -28,6 +28,7 @@ import GestionSoporte from '../pages/gestionSoporte';
 import RequireAdmin from './requireAdmin';
 import RequireEmpleado from './requireEmpleado';
 import PreguntasSinResponder from '../pages/preguntas_sin_responder';
+import HistorialReservas from '../pages/gestionReservas/HistorialReservas';
 
 const router = createBrowserRouter([
   {
@@ -155,6 +156,10 @@ const router = createBrowserRouter([
   {
     path: "/recuperar-password/:token",
     element: <RecuperarPassword />
+  },
+  {
+    path: "/historial-reservas",
+    element: <HistorialReservas />
   },
   {
     path: "*",
