@@ -21,7 +21,7 @@ class Maquinaria(db.Model):
     foto = db.Column(db.String(255), nullable=True)
     estado = db.Column(db.Boolean, nullable=False, default=True)
     precio = db.Column(db.Float, nullable=False)
-    politicas_reembolso = db.Column(db.Float, nullable=True)
+    politicas_reembolso = db.Column(db.String(255), nullable=True)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=True)
     categoria = db.relationship('Categoria', backref='maquinarias')
     calificaciones = db.relationship('CalificacionMaquinaria', backref='maquinaria', lazy=True)
@@ -36,7 +36,6 @@ class Reserva(db.Model):
     fecha_inicio = db.Column(db.Date, nullable=False)
     fecha_fin = db.Column(db.Date, nullable=False)
     precio = db.Column(db.Float, nullable=False)
-    estado = db.Column(db.String(50), nullable=False, default='esperando_retiro')
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     usuario = db.relationship('Usuario', backref='reservas')
     maquinaria_id = db.Column(db.Integer, db.ForeignKey('maquinaria.id'), nullable=False)
@@ -72,11 +71,3 @@ class HistorialMantenimiento(db.Model):
     empleado = db.relationship('Usuario', backref='mantenimientos')
     maquinaria_id = db.Column(db.Integer, db.ForeignKey('maquinaria.id'), nullable=False)
     maquinaria = db.relationship('Maquinaria', backref='historial_mantenimiento')
-
-class TicketSoporteTecnico(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    contacto = db.Column(db.String(255), nullable=False)  # Email o teléfono
-    asunto = db.Column(db.String(255), nullable=False)
-    descripcion = db.Column(db.Text, nullable=False)
-    estado = db.Column(db.String(50), nullable=False, default='Pendiente')  # Pendiente, En proceso, Resuelto
-    fecha_creacion = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

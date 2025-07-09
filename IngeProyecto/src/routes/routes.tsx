@@ -24,7 +24,6 @@ import BajaCategoria from '../pages/bajas/bajaCategoria';
 import MisReservas from '../pages/misReservas';
 import Ingresos from '../pages/ingresos';
 import ReservasHoy from '../pages/gestionReservas/GestionReservas';
-import GestionSoporte from '../pages/gestionSoporte';
 import RequireAdmin from './requireAdmin';
 import RequireEmpleado from './requireEmpleado';
 import PreguntasSinResponder from '../pages/preguntas_sin_responder';
@@ -67,13 +66,6 @@ const router = createBrowserRouter([
     element:
       <RequireEmpleado>
         <ReservasHoy />
-      </RequireEmpleado>
-  },
-  {
-    path: "/gestion-soporte",
-    element:
-      <RequireEmpleado>
-        <GestionSoporte />
       </RequireEmpleado>
   },
   {
