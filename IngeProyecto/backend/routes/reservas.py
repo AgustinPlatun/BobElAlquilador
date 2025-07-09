@@ -200,6 +200,37 @@ def confirmar_devolucion(reserva_id):
         reserva.estado = 'terminada'
         db.session.commit()
         
+        # Enviar email invitando a puntuar la maquinaria
+        usuario = reserva.usuario
+        email = usuario.email
+        nombre = usuario.nombre
+        maquinaria = reserva.maquinaria
+        codigo_maquinaria = maquinaria.codigo
+        asunto = "¡Contanos tu experiencia con Bob el Alquilador!"
+        link_puntuar = f"http://localhost:5173/detalle-maquinaria/{codigo_maquinaria}?calificar=1"
+        cuerpo = f"""
+Hola {nombre},
+
+¡Gracias por confiar en Bob el Alquilador! Queremos saber tu opinión sobre la maquinaria '{maquinaria.nombre}' que devolviste recientemente.
+
+Por favor, hacé clic en el siguiente enlace para dejar tu calificación y comentario:
+{link_puntuar}
+
+Tu opinión nos ayuda a mejorar y a otros usuarios a elegir mejor.
+
+¡Esperamos verte pronto de nuevo!
+El equipo de Bob el Alquilador
+"""
+        msg = MIMEText(cuerpo, _charset="utf-8")
+        msg["Subject"] = asunto
+        msg["From"] = "quantumdevsunlp@gmail.com"
+        msg["To"] = email
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login("quantumdevsunlp@gmail.com", "zuio rjmo duxk igbf")
+                server.sendmail(msg["From"], [msg["To"]], msg.as_string())
+        except Exception as e:
+            pass
         return jsonify({"message": "Devolución confirmada exitosamente"}), 200
 
     except Exception as e:

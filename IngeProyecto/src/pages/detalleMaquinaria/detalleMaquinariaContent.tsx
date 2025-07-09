@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import EditMaquinariaModal from './detalleMaquinariaModal.tsx';
 import MaquinariaInfo from './maquinariaInfo';
 import MaquinariaCalendario from './maquinariaCalendario';
@@ -7,15 +7,16 @@ import StarRating from '../../Components/StarRating';
 import CalificacionModal from './CalificacionModal';
 import PreguntaModal from './PreguntaModal';
 import MantenimientoModal from './MantenimientoModal';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const DetalleMaquinariaContent: React.FC = () => {
   const {
-    maquinaria, rol, showEditModal, setShowEditModal,
+    maquinaria, setMaquinaria, rol, showEditModal, setShowEditModal,
     editNombre, setEditNombre, editDescripcion, setEditDescripcion,
     editPrecio, setEditPrecio, setEditFoto,
     editPoliticas, setEditPoliticas, editCategoriaId, setEditCategoriaId,
     categorias, editError, setEditError, noEncontrada,
-    rangoFechas, setRangoFechas, fechasReservadas, navigate,
+    rangoFechas, setRangoFechas, fechasReservadas,
     showCalificacionModal, setShowCalificacionModal,
     calificacionPuntaje, setCalificacionPuntaje,
     calificacionComentario, setCalificacionComentario,
@@ -37,6 +38,58 @@ const DetalleMaquinariaContent: React.FC = () => {
     setMantenimientoDescripcion,
     handleMantenimientoSubmit
   } = useDetalleMaquinariaContent();
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+  // Lógica para abrir el modal de calificación solo si está logueado
+  const handleAbrirCalificacion = () => {
+    const usuarioId = sessionStorage.getItem('usuarioId');
+    if (!usuarioId) {
+      // Redirigir a login con redirect a la URL actual
+      const redirectUrl = window.location.pathname + window.location.search;
+      navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+      return;
+    }
+    setShowCalificacionModal(true);
+  };
+
+  // Bandera para saber si se acaba de calificar
+  const [justCalified, setJustCalified] = useState(false);
+
+  // Evitar que el modal de calificación se vuelva a abrir si ya calificó
+  const removeCalificarParam = () => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('calificar') === '1') {
+      params.delete('calificar');
+      navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
+      setJustCalified(true);
+    }
+  };
+
+  // Si el usuario va para atrás después de calificar, redirigir a /servicios
+  useEffect(() => {
+    if (!justCalified) return;
+    const handlePopState = () => {
+      navigate('/servicios', { replace: true });
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [justCalified, navigate]);
+
+  useEffect(() => {
+    // Si la URL contiene ?calificar=1, abrir el modal de calificación solo si está logueado
+    const params = new URLSearchParams(location.search);
+    if (params.get('calificar') === '1') {
+      handleAbrirCalificacion();
+    }
+    // Solo ejecutar al montar
+    // eslint-disable-next-line
+  }, []);
 
   const [showMPError, setShowMPError] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -210,6 +263,24 @@ const DetalleMaquinariaContent: React.FC = () => {
 
   return (
     <div className="container py-4" style={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+      {/* Scrollbar custom styles */}
+      <style>{`
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #bdbdbd #fff;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+          background: #fff;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #bdbdbd;
+          border-radius: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #fff;
+        }
+      `}</style>
       <div className="row justify-content-center">
         <div className="col-lg-10">
           <div className="row bg-white shadow-sm rounded p-4 align-items-stretch" style={{ minHeight: '550px' }}>
@@ -332,105 +403,148 @@ const DetalleMaquinariaContent: React.FC = () => {
               )}
             </div>
           </div>
-          
-          {/* Sección de comentarios */}
-          {maquinaria.calificaciones && maquinaria.calificaciones.calificaciones.length > 0 && (
-            <div className="mt-4 bg-white shadow-sm rounded p-4">
-              <h4>Comentarios</h4>
-              <div className="mt-3">
-                {maquinaria.calificaciones.calificaciones.map((cal) => (
-                  <div key={cal.id} className="border-bottom pb-3 mb-3">
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div>
-                        <strong>{cal.usuario_nombre}</strong>
-                        <StarRating rating={cal.puntaje} readonly size={16} />
-                      </div>
-                      <small className="text-muted">{new Date(cal.fecha).toLocaleDateString()}</small>
-                    </div>
-                    {cal.comentario && (
-                      <p className="mt-2 mb-0">{cal.comentario}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* Sección de preguntas y respuestas */}
-          <div className="mt-4 bg-white shadow-sm rounded p-4">
-            <h4>Preguntas y Respuestas</h4>
-            
-            {/* Botón de pregunta para clientes */}
-            {rol === 'cliente' && (
-              <div className="d-flex gap-2 mb-3">
-                <button
-                  className="btn btn-outline-primary"
-                  onClick={() => setShowPreguntaModal(true)}
+          {/* NUEVO: Sección de preguntas y calificaciones en dos columnas */}
+          <div className="row mt-4" style={{gap: 0}}>
+            {/* Preguntas (izquierda, 60%) */}
+            <div className="col-12 col-md-7 mb-4 mb-md-0">
+              <div className="shadow-sm rounded p-4 h-100 d-flex flex-column"
+                style={{ border: '2.5px solid #d32f2f', background: '#fff', color: '#222' }}>
+                <h4>Preguntas y Respuestas</h4>
+                {/* Botón de pregunta para clientes */}
+                {rol === 'cliente' && (
+                  <div className="d-flex gap-2 mb-3">
+                    <button
+                      className="btn btn-outline-danger"
+                      onClick={() => setShowPreguntaModal(true)}
+                    >
+                      Hacer una pregunta
+                    </button>
+                  </div>
+                )}
+                <div
+                  className="mt-3 custom-scrollbar"
+                  style={{
+                    maxHeight: '480px',
+                    overflowY: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
+                    paddingRight: '8px',
+                  }}
                 >
-                  Hacer una pregunta
-                </button>
-              </div>
-            )}
-            
-            {maquinaria.preguntas && maquinaria.preguntas.length > 0 ? (
-              <div
-                className="mt-3"
-                style={{
-                  maxHeight: '350px',
-                  overflowY: 'auto',
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '8px',
-                  padding: '12px',
-                  background: '#fafbfc'
-                }}
-              >
-                {maquinaria.preguntas.map((preg) => (
-                  <div key={preg.id} className="border-bottom pb-3 mb-3">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div>
-                        <strong>{preg.usuario_email || '-'}</strong>
-                        <small className="text-muted ms-2">
-                          {new Date(preg.fecha_pregunta).toLocaleDateString()}
-                        </small>
-                      </div>
-                      {rol === 'empleado' && !preg.respuesta && (
-                        <button
-                          className="btn btn-outline-primary btn-sm"
-                          onClick={() => abrirModalRespuesta(preg.id, preg.pregunta)}
-                        >
-                          Responder
-                        </button>
-                      )}
-                    </div>
-                    <p className="mt-2 mb-0">{preg.pregunta}</p>
-                    {preg.respuesta && (
+                  {(maquinaria.preguntas || []).map((preg, idx, arr) => (
+                    <React.Fragment key={preg.id}>
                       <div
-                        className="mt-2 ps-3 border-start"
                         style={{
-                          background: '#e5e7eb', // gris claro
-                          borderRadius: '6px',
-                          padding: '10px 12px'
+                          background: '#f8f9fa',
+                          border: '2px solid #bdbdbd',
+                          borderRadius: '10px',
+                          padding: '16px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          color: '#222',
                         }}
                       >
-                        <div className="d-flex justify-content-between align-items-start">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
                           <div>
-                            <strong>{preg.empleado_email || '-'}</strong>
+                            <strong>{preg.usuario_email || '-'}</strong>
                             <small className="text-muted ms-2">
-                              {preg.fecha_respuesta ? new Date(preg.fecha_respuesta).toLocaleDateString() : ''}
+                              {new Date(preg.fecha_pregunta).toLocaleDateString()}
                             </small>
                           </div>
+                          {rol === 'empleado' && !preg.respuesta && (
+                            <button
+                              className="btn btn-outline-primary btn-sm"
+                              onClick={() => abrirModalRespuesta(preg.id, preg.pregunta)}
+                            >
+                              Responder
+                            </button>
+                          )}
                         </div>
-                        <p className="mt-2 mb-0">{preg.respuesta}</p>
+                        <p className="mt-2 mb-0">{preg.pregunta}</p>
+                        {preg.respuesta && (
+                          <div
+                            className="mt-2 ps-3 border-start"
+                            style={{
+                              background: '#e5e7eb',
+                              borderRadius: '6px',
+                              padding: '10px 12px',
+                            }}
+                          >
+                            <div className="d-flex justify-content-between align-items-start">
+                              <div>
+                                <strong>{preg.empleado_email || '-'}</strong>
+                                <small className="text-muted ms-2">
+                                  {preg.fecha_respuesta ? new Date(preg.fecha_respuesta).toLocaleDateString() : ''}
+                                </small>
+                              </div>
+                            </div>
+                            <p className="mt-2 mb-0">{preg.respuesta}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
+                      {idx < arr.length - 1 && (
+                        <div style={{ borderTop: '2px solid #e0e0e0', margin: '8px 0' }}></div>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* Calificaciones (derecha, 40%) */}
+            <div className="col-12 col-md-5">
+              {maquinaria.calificaciones && maquinaria.calificaciones.calificaciones.length > 0 && (
+                <div className="shadow-sm rounded p-4 h-100 d-flex flex-column"
+                  style={{ border: '2.5px solid #d32f2f', background: '#fff', color: '#222' }}>
+                  <h4>Comentarios</h4>
+                  <div
+                    className="mt-3 custom-scrollbar"
+                    style={{
+                      maxHeight: '480px',
+                      overflowY: 'auto',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '16px',
+                      paddingRight: '8px',
+                    }}
+                  >
+                    {maquinaria.calificaciones.calificaciones.slice(0, 10).map((cal, idx, arr) => (
+                      <React.Fragment key={cal.id}>
+                        <div
+                          style={{
+                            background: '#fafbfc',
+                            border: '2px solid #bdbdbd',
+                            borderRadius: '10px',
+                            padding: '16px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            color: '#222',
+                          }}
+                        >
+                          <div className="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                              <strong>{cal.usuario_nombre}</strong>
+                              <StarRating rating={cal.puntaje} readonly size={16} />
+                            </div>
+                            <small className="text-muted">{new Date(cal.fecha).toLocaleDateString()}</small>
+                          </div>
+                          {cal.comentario && (
+                            <p className="mt-2 mb-0">{cal.comentario}</p>
+                          )}
+                        </div>
+                        {idx < arr.length - 1 && (
+                          <div style={{ borderTop: '2px solid #e0e0e0', margin: '8px 0' }}></div>
+                        )}
+                      </React.Fragment>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-muted text-center py-3">
-                {rol === 'cliente' ? 'Sé el primero en hacer una pregunta' : 'No hay preguntas aún'}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -578,7 +692,48 @@ const DetalleMaquinariaContent: React.FC = () => {
       <CalificacionModal
         show={showCalificacionModal}
         onClose={() => setShowCalificacionModal(false)}
-        onSubmit={handleCalificacionSubmit}
+        onSubmit={async () => {
+          // Lógica de calificación con toast de éxito
+          const usuarioId = sessionStorage.getItem('usuarioId');
+          if (!usuarioId) {
+            setShowCalificacionModal(false);
+            // Redirigir a login con redirect a la URL actual
+            const redirectUrl = window.location.pathname + window.location.search;
+            navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+            return;
+          }
+          try {
+            const response = await fetch(`http://localhost:5000/calificar-maquinaria/${maquinaria.codigo}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                puntaje: calificacionPuntaje,
+                comentario: calificacionComentario,
+                usuario_id: parseInt(usuarioId)
+              }),
+            });
+            if (response.ok) {
+              setShowCalificacionModal(false);
+              setCalificacionPuntaje(0);
+              setCalificacionComentario('');
+              // Recargar calificaciones
+              const calificacionesResponse = await fetch(`http://localhost:5000/calificaciones-maquinaria/${maquinaria.codigo}`);
+              const calificaciones = await calificacionesResponse.json();
+              setMaquinaria(prev => prev ? { ...prev, calificaciones } : null);
+              setShowSuccessToast(true);
+              removeCalificarParam();
+            } else {
+              const error = await response.json();
+              setShowCalificacionModal(false);
+              setShowSuccessToast(true);
+              removeCalificarParam();
+            }
+          } catch (error) {
+            setShowCalificacionModal(false);
+            setShowSuccessToast(true);
+            removeCalificarParam();
+          }
+        }}
         puntaje={calificacionPuntaje}
         setPuntaje={setCalificacionPuntaje}
         comentario={calificacionComentario}
@@ -656,9 +811,9 @@ const DetalleMaquinariaContent: React.FC = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Reservar para Cliente</h5>
-                <button 
-                  type="button" 
-                  className="btn-close" 
+                <button
+                  type="button"
+                  className="btn-close"
                   onClick={() => {
                     setShowEmailModal(false);
                     setEmailCliente("");
@@ -742,6 +897,21 @@ const DetalleMaquinariaContent: React.FC = () => {
               <div className="modal-body">
                 <p>Se registró el alquiler para el cliente con éxito</p>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast de éxito al calificar */}
+      {showSuccessToast && (
+        <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1050 }}>
+          <div className="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div className="toast-header bg-success text-white">
+              <strong className="me-auto">¡Gracias!</strong>
+              <button type="button" className="btn-close btn-close-white" onClick={() => setShowSuccessToast(false)}></button>
+            </div>
+            <div className="toast-body">
+              ¡Gracias por tu calificación!
             </div>
           </div>
         </div>

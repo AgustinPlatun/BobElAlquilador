@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '../Components/NavBar/Navbar';
 import Footer from '../Components/Footer/Footer';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +12,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); 
   const navigate = useNavigate();
+  const location = useLocation();
   const [codigoInvalido, setCodigoInvalido] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -34,7 +35,13 @@ const Login: React.FC = () => {
       sessionStorage.setItem('usuarioRol', response.data.rol);
       sessionStorage.setItem('usuarioEmail', response.data.email);
       sessionStorage.setItem('usuarioId', response.data.id);
-      navigate('/');
+      const params = new URLSearchParams(location.search);
+      const redirect = params.get('redirect');
+      if (redirect) {
+        navigate(redirect);
+      } else {
+        navigate('/');
+      }
     } catch (error: any) {
       setError(error.response?.data?.message || 'Error al iniciar sesión');
     } finally {
@@ -70,7 +77,13 @@ const Login: React.FC = () => {
       sessionStorage.setItem('usuarioRol', response.data.rol);
       sessionStorage.setItem('usuarioEmail', response.data.email);
       sessionStorage.setItem('usuarioId', response.data.id);
-      navigate('/');
+      const params = new URLSearchParams(location.search);
+      const redirect = params.get('redirect');
+      if (redirect) {
+        navigate(redirect);
+      } else {
+        navigate('/');
+      }
     } catch (error: any) {
       setError(error.response?.data?.message || 'Código incorrecto');
       setCodigoInvalido(true);
@@ -79,12 +92,21 @@ const Login: React.FC = () => {
     }
   };
 
+  const params = new URLSearchParams(location.search);
+  const redirect = params.get('redirect');
+  const mostrarAlertaCalificar = redirect && decodeURIComponent(redirect).includes('calificar=1');
+
   return (
     <div className="full-page-layout">
       <Navbar />
       <div className="main-content-centered">
         <div className="card p-4 shadow" style={{ maxWidth: '500px', width: '98%', border: '1px solid red'}}>
           <h2 className="text-center mb-4 text-danger">Iniciar Sesión</h2>
+          {mostrarAlertaCalificar && (
+            <div className="alert alert-info text-center p-2 mb-3" role="alert">
+              Debes iniciar sesión para calificar una maquinaria.
+            </div>
+          )}
           {!esperandoCodigo ? (
             <form onSubmit={handleLogin}>
                 <div className="mb-3">

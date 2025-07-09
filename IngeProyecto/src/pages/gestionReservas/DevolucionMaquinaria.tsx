@@ -26,6 +26,7 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
   const [procesandoDevolucion, setProcesandoDevolucion] = useState<number | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [reservaADevolver, setReservaADevolver] = useState<Reserva | null>(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   const fechaHoy = new Date().toLocaleDateString('es-AR');
 
@@ -78,7 +79,8 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
         await cargarReservas();
         setShowConfirmModal(false);
         setReservaADevolver(null);
-        alert('Devolución confirmada exitosamente');
+        setShowSuccessToast(true);
+        setTimeout(() => setShowSuccessToast(false), 3000);
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Error al confirmar la devolución');
@@ -154,6 +156,20 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
 
   return (
     <>
+      {/* Toast de éxito */}
+      {showSuccessToast && (
+        <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1050 }}>
+          <div className="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div className="toast-header bg-success text-white">
+              <strong className="me-auto">Éxito</strong>
+              <button type="button" className="btn-close btn-close-white" onClick={() => setShowSuccessToast(false)}></button>
+            </div>
+            <div className="toast-body">
+              Devolución confirmada exitosamente.
+            </div>
+          </div>
+        </div>
+      )}
       <div className="text-center mb-4">
         <h2 className="fw-bold mb-3">Gestión de Reservas</h2>
         <div className="btn-group mb-3">
