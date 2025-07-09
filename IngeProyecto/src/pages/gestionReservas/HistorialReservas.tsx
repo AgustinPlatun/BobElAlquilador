@@ -52,6 +52,8 @@ const HistorialReservas: React.FC = () => {
   const [reservas, setReservas] = useState<Reserva[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [reservaACancelar, setReservaACancelar] = useState<Reserva | null>(null);
 
   useEffect(() => {
     fetch('http://localhost:5000/maquinarias')
@@ -86,6 +88,14 @@ const HistorialReservas: React.FC = () => {
     if (!esActualA && esActualB) return 1;
     return inicioA.getTime() - inicioB.getTime();
   });
+
+  // Función para saber si una reserva es cancelable por empleado
+  const puedeCancelarReserva = (reserva: Reserva) => {
+    const hoy = new Date();
+    const inicio = new Date(reserva.fecha_inicio);
+    // Solo si la reserva no está en periodo de alquiler y el estado es correcto
+    return (reserva.estado === 'esperando_retiro' || reserva.estado === 'Activa') && inicio > hoy;
+  };
 
   // Primer listado de maquinarias
   const maquinariasFiltradas = maquinarias
@@ -216,7 +226,7 @@ const HistorialReservas: React.FC = () => {
                     {loading && <div className="text-primary">Cargando reservas...</div>}
                     {error && <div className="alert alert-danger">{error}</div>}
                     {reservasOrdenadas.length === 0 && !loading && <div className="text-muted">No hay reservas futuras.</div>}
-                    <ul className="list-group">
+                    <ul className="list-group" style={{ maxHeight: 400, overflowY: 'auto' }}>
                       {reservasOrdenadas.map((res, idx) => {
                         const inicio = new Date(res.fecha_inicio);
                         const fin = new Date(res.fecha_fin);
@@ -236,6 +246,18 @@ const HistorialReservas: React.FC = () => {
                                 <span><strong>Cliente:</strong> {res.usuario_nombre} {res.usuario_apellido} ({res.usuario_email})</span>
                               </div>
                             </div>
+                            {/* Botón cancelar solo si es cancelable */}
+                            {puedeCancelarReserva(res) && (
+                              <button
+                                className="btn btn-danger btn-sm ms-3"
+                                onClick={() => {
+                                  setReservaACancelar(res);
+                                  setShowCancelModal(true);
+                                }}
+                              >
+                                Cancelar
+                              </button>
+                            )}
                           </li>
                         );
                       })}
@@ -247,6 +269,37 @@ const HistorialReservas: React.FC = () => {
           )}
         </div>
       </div>
+      {/* Modal de confirmación de cancelación */}
+      {showCancelModal && reservaACancelar && (
+        <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }} tabIndex={-1}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title text-warning">Confirmar Cancelación</h5>
+              </div>
+              <div className="modal-body">
+                <p>¿Seguro que deseas cancelar la reserva de <b>{reservaACancelar.usuario_nombre} {reservaACancelar.usuario_apellido}</b>?</p>
+                <p>Se notificará al cliente por email.</p>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowCancelModal(false)}>No</button>
+                <button
+                  className="btn btn-danger"
+                  onClick={async () => {
+                    setShowCancelModal(false);
+                    setReservaACancelar(null);
+                    await fetch(`http://localhost:5000/cancelar-reserva-empleado/${reservaACancelar.id}`, { method: 'PUT' });
+                    // Recargar reservas de la maquinaria seleccionada
+                    handleSeleccionar(maquinariaSeleccionada!);
+                  }}
+                >
+                  Sí, cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

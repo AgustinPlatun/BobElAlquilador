@@ -325,3 +325,60 @@ def reservas_futuras_maquinaria(maquinaria_id):
         return jsonify(resultado), 200
     except Exception as e:
         return jsonify({"message": "Error al obtener reservas futuras de la maquinaria", "error": str(e)}), 500
+
+@reservas_bp.route("/cancelar-reserva-empleado/<int:reserva_id>", methods=["PUT"])
+def cancelar_reserva_empleado(reserva_id):
+    try:
+        reserva = Reserva.query.get(reserva_id)
+        if not reserva:
+            return jsonify({"message": "Reserva no encontrada"}), 404
+        from datetime import date
+        hoy = date.today()
+        diferencia_dias = (reserva.fecha_inicio - hoy).days
+        if diferencia_dias <= 1:
+            return jsonify({"message": "No se puede cancelar la reserva. Debe hacerlo con más de 1 día de anticipación"}), 400
+        if reserva.estado not in ['esperando_retiro', 'Activa']:
+            return jsonify({"message": "La reserva no se puede cancelar en su estado actual"}), 400
+        reserva.estado = 'cancelada'
+        db.session.commit()
+        monto_total = reserva.precio
+        politica = float(reserva.maquinaria.politicas_reembolso) if reserva.maquinaria.politicas_reembolso is not None else 0
+        monto_reembolso = monto_total * (politica / 100)
+        usuario = reserva.usuario
+        email = usuario.email
+        nombre = usuario.nombre
+        asunto = "Cancelación de reserva por inconvenientes - Bob el Alquilador"
+        cuerpo = f"""
+Hola {nombre},
+
+Lamentamos informarte que, por problemas internos de la empresa, tuvimos que cancelar tu reserva de la maquinaria '{reserva.maquinaria.nombre}'.
+
+De acuerdo a nuestra política de cancelación, se te reembolsará el monto de ${monto_reembolso:.2f}.
+
+Por favor, comunicate con nosotros para coordinar cómo se realizará el reembolso:
+Dirección: Carlos Pelegrini 123, Buenos Aires
+📞 Teléfono: (011) 1234-5678
+✉️ Email: bobelalquilador@gmail.com
+
+Pedimos disculpas por los inconvenientes ocasionados.
+El equipo de Bob el Alquilador
+"""
+        msg = MIMEText(cuerpo, _charset="utf-8")
+        msg["Subject"] = asunto
+        msg["From"] = "quantumdevsunlp@gmail.com"
+        msg["To"] = email
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login("quantumdevsunlp@gmail.com", "zuio rjmo duxk igbf")
+                server.sendmail(msg["From"], [msg["To"]], msg.as_string())
+        except Exception as e:
+            pass
+        return jsonify({
+            "message": "Reserva cancelada exitosamente por empleado",
+            "maquinaria_nombre": reserva.maquinaria.nombre,
+            "politica_reembolso": politica,
+            "monto_reembolso": monto_reembolso
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Error al cancelar la reserva por empleado", "error": str(e)}), 500
