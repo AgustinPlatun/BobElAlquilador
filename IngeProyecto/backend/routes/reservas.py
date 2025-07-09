@@ -3,6 +3,8 @@ from database.models import Reserva, Usuario, Maquinaria, Categoria
 from datetime import datetime, timedelta
 from sqlalchemy import and_
 from database import db
+import smtplib
+from email.mime.text import MIMEText
 
 reservas_bp = Blueprint("reservas", __name__)
 
@@ -227,10 +229,45 @@ def cancelar_reserva(reserva_id):
         reserva.estado = 'cancelada'
         db.session.commit()
         
+        # Calcular monto a devolver según política de reembolso
+        monto_total = reserva.precio
+        politica = float(reserva.maquinaria.politicas_reembolso) if reserva.maquinaria.politicas_reembolso is not None else 0
+        monto_reembolso = monto_total * (politica / 100)
+        # Enviar email al usuario
+        usuario = reserva.usuario
+        email = usuario.email
+        nombre = usuario.nombre
+        asunto = "Cancelación de reserva registrada - Bob el Alquilador"
+        cuerpo = f"""
+Hola {nombre},
+
+Te contactamos de Bob el Alquilador para informarte que se registró la cancelación de tu reserva de la maquinaria '{reserva.maquinaria.nombre}'.
+
+De acuerdo a nuestra política de cancelación, se te reembolsará el monto de ${monto_reembolso:.2f}.
+
+Por favor, comunicate con nosotros para coordinar cómo se realizará el reembolso:
+Dirección: Carlos Pelegrini 123, Buenos Aires
+📞 Teléfono: (011) 1234-5678
+✉️ Email: bobelalquilador@gmail.com
+
+¡Gracias por confiar en nosotros!
+El equipo de Bob el Alquilador
+"""
+        msg = MIMEText(cuerpo, _charset="utf-8")
+        msg["Subject"] = asunto
+        msg["From"] = "quantumdevsunlp@gmail.com"
+        msg["To"] = email
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login("quantumdevsunlp@gmail.com", "zuio rjmo duxk igbf")
+                server.sendmail(msg["From"], [msg["To"]], msg.as_string())
+        except Exception as e:
+            pass
         return jsonify({
             "message": "Reserva cancelada exitosamente",
             "maquinaria_nombre": reserva.maquinaria.nombre,
-            "politica_reembolso": reserva.maquinaria.politicas_reembolso
+            "politica_reembolso": politica,
+            "monto_reembolso": monto_reembolso
         }), 200
 
     except Exception as e:

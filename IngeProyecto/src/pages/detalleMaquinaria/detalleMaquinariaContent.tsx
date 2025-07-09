@@ -273,14 +273,6 @@ const DetalleMaquinariaContent: React.FC = () => {
                 ) : (
                   <div className="text-muted">Sin calificaciones</div>
                 )}
-                {rol === 'cliente' && (
-                  <button
-                    className="btn btn-outline-primary btn-sm mt-2"
-                    onClick={() => setShowCalificacionModal(true)}
-                  >
-                    Calificar
-                  </button>
-                )}
               </div>
               {/* Precio por día en verde arriba del calendario */}
               <div style={{ marginBottom: "5%" }}>
