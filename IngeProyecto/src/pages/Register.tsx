@@ -13,8 +13,8 @@ const Register: React.FC = () => {
   const [dniFoto, setDniFoto] = useState<File | null>(null);
   const [dniNumero, setDniNumero] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate(); // <-- Hook de navegación
-
+  const [registroExitoso, setRegistroExitoso] = useState(false); // NUEVO
+  const navigate = useNavigate(); 
   const isFormValid = () => {
     return (
       nombre &&
@@ -25,6 +25,16 @@ const Register: React.FC = () => {
       dniFoto &&
       dniNumero // Asegúrate de incluir dniNumero aquí
     );
+  };
+
+  const limpiarCampos = () => {
+    setNombre('');
+    setApellido('');
+    setFechaNacimiento('');
+    setEmail('');
+    setPassword('');
+    setDniFoto(null);
+    setDniNumero('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +60,9 @@ const Register: React.FC = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      navigate('/login');
+      setRegistroExitoso(true); // NUEVO
+      limpiarCampos(); // NUEVO
+      // No navegues a login
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
@@ -111,12 +123,21 @@ const Register: React.FC = () => {
                 className="form-control"
                 value={dniNumero}
                 onChange={e => setDniNumero(e.target.value)}
-                // required <-- puedes quitar esto, la validación la hace isFormValid
               />
             </div>
-
+            {registroExitoso && (
+              <div className="alert alert-success alert-dismissible fade show text-center p-2" role="alert">
+                Tu registro fue exitoso, un empleado revisará tus datos y activará tu cuenta
+                <button
+                  type="button"
+                  className="btn-close"
+                  aria-label="Close"
+                  onClick={() => setRegistroExitoso(false)}
+                  style={{ position: 'absolute', right: 10, top: 10 }}
+                ></button>
+              </div>
+            )}
             {error && <div className="alert alert-danger text-center p-2">{error}</div>}
-
             <button type="submit" className="btn btn-danger w-100" disabled={!isFormValid()}>
               Registrarse
             </button>
