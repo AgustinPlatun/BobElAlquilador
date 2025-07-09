@@ -56,7 +56,7 @@ const HistorialReservas: React.FC = () => {
   const [reservaACancelar, setReservaACancelar] = useState<Reserva | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/maquinarias')
+    fetch('http://localhost:5000/maquinarias-todas')
       .then(res => res.json())
       .then(data => setMaquinarias(data as Maquinaria[]))
       .catch(() => setError('Error al cargar maquinarias.'));
@@ -153,6 +153,13 @@ const HistorialReservas: React.FC = () => {
                         />
                         <div>
                           <span className="fw-bold" style={{ color: rojoPrincipal }}>{maquinaria.nombre}</span> <span className="text-muted">({maquinaria.codigo})</span>
+                          {typeof (maquinaria as any).estado !== 'undefined' && (
+                            (maquinaria as any).estado ? (
+                              <span className="badge bg-success ms-2">Activa</span>
+                            ) : (
+                              <span className="badge bg-secondary ms-2">Eliminada</span>
+                            )
+                          )}
                         </div>
                       </li>
                     ))}
@@ -195,6 +202,13 @@ const HistorialReservas: React.FC = () => {
                           />
                           <div>
                             <span className="fw-bold" style={{ color: rojoPrincipal }}>{maquinaria.nombre}</span> <span className="text-muted">({maquinaria.codigo})</span>
+                            {typeof (maquinaria as any).estado !== 'undefined' && (
+                              (maquinaria as any).estado ? (
+                                <span className="badge bg-success ms-2">Activa</span>
+                              ) : (
+                                <span className="badge bg-secondary ms-2">Eliminada</span>
+                              )
+                            )}
                           </div>
                         </li>
                       ))}
@@ -218,6 +232,13 @@ const HistorialReservas: React.FC = () => {
                       <div>
                         <h5 className="fw-bold mb-1" style={{ color: rojoPrincipal }}>{maquinariaSeleccionada.nombre}</h5>
                         <div className="text-muted" style={{ fontSize: 15 }}><strong>Código:</strong> {maquinariaSeleccionada.codigo}</div>
+                        {typeof (maquinariaSeleccionada as any).estado !== 'undefined' && (
+                          (maquinariaSeleccionada as any).estado ? (
+                            <span className="badge bg-success mt-2">Activa</span>
+                          ) : (
+                            <span className="badge bg-secondary mt-2">Eliminada</span>
+                          )
+                        )}
                       </div>
                     </div>
                     <div className="mb-2"><strong>Descripción:</strong> {maquinariaSeleccionada.descripcion}</div>

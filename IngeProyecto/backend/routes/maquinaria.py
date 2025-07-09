@@ -99,6 +99,29 @@ def obtener_maquinarias():
     except Exception as e:
         return jsonify({"message": "Hubo un problema al obtener las maquinarias", "error": str(e)}), 500
 
+@maquinaria_bp.route("/maquinarias-todas", methods=["GET"])
+def obtener_maquinarias_todas():
+    try:
+        maquinarias = Maquinaria.query.all()
+        resultado = [
+            {
+                "id": maquinaria.id,
+                "codigo": maquinaria.codigo,
+                "nombre": maquinaria.nombre,
+                "descripcion": maquinaria.descripcion,
+                "foto": maquinaria.foto,
+                "precio": maquinaria.precio,
+                "politicas_reembolso": maquinaria.politicas_reembolso,
+                "categoria_id": maquinaria.categoria_id,
+                "categoria": maquinaria.categoria.nombre if maquinaria.categoria else None,
+                "estado": maquinaria.estado
+            }
+            for maquinaria in maquinarias
+        ]
+        return jsonify(resultado), 200
+    except Exception as e:
+        return jsonify({"message": "Hubo un problema al obtener todas las maquinarias", "error": str(e)}), 500
+
 @maquinaria_bp.route("/baja-maquinaria", methods=["PUT"])
 def baja_maquinaria():
     try:
