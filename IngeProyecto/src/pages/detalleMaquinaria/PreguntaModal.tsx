@@ -67,9 +67,6 @@ const PreguntaModal: React.FC<Props> = ({
             )}
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Cancelar
-            </button>
             <button
               type="button"
               className="btn btn-primary"
