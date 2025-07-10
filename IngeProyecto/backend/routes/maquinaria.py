@@ -252,6 +252,17 @@ def calificar_maquinaria(codigo):
         if not maquinaria:
             return jsonify({"message": "Maquinaria no encontrada"}), 404
 
+        # Nueva lógica: solo una calificación por usuario, maquinaria y día
+        from datetime import datetime
+        hoy = datetime.utcnow().date()
+        calificacion_existente = CalificacionMaquinaria.query.filter_by(
+            usuario_id=usuario_id,
+            maquinaria_id=maquinaria.id
+        ).all()
+        for cal in calificacion_existente:
+            if cal.fecha.date() == hoy:
+                return jsonify({"message": "Ya calificaste esta maquinaria por este alquiler. Solo puedes calificar una vez por cada alquiler que realices."}), 400
+
         nueva_calificacion = CalificacionMaquinaria(
             puntaje=puntaje,
             comentario=comentario,

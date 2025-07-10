@@ -9,6 +9,7 @@ interface Props {
   setPuntaje: (puntaje: number) => void;
   comentario: string;
   setComentario: (comentario: string) => void;
+  error?: string | null;
 }
 
 const CalificacionModal: React.FC<Props> = ({
@@ -18,7 +19,8 @@ const CalificacionModal: React.FC<Props> = ({
   puntaje,
   setPuntaje,
   comentario,
-  setComentario
+  setComentario,
+  error
 }) => {
   if (!show) return null;
 
@@ -31,6 +33,11 @@ const CalificacionModal: React.FC<Props> = ({
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
           <div className="modal-body">
+            {error && (
+              <div className="alert alert-danger text-center" role="alert">
+                {error}
+              </div>
+            )}
             <div className="mb-3">
               <label className="form-label">Puntaje</label>
               <StarRating

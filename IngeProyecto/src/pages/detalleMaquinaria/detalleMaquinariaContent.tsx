@@ -36,7 +36,11 @@ const DetalleMaquinariaContent: React.FC = () => {
     setShowMantenimientoModal,
     mantenimientoDescripcion,
     setMantenimientoDescripcion,
-    handleMantenimientoSubmit
+    handleMantenimientoSubmit,
+    calificacionError,
+    setCalificacionError,
+    removeCalificarParam,
+    justCalified
   } = useDetalleMaquinariaContent();
 
   const location = useLocation();
@@ -48,25 +52,11 @@ const DetalleMaquinariaContent: React.FC = () => {
   const handleAbrirCalificacion = () => {
     const usuarioId = sessionStorage.getItem('usuarioId');
     if (!usuarioId) {
-      // Redirigir a login con redirect a la URL actual
-      const redirectUrl = window.location.pathname + window.location.search;
-      navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+      // Redirigir a login con redirect a /servicios
+      navigate(`/login?redirect=/servicios`);
       return;
     }
     setShowCalificacionModal(true);
-  };
-
-  // Bandera para saber si se acaba de calificar
-  const [justCalified, setJustCalified] = useState(false);
-
-  // Evitar que el modal de calificación se vuelva a abrir si ya calificó
-  const removeCalificarParam = () => {
-    const params = new URLSearchParams(location.search);
-    if (params.get('calificar') === '1') {
-      params.delete('calificar');
-      navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
-      setJustCalified(true);
-    }
   };
 
   // Si el usuario va para atrás después de calificar, redirigir a /servicios
@@ -287,6 +277,11 @@ const DetalleMaquinariaContent: React.FC = () => {
     } else {
       setMantenimientoError('Ocurrió un error al poner la maquinaria en mantenimiento.');
     }
+  };
+
+  const handleCalificacionSubmitConRedireccion = async () => {
+    await handleCalificacionSubmit();
+    removeCalificarParam();
   };
 
   if (noEncontrada) {
@@ -740,53 +735,16 @@ const DetalleMaquinariaContent: React.FC = () => {
       {/* Modal de calificación */}
       <CalificacionModal
         show={showCalificacionModal}
-        onClose={() => setShowCalificacionModal(false)}
-        onSubmit={async () => {
-          // Lógica de calificación con toast de éxito
-          const usuarioId = sessionStorage.getItem('usuarioId');
-          if (!usuarioId) {
-            setShowCalificacionModal(false);
-            // Redirigir a login con redirect a la URL actual
-            const redirectUrl = window.location.pathname + window.location.search;
-            navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
-            return;
-          }
-          try {
-            const response = await fetch(`http://localhost:5000/calificar-maquinaria/${maquinaria.codigo}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                puntaje: calificacionPuntaje,
-                comentario: calificacionComentario,
-                usuario_id: parseInt(usuarioId)
-              }),
-            });
-            if (response.ok) {
-              setShowCalificacionModal(false);
-              setCalificacionPuntaje(0);
-              setCalificacionComentario('');
-              // Recargar calificaciones
-              const calificacionesResponse = await fetch(`http://localhost:5000/calificaciones-maquinaria/${maquinaria.codigo}`);
-              const calificaciones = await calificacionesResponse.json();
-              setMaquinaria(prev => prev ? { ...prev, calificaciones } : null);
-              setShowSuccessToast(true);
-              removeCalificarParam();
-            } else {
-              const error = await response.json();
-              setShowCalificacionModal(false);
-              setShowSuccessToast(true);
-              removeCalificarParam();
-            }
-          } catch (error) {
-            setShowCalificacionModal(false);
-            setShowSuccessToast(true);
-            removeCalificarParam();
-          }
+        onClose={() => {
+          setShowCalificacionModal(false);
+          setCalificacionError(null);
         }}
+        onSubmit={handleCalificacionSubmitConRedireccion}
         puntaje={calificacionPuntaje}
         setPuntaje={setCalificacionPuntaje}
         comentario={calificacionComentario}
         setComentario={setCalificacionComentario}
+        error={calificacionError}
       />
 
       {/* Modal de preguntas */}

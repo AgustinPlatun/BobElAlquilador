@@ -74,6 +74,8 @@ export function useDetalleMaquinariaContent() {
   const [preguntaSeleccionada, setPreguntaSeleccionada] = useState<number | null>(null);
   const [showMantenimientoModal, setShowMantenimientoModal] = useState(false);
   const [mantenimientoDescripcion, setMantenimientoDescripcion] = useState('');
+  const [calificacionError, setCalificacionError] = useState<string | null>(null);
+  const [justCalified, setJustCalified] = useState(false);
 
   useEffect(() => {
     setNoEncontrada(false);
@@ -139,11 +141,21 @@ export function useDetalleMaquinariaContent() {
     }
   }, [codigo]);
 
+  // Evitar que el modal de calificación se vuelva a abrir si ya calificó
+  const removeCalificarParam = () => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('calificar') === '1') {
+      params.delete('calificar');
+      navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
+      setJustCalified(true);
+    }
+  };
+
   const handleCalificacionSubmit = async () => {
     try {
       const usuarioId = sessionStorage.getItem('usuarioId');
       if (!usuarioId) {
-        alert('Debes iniciar sesión para calificar');
+        setCalificacionError('Debes iniciar sesión para calificar');
         return;
       }
 
@@ -163,16 +175,17 @@ export function useDetalleMaquinariaContent() {
         setShowCalificacionModal(false);
         setCalificacionPuntaje(0);
         setCalificacionComentario('');
+        setCalificacionError(null);
         // Recargar calificaciones
         const calificacionesResponse = await fetch(`http://localhost:5000/calificaciones-maquinaria/${codigo}`);
         const calificaciones = await calificacionesResponse.json();
         setMaquinaria(prev => prev ? { ...prev, calificaciones } : null);
       } else {
         const error = await response.json();
-        alert(error.message || 'Error al calificar la maquinaria');
+        setCalificacionError(error.message || 'Error al calificar la maquinaria');
       }
     } catch (error) {
-      alert('Error al calificar la maquinaria');
+      setCalificacionError('Error al calificar la maquinaria');
     }
   };
 
@@ -333,6 +346,10 @@ export function useDetalleMaquinariaContent() {
     preguntaSeleccionada, setPreguntaSeleccionada,
     showMantenimientoModal, setShowMantenimientoModal,
     mantenimientoDescripcion, setMantenimientoDescripcion,
-    handleMantenimientoSubmit
+    handleMantenimientoSubmit,
+    calificacionError,
+    setCalificacionError,
+    removeCalificarParam,
+    justCalified, setJustCalified
   };
 }
