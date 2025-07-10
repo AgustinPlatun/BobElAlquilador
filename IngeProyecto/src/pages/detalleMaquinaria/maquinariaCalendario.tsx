@@ -91,7 +91,7 @@ const MaquinariaCalendario: React.FC<Props> = ({
             monthsShown={1}
             dateFormat="yyyy/MM/dd"
             className="form-control"
-            minDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
+            minDate={new Date()}
             excludeDates={fechasReservadas}
           />
           {error && (

@@ -184,6 +184,8 @@ const DetalleMaquinariaContent: React.FC = () => {
 
   const [modoAgregarMantenimiento, setModoAgregarMantenimiento] = useState(false);
   const [showMantenimientoSuccess, setShowMantenimientoSuccess] = useState(false);
+  const [mantenimientoError, setMantenimientoError] = useState("");
+  const [mantenimientoInfo, setMantenimientoInfo] = useState("");
 
   const abrirInputEmail = () => {
     setEmailCliente("");
@@ -251,6 +253,42 @@ const DetalleMaquinariaContent: React.FC = () => {
     }
   };
 
+  // Nueva función para poner en mantenimiento
+  const handlePonerEnMantenimiento = async () => {
+    if (!maquinaria) return;
+    // Verificar si la maquinaria está reservada actualmente
+    const hoy = new Date();
+    const estaReservada = fechasReservadas.some(f => {
+      // Considero reservada si la fecha reservada es hoy o en el futuro
+      return f >= new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    });
+    if (estaReservada) {
+      setMantenimientoError('No se puede poner en mantenimiento: la maquinaria está en un periodo de reserva.');
+      return;
+    }
+    // Refrescar el estado antes de intentar
+    const respEstado = await fetch(`http://localhost:5000/maquinarias/${maquinaria.id}`);
+    const data = await respEstado.json();
+    if (data.mantenimiento) {
+      setMantenimientoError('La maquinaria ya está en mantenimiento.');
+      return;
+    }
+    const resp = await fetch(`http://localhost:5000/maquinarias/${maquinaria.id}/poner-en-mantenimiento`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (resp.ok) {
+      setMantenimientoInfo('La maquinaria fue puesta en mantenimiento correctamente.');
+      // Recargar solo el estado de la maquinaria, no toda la página
+      const nuevaResp = await fetch(`http://localhost:5000/maquinarias/${maquinaria.id}`);
+      const nuevaData = await nuevaResp.json();
+      setMaquinaria((prev) => prev ? { ...prev, ...nuevaData } : prev);
+      setTimeout(() => { setMantenimientoInfo(""); }, 2000);
+    } else {
+      setMantenimientoError('Ocurrió un error al poner la maquinaria en mantenimiento.');
+    }
+  };
+
   if (noEncontrada) {
     return (
       <div className="text-center py-5 text-danger">
@@ -259,7 +297,7 @@ const DetalleMaquinariaContent: React.FC = () => {
     );
   }
 
-  if (!maquinaria) return <div className="text-center py-5">Cargando...</div>;
+  if (!maquinaria) return null;
 
   return (
     <div className="container py-4" style={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
@@ -297,25 +335,7 @@ const DetalleMaquinariaContent: React.FC = () => {
                   {rol === 'empleado' && (
                     <button
                       className="btn btn-danger fw-bold"
-                      onClick={async (e) => {
-                        // Refrescar el estado antes de intentar
-                        const respEstado = await fetch(`http://localhost:5000/maquinarias/${maquinaria.id}`);
-                        const data = await respEstado.json();
-                        if (data.mantenimiento) {
-                          alert('La maquinaria ya está en mantenimiento.');
-                          return;
-                        }
-                        const resp = await fetch(`http://localhost:5000/maquinarias/${maquinaria.id}/poner-en-mantenimiento`, {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                        });
-                        if (resp.ok) {
-                          alert('La maquinaria fue puesta en mantenimiento correctamente.');
-                          window.location.reload();
-                        } else {
-                          alert('Ocurrió un error al poner la maquinaria en mantenimiento.');
-                        }
-                      }}
+                      onClick={handlePonerEnMantenimiento}
                     >
                       Agregar a mantenimiento
                     </button>
@@ -832,6 +852,33 @@ const DetalleMaquinariaContent: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Carteles de mantenimiento como alerts clásicos centrados arriba */}
+      <div style={{
+        position: 'fixed',
+        top: 30,
+        left: 0,
+        width: '100vw',
+        display: 'flex',
+        justifyContent: 'center',
+        zIndex: 2000,
+        pointerEvents: 'none',
+      }}>
+        <div style={{ maxWidth: 500, width: '100%', pointerEvents: 'auto' }}>
+          {mantenimientoError && (
+            <div className="alert alert-danger alert-dismissible fade show" role="alert" style={{ background: '#fff', border: '1.5px solid #dc3545', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', fontSize: '1.1rem' }}>
+              {mantenimientoError}
+              <button type="button" className="btn-close" onClick={() => setMantenimientoError("")}></button>
+            </div>
+          )}
+          {mantenimientoInfo && (
+            <div className="alert alert-success alert-dismissible fade show" role="alert" style={{ background: '#fff', border: '1.5px solid #198754', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', fontSize: '1.1rem' }}>
+              {mantenimientoInfo}
+              <button type="button" className="btn-close" onClick={() => setMantenimientoInfo("")}></button>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Modal para ingresar email del cliente */}
       {showEmailModal && (

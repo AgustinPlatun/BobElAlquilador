@@ -168,8 +168,8 @@ const MisReservas: React.FC = () => {
         <div className="row">
           <div className="col-12">
             <div className="text-center mb-5">
-              <h2 className="fw-bold mb-3">Mis Reservas</h2>
-              <p className="text-muted">Historial de todas tus reservas</p>
+              <h2 className="fw-bold mb-3">Mis reservas y alquileres</h2>
+              <p className="text-muted">Historial de todas tus reservas y alquileres</p>
             </div>
             
             {reservas.length === 0 ? (
