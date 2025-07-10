@@ -37,26 +37,13 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
     try {
       setLoading(true);
       setError('');
-      
       const response = await fetch('http://localhost:5000/reservas-esperando-retiro');
-      
       if (response.ok) {
         const data = await response.json();
-        
-        // Ordenar las reservas: primero las que tienen botón (fecha válida), después las que no
+        // Ordenar por fecha de inicio ascendente (más antigua primero)
         const reservasOrdenadas = data.sort((a: Reserva, b: Reserva) => {
-          const aValida = esFechaValidaParaRetiro(a.fecha_inicio);
-          const bValida = esFechaValidaParaRetiro(b.fecha_inicio);
-          
-          // Si ambas son válidas o ambas no son válidas, mantener orden original
-          if (aValida === bValida) {
-            return 0;
-          }
-          
-          // Las válidas van primero (true antes que false)
-          return bValida ? 1 : -1;
+          return new Date(a.fecha_inicio).getTime() - new Date(b.fecha_inicio).getTime();
         });
-        
         setReservas(reservasOrdenadas);
       } else {
         const errorData = await response.json();
@@ -148,6 +135,28 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
     setReservaSeleccionada(null);
   };
 
+  // Nueva función: ¿está habilitado el retiro hoy?
+  const puedeRetirarHoy = (fechaInicio: string, fechaFin: string) => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const [y1, m1, d1] = fechaInicio.split('-');
+    const [y2, m2, d2] = fechaFin.split('-');
+    const inicio = new Date(parseInt(y1), parseInt(m1) - 1, parseInt(d1));
+    const fin = new Date(parseInt(y2), parseInt(m2) - 1, parseInt(d2));
+    inicio.setHours(0, 0, 0, 0);
+    fin.setHours(0, 0, 0, 0);
+    return hoy >= inicio && hoy <= fin;
+  };
+  // Nueva función: ¿está retrasada?
+  const estaRetrasada = (fechaInicio: string, estado: string) => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const [y1, m1, d1] = fechaInicio.split('-');
+    const inicio = new Date(parseInt(y1), parseInt(m1) - 1, parseInt(d1));
+    inicio.setHours(0, 0, 0, 0);
+    return hoy > inicio && estado === 'esperando_retiro';
+  };
+
   if (loading) {
     return (
       <div className="text-center">
@@ -192,7 +201,7 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
           {reservas.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-muted mb-0">
-                No hay reservas esperando retiro
+                No hay retiros de maquinarias pendientes.
               </p>
             </div>
           ) : (
@@ -212,7 +221,7 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                 </thead>
                 <tbody>
                   {reservas.map((reserva) => (
-                    <tr key={reserva.id}>
+                    <tr key={reserva.id} className={estaRetrasada(reserva.fecha_inicio, reserva.estado) ? 'table-danger' : ''}>
                       <td>
                         <div>
                           <div className="fw-bold">{reserva.cliente_email}</div>
@@ -252,9 +261,12 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                         <span className={`badge ${obtenerColorEstado(reserva.estado)} text-white`}>
                           {reserva.estado}
                         </span>
+                        {estaRetrasada(reserva.fecha_inicio, reserva.estado) && (
+                          <span className="ms-2 badge bg-danger">Cuenta con retraso</span>
+                        )}
                       </td>
                       <td>
-                        {reserva.estado === 'esperando_retiro' && esFechaValidaParaRetiro(reserva.fecha_inicio) && (
+                        {reserva.estado === 'esperando_retiro' && puedeRetirarHoy(reserva.fecha_inicio, reserva.fecha_fin) && (
                           <button
                             className="btn btn-success btn-sm"
                             onClick={() => handleConfirmarRetiro(reserva)}
@@ -294,6 +306,11 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                 {reservaSeleccionada && (
                   <div>
                     <p>¿Está seguro que desea confirmar el retiro de la siguiente reserva?</p>
+                    {estaRetrasada(reservaSeleccionada.fecha_inicio, reservaSeleccionada.estado) && (
+                      <div className="alert alert-danger mb-2">
+                        <strong>¡Atención!</strong> Esta reserva cuenta con retraso en el retiro.
+                      </div>
+                    )}
                     <div className="card bg-light">
                       <div className="card-body">
                         <h6 className="card-title">Detalles de la Reserva</h6>

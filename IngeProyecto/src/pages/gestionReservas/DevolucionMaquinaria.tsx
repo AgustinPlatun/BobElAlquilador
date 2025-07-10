@@ -203,7 +203,7 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
           {reservas.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-muted mb-0">
-                No hay reservas esperando devolución
+                No hay devoluciones de maquinarias pendientes.
               </p>
             </div>
           ) : (
@@ -322,17 +322,17 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                   console.log('Días de retraso en modal:', diasRetraso);
                   
                   if (diasRetraso > 0) {
-                    // El monto de retraso es diasRetraso x precio de la maquinaria (precioMaquinaria = precio_maquinaria de la reserva)
+                    // El monto de retraso es diasRetraso x (precioMaquinaria * 1.10)
                     const precioMaquinaria = reservaADevolver.precio_maquinaria;
-                    const montoRetraso = diasRetraso * precioMaquinaria;
+                    const montoRetraso = diasRetraso * (precioMaquinaria * 1.10);
                     return (
                       <div className="alert alert-danger">
                         <strong>⚠️ Devolución Tardía</strong><br />
                         El cliente está devolviendo la maquinaria con <strong>{diasRetraso} día{diasRetraso !== 1 ? 's' : ''} de retraso</strong>.<br />
                         <hr style={{ margin: '10px 0' }} />
-                        <span className="fw-bold">Monto a cobrar por retraso:</span> {diasRetraso} × {formatearMonto(precioMaquinaria)} = <span className="text-danger fw-bold">{formatearMonto(montoRetraso)}</span><br />
+                        <span className="fw-bold">Monto a cobrar por retraso:</span> {diasRetraso} × {formatearMonto(precioMaquinaria)} + 10% = <span className="text-danger fw-bold">{formatearMonto(montoRetraso)}</span><br />
                         <span className="text-muted" style={{ fontSize: '0.95em' }}>
-                          (Se cobrará el precio de la maquinaria por cada día de retraso.)
+                          (Se cobrará el precio por día de la maquinaria más un 10% adicional por cada día de retraso.)
                         </span>
                       </div>
                     );

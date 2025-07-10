@@ -403,8 +403,7 @@ def cancelar_reserva_empleado(reserva_id):
         reserva.estado = 'cancelada'
         db.session.commit()
         monto_total = reserva.precio
-        politica = float(reserva.maquinaria.politicas_reembolso) if reserva.maquinaria.politicas_reembolso is not None else 0
-        monto_reembolso = monto_total * (politica / 100)
+        monto_reembolso = monto_total  # 100% de reembolso
         usuario = reserva.usuario
         email = usuario.email
         nombre = usuario.nombre
@@ -414,7 +413,7 @@ Hola {nombre},
 
 Lamentamos informarte que, por problemas internos de la empresa, tuvimos que cancelar tu reserva de la maquinaria '{reserva.maquinaria.nombre}'.
 
-De acuerdo a nuestra política de cancelación, se te reembolsará el monto de ${monto_reembolso:.2f}.
+Se te reembolsará el 100% del monto abonado (${monto_reembolso:.2f}).
 
 Por favor, comunicate con nosotros para coordinar cómo se realizará el reembolso:
 Dirección: Carlos Pelegrini 123, Buenos Aires
@@ -437,7 +436,7 @@ El equipo de Bob el Alquilador
         return jsonify({
             "message": "Reserva cancelada exitosamente por empleado",
             "maquinaria_nombre": reserva.maquinaria.nombre,
-            "politica_reembolso": politica,
+            "politica_reembolso": 100,
             "monto_reembolso": monto_reembolso
         }), 200
     except Exception as e:

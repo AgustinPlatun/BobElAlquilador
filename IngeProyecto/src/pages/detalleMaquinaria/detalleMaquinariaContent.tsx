@@ -263,7 +263,7 @@ const DetalleMaquinariaContent: React.FC = () => {
       return f >= new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
     });
     if (estaReservada) {
-      setMantenimientoError('No se puede poner en mantenimiento: la maquinaria está en un periodo de reserva.');
+      setMantenimientoError('No se puede poner en mantenimiento: la maquinaria está en un periodo de alquiler.');
       return;
     }
     // Refrescar el estado antes de intentar
@@ -983,7 +983,6 @@ const DetalleMaquinariaContent: React.FC = () => {
         <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1050 }}>
           <div className="toast show" role="alert" aria-live="assertive" aria-atomic="true">
             <div className="toast-header bg-success text-white">
-              <strong className="me-auto">¡Gracias!</strong>
               <button type="button" className="btn-close btn-close-white" onClick={() => setShowSuccessToast(false)}></button>
             </div>
             <div className="toast-body">

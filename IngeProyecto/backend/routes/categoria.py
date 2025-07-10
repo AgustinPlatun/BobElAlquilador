@@ -12,7 +12,8 @@ def crear_categoria():
     if not nombre:
         return jsonify({'error': 'El nombre es obligatorio.'}), 400
 
-    categoria = Categoria.query.filter_by(nombre=nombre).first()
+    # Comparación insensible a mayúsculas/minúsculas
+    categoria = Categoria.query.filter(db.func.lower(Categoria.nombre) == nombre.lower()).first()
     if categoria:
         if categoria.estado == 'desactivada':
             categoria.estado = 'activa'
