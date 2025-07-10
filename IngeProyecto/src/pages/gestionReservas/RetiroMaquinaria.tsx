@@ -42,7 +42,22 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
       
       if (response.ok) {
         const data = await response.json();
-        setReservas(data);
+        
+        // Ordenar las reservas: primero las que tienen botón (fecha válida), después las que no
+        const reservasOrdenadas = data.sort((a: Reserva, b: Reserva) => {
+          const aValida = esFechaValidaParaRetiro(a.fecha_inicio);
+          const bValida = esFechaValidaParaRetiro(b.fecha_inicio);
+          
+          // Si ambas son válidas o ambas no son válidas, mantener orden original
+          if (aValida === bValida) {
+            return 0;
+          }
+          
+          // Las válidas van primero (true antes que false)
+          return bValida ? 1 : -1;
+        });
+        
+        setReservas(reservasOrdenadas);
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Error al cargar las reservas');
@@ -66,6 +81,18 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
       currency: 'ARS',
       minimumFractionDigits: 2 
     });
+  };
+
+  const esFechaValidaParaRetiro = (fechaInicio: string) => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // Resetear horas para comparar solo fechas
+    
+    const [year, month, day] = fechaInicio.split('-');
+    const fechaInicioReserva = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    fechaInicioReserva.setHours(0, 0, 0, 0);
+    
+    // La fecha de inicio debe ser hoy o posterior
+    return fechaInicioReserva >= hoy;
   };
 
   const obtenerColorEstado = (estado: string) => {
@@ -227,7 +254,7 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                         </span>
                       </td>
                       <td>
-                        {reserva.estado === 'esperando_retiro' && (
+                        {reserva.estado === 'esperando_retiro' && esFechaValidaParaRetiro(reserva.fecha_inicio) && (
                           <button
                             className="btn btn-success btn-sm"
                             onClick={() => handleConfirmarRetiro(reserva)}

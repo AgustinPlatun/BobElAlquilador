@@ -222,8 +222,14 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {reservas.map((reserva) => (
-                    <tr key={reserva.id}>
+                  {reservas.map((reserva) => {
+                    const esDevolucionTardia = calcularDiasRetraso(reserva.fecha_fin) > 0;
+                    return (
+                      <tr 
+                        key={reserva.id} 
+                        className={esDevolucionTardia ? 'table-danger' : ''}
+                        style={esDevolucionTardia ? { backgroundColor: '#f8d7da' } : {}}
+                      >
                       <td>
                         <div>
                           <div className="fw-bold">{reserva.cliente_email}</div>
@@ -260,9 +266,16 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                         {formatearMonto(reserva.monto_total)}
                       </td>
                       <td>
-                        <span className={`badge ${obtenerColorEstado(reserva.estado)} text-white`}>
-                          {reserva.estado}
-                        </span>
+                        <div className="d-flex align-items-center gap-2">
+                          <span className={`badge ${obtenerColorEstado(reserva.estado)} text-white`}>
+                            {reserva.estado}
+                          </span>
+                          {calcularDiasRetraso(reserva.fecha_fin) > 0 && (
+                            <span className="text-warning" title="Devolución tardía">
+                              ⚠️
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td>
                         <button
@@ -278,7 +291,8 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
