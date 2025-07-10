@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Components/NavBar/Navbar';
 import Footer from '../Components/Footer/Footer';
+import CalificacionModal from './detalleMaquinaria/CalificacionModal';
 
 interface Reserva {
   id: number;
@@ -15,6 +16,7 @@ interface Reserva {
   precio_total: number;
   precio_por_dia: number;
   estado: string;
+  valorado?: boolean;
 }
 
 const MisReservas: React.FC = () => {
@@ -23,7 +25,17 @@ const MisReservas: React.FC = () => {
   const [error, setError] = useState('');
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [reservaACancelar, setReservaACancelar] = useState<{id: number, nombre: string, politica: number, precioTotal: number} | null>(null);
+  
+  // Estados para el modal de calificación
+  const [showCalificacionModal, setShowCalificacionModal] = useState(false);
+  const [reservaACalificar, setReservaACalificar] = useState<{id: number, codigo: string, nombre: string} | null>(null);
+  const [calificacionPuntaje, setCalificacionPuntaje] = useState(0);
+  const [calificacionComentario, setCalificacionComentario] = useState('');
+  const [calificacionError, setCalificacionError] = useState<string | null>(null);
+  const [showCalificacionSuccess, setShowCalificacionSuccess] = useState(false);
+  
   const navigate = useNavigate();
+  const rol = sessionStorage.getItem('usuarioRol');
 
   const cargarReservas = async () => {
     try {
@@ -129,6 +141,74 @@ const MisReservas: React.FC = () => {
     }
   };
 
+  const abrirModalCalificacion = (reserva: Reserva) => {
+    setReservaACalificar({
+      id: reserva.id,
+      codigo: reserva.maquinaria_codigo,
+      nombre: reserva.maquinaria_nombre
+    });
+    setCalificacionPuntaje(0);
+    setCalificacionComentario('');
+    setCalificacionError(null);
+    setShowCalificacionModal(true);
+  };
+
+  const enviarCalificacion = async () => {
+    if (!reservaACalificar) return;
+
+    try {
+      setCalificacionError(null);
+      
+      const usuarioId = sessionStorage.getItem('usuarioId');
+      if (!usuarioId) {
+        setCalificacionError('Debes iniciar sesión para calificar');
+        return;
+      }
+      
+      // Enviar la calificación
+      const response = await fetch(`http://localhost:5000/calificar-maquinaria/${reservaACalificar.codigo}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          puntaje: calificacionPuntaje,
+          comentario: calificacionComentario,
+          usuario_id: parseInt(usuarioId),
+          reserva_id: reservaACalificar.id
+        }),
+      });
+
+      if (response.ok) {
+        // Marcar la reserva como valorada
+        const marcarResponse = await fetch(`http://localhost:5000/marcar-valorado/${reservaACalificar.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (marcarResponse.ok) {
+          // Recargar las reservas para actualizar el estado
+          cargarReservas();
+          setShowCalificacionModal(false);
+          setReservaACalificar(null);
+          setCalificacionPuntaje(0);
+          setCalificacionComentario('');
+          // Mostrar mensaje de éxito
+          setShowCalificacionSuccess(true);
+          setTimeout(() => setShowCalificacionSuccess(false), 3000);
+        } else {
+          setCalificacionError('Error al marcar la reserva como valorada');
+        }
+      } else {
+        const errorData = await response.json();
+        setCalificacionError(errorData.message || 'Error al enviar la calificación');
+      }
+    } catch (err) {
+      setCalificacionError('Error de conexión al enviar la calificación');
+    }
+  };
 
 
   if (loading) {
@@ -258,18 +338,29 @@ const MisReservas: React.FC = () => {
                                 ${reserva.precio_total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                               </div>
                             </div>
-                            <div className="d-flex gap-2 flex-wrap">
+                            <div className="d-flex gap-1 flex-wrap justify-content-end">
                               {puedeCancelarReserva(reserva.fecha_inicio) && 
                                (reserva.estado === 'esperando_retiro' || reserva.estado === 'Activa') && (
                                 <button
                                   className="btn btn-danger btn-sm"
+                                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
                                   onClick={() => abrirModalCancelacion(reserva.id)}
                                 >
-                                  Cancelar Reserva
+                                  Cancelar
+                                </button>
+                              )}
+                              {!reserva.valorado && reserva.estado === 'terminada' && (rol === 'cliente' || rol === 'empleado') && (
+                                <button
+                                  className="btn btn-success btn-sm"
+                                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                                  onClick={() => abrirModalCalificacion(reserva)}
+                                >
+                                  Valorar
                                 </button>
                               )}
                               <button
                                 className="btn btn-outline-primary btn-sm"
+                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
                                 onClick={() => handleVerDetalle(reserva.maquinaria_codigo)}
                               >
                                 Ver Detalle
@@ -332,6 +423,41 @@ const MisReservas: React.FC = () => {
           </div>
         </div>
       )}
+      
+      {/* Toast de éxito al calificar */}
+      {showCalificacionSuccess && (
+        <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1050 }}>
+          <div className="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div className="toast-header bg-success text-white">
+              <strong className="me-auto">¡Éxito!</strong>
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                onClick={() => setShowCalificacionSuccess(false)}
+              ></button>
+            </div>
+            <div className="toast-body">
+              ¡Gracias por tu calificación! Se ha guardado correctamente.
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Modal de calificación */}
+      <CalificacionModal
+        show={showCalificacionModal}
+        onClose={() => {
+          setShowCalificacionModal(false);
+          setCalificacionError(null);
+          setReservaACalificar(null);
+        }}
+        onSubmit={enviarCalificacion}
+        puntaje={calificacionPuntaje}
+        setPuntaje={setCalificacionPuntaje}
+        comentario={calificacionComentario}
+        setComentario={setCalificacionComentario}
+        error={calificacionError}
+      />
       
       <Footer />
     </div>

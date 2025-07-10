@@ -32,7 +32,8 @@ def obtener_mis_reservas(usuario_id):
                 "duracion_dias": duracion_dias,
                 "precio_total": reserva.precio,
                 "precio_por_dia": round(reserva.precio / duracion_dias, 2) if duracion_dias > 0 else 0,
-                "estado": reserva.estado if hasattr(reserva, 'estado') and reserva.estado else ("Completada" if reserva.fecha_fin < datetime.now().date() else "Activa")
+                "estado": reserva.estado if hasattr(reserva, 'estado') and reserva.estado else ("Completada" if reserva.fecha_fin < datetime.now().date() else "Activa"),
+                "valorado": reserva.valorado if hasattr(reserva, 'valorado') else False
             })
 
         return jsonify(resultado), 200
@@ -213,16 +214,13 @@ def confirmar_devolucion(reserva_id):
         email = usuario.email
         nombre = usuario.nombre
         maquinaria = reserva.maquinaria
-        codigo_maquinaria = maquinaria.codigo
         asunto = "¡Contanos tu experiencia con Bob el Alquilador!"
-        link_puntuar = f"http://localhost:5173/detalle-maquinaria/{codigo_maquinaria}?calificar=1"
         cuerpo = f"""
 Hola {nombre},
 
 ¡Gracias por confiar en Bob el Alquilador! Queremos saber tu opinión sobre la maquinaria '{maquinaria.nombre}' que devolviste recientemente.
 
-Por favor, hacé clic en el siguiente enlace para dejar tu calificación y comentario:
-{link_puntuar}
+Podés valorar tu maquinaria en la sección "Mis Reservas y Alquileres" de tu cuenta, donde encontrarás la información de tu alquiler y el botón para dejar tu calificación y comentario.
 
 Tu opinión nos ayuda a mejorar y a otros usuarios a elegir mejor.
 
@@ -442,3 +440,21 @@ El equipo de Bob el Alquilador
     except Exception as e:
         db.session.rollback()
         return jsonify({"message": "Error al cancelar la reserva por empleado", "error": str(e)}), 500
+
+@reservas_bp.route("/marcar-valorado/<int:reserva_id>", methods=["PUT"])
+def marcar_reserva_valorado(reserva_id):
+    try:
+        # Buscar la reserva
+        reserva = Reserva.query.get(reserva_id)
+        if not reserva:
+            return jsonify({"message": "Reserva no encontrada"}), 404
+        
+        # Marcar como valorado
+        reserva.valorado = True
+        db.session.commit()
+        
+        return jsonify({"message": "Reserva marcada como valorada exitosamente"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Error al marcar la reserva como valorada", "error": str(e)}), 500
