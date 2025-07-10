@@ -38,6 +38,7 @@ class Reserva(db.Model):
     fecha_fin = db.Column(db.Date, nullable=False)
     precio = db.Column(db.Float, nullable=False)
     estado = db.Column(db.String(50), nullable=False, default='esperando_retiro')
+    valorado = db.Column(db.Boolean, nullable=False, default=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     usuario = db.relationship('Usuario', backref='reservas')
     maquinaria_id = db.Column(db.Integer, db.ForeignKey('maquinaria.id'), nullable=False)
