@@ -22,6 +22,7 @@ class Maquinaria(db.Model):
     estado = db.Column(db.Boolean, nullable=False, default=True)
     precio = db.Column(db.Float, nullable=False)
     politicas_reembolso = db.Column(db.Float, nullable=True)
+    mantenimiento = db.Column(db.Boolean, nullable=False, default=False)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=True)
     categoria = db.relationship('Categoria', backref='maquinarias')
     calificaciones = db.relationship('CalificacionMaquinaria', backref='maquinaria', lazy=True)
