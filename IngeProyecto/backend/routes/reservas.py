@@ -201,6 +201,9 @@ def confirmar_devolucion(reserva_id):
         
         # Cambiar el estado a terminada
         reserva.estado = 'terminada'
+        # Poner la maquinaria en mantenimiento
+        maquinaria = reserva.maquinaria
+        maquinaria.mantenimiento = True
         db.session.commit()
         
         # Enviar email invitando a puntuar la maquinaria

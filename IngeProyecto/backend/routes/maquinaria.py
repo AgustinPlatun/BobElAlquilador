@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-from database.models import Maquinaria, Categoria, CalificacionMaquinaria
+from database.models import Maquinaria, Categoria, CalificacionMaquinaria, HistorialMantenimiento, Usuario
 from database import db
 import os
 from datetime import datetime
@@ -121,6 +121,26 @@ def obtener_maquinarias_todas():
         return jsonify(resultado), 200
     except Exception as e:
         return jsonify({"message": "Hubo un problema al obtener todas las maquinarias", "error": str(e)}), 500
+
+@maquinaria_bp.route('/maquinarias/<int:maquinaria_id>', methods=['GET'])
+def obtener_maquinaria(maquinaria_id):
+    try:
+        maquinaria = Maquinaria.query.get(maquinaria_id)
+        if not maquinaria:
+            return jsonify({'message': 'Maquinaria no encontrada'}), 404
+        return jsonify({
+            'id': maquinaria.id,
+            'nombre': maquinaria.nombre,
+            'descripcion': maquinaria.descripcion,
+            'foto': maquinaria.foto,
+            'precio': maquinaria.precio,
+            'codigo': maquinaria.codigo,
+            'politicas_reembolso': maquinaria.politicas_reembolso,
+            'categoria_id': maquinaria.categoria_id,
+            'mantenimiento': maquinaria.mantenimiento
+        }), 200
+    except Exception as e:
+        return jsonify({'message': 'Error al obtener la maquinaria', 'error': str(e)}), 500
 
 @maquinaria_bp.route("/baja-maquinaria", methods=["PUT"])
 def baja_maquinaria():
@@ -278,3 +298,62 @@ def obtener_calificaciones(codigo):
 
     except Exception as e:
         return jsonify({"message": "Hubo un problema al obtener las calificaciones", "error": str(e)}), 500
+
+@maquinaria_bp.route('/maquinarias-en-mantenimiento', methods=['GET'])
+def maquinarias_en_mantenimiento():
+    try:
+        maquinarias = Maquinaria.query.filter_by(mantenimiento=True).all()
+        resultado = []
+        for m in maquinarias:
+            resultado.append({
+                'id': m.id,
+                'codigo': m.codigo,
+                'nombre': m.nombre,
+                'descripcion': m.descripcion,
+                'foto': m.foto,
+                'estado': m.estado,
+                'mantenimiento': m.mantenimiento,
+                'categoria_id': m.categoria_id,
+                'precio': m.precio
+            })
+        return jsonify(resultado), 200
+    except Exception as e:
+        return jsonify({'message': 'Error al obtener maquinarias en mantenimiento', 'error': str(e)}), 500
+
+@maquinaria_bp.route('/sacar-de-mantenimiento/<int:maquinaria_id>', methods=['PUT'])
+def sacar_de_mantenimiento(maquinaria_id):
+    try:
+        data = request.get_json()
+        descripcion = data.get('descripcion')
+        empleado_id = data.get('empleado_id')
+        if not descripcion or not empleado_id:
+            return jsonify({'message': 'Faltan datos requeridos'}), 400
+        maquinaria = Maquinaria.query.get(maquinaria_id)
+        if not maquinaria or not maquinaria.mantenimiento:
+            return jsonify({'message': 'Maquinaria no encontrada o no está en mantenimiento'}), 404
+        # Registrar mantenimiento
+        mantenimiento = HistorialMantenimiento(
+            descripcion=descripcion,
+            empleado_id=empleado_id,
+            maquinaria_id=maquinaria_id
+        )
+        maquinaria.mantenimiento = False
+        db.session.add(mantenimiento)
+        db.session.commit()
+        return jsonify({'message': 'Maquinaria sacada de mantenimiento y mantenimiento registrado'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Error al sacar de mantenimiento', 'error': str(e)}), 500
+
+@maquinaria_bp.route('/maquinarias/<int:maquinaria_id>/poner-en-mantenimiento', methods=['PUT'])
+def poner_en_mantenimiento(maquinaria_id):
+    try:
+        maquinaria = Maquinaria.query.get(maquinaria_id)
+        if not maquinaria:
+            return jsonify({'message': 'Maquinaria no encontrada'}), 404
+        maquinaria.mantenimiento = True
+        db.session.commit()
+        return jsonify({'message': 'Maquinaria puesta en mantenimiento'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Error al poner en mantenimiento', 'error': str(e)}), 500

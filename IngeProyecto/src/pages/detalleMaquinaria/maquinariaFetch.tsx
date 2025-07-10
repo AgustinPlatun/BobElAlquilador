@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 export interface Maquinaria {
+  id: number;
   nombre: string;
   descripcion: string;
   foto: string;
@@ -10,6 +11,7 @@ export interface Maquinaria {
   politicas_reembolso?: number;
   categoria_id?: number;
   categoria?: string;
+  mantenimiento: boolean;
   calificaciones?: {
     promedio: number;
     total_calificaciones: number;

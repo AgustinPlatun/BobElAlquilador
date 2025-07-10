@@ -59,6 +59,7 @@ const Navbar: React.FC = () => {
       options.push({ label: 'Registrar cliente', path: '/registrar-cliente' });
       options.push({ label: 'Preguntas sin responder', path: '/preguntas-sin-responder' });
       options.push({ label: 'Historial de reservas', path: '/historial-reservas' });
+      options.push({ label: 'Maquinarias en mantenimiento', path: '/maquinarias-mantenimiento' });
     }
     options.push({ label: 'Cerrar sesión', action: handleLogout });
     return options;

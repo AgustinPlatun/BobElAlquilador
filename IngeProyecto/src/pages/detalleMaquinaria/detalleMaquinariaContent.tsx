@@ -296,14 +296,28 @@ const DetalleMaquinariaContent: React.FC = () => {
                   {/* Solo empleados pueden agregar mantenimiento */}
                   {rol === 'empleado' && (
                     <button
-                      className="btn btn-primary"
-                      onClick={() => {
-                        setMantenimientoDescripcion('');
-                        setModoAgregarMantenimiento(true);
-                        setShowMantenimientoModal(true);
+                      className="btn btn-danger fw-bold"
+                      onClick={async (e) => {
+                        // Refrescar el estado antes de intentar
+                        const respEstado = await fetch(`http://localhost:5000/maquinarias/${maquinaria.id}`);
+                        const data = await respEstado.json();
+                        if (data.mantenimiento) {
+                          alert('La maquinaria ya está en mantenimiento.');
+                          return;
+                        }
+                        const resp = await fetch(`http://localhost:5000/maquinarias/${maquinaria.id}/poner-en-mantenimiento`, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                        });
+                        if (resp.ok) {
+                          alert('La maquinaria fue puesta en mantenimiento correctamente.');
+                          window.location.reload();
+                        } else {
+                          alert('Ocurrió un error al poner la maquinaria en mantenimiento.');
+                        }
                       }}
                     >
-                      Agregar Mantenimiento
+                      Agregar a mantenimiento
                     </button>
                   )}
                   {/* Tanto empleados como administradores pueden ver historial */}
