@@ -195,11 +195,13 @@ const RetiroMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
                         </div>
                       </td>
                       <td>
-                        <div className="text-center">
+                        <div>
                           <div className="fw-bold">{reserva.maquinaria_nombre}</div>
-                          <small className="text-muted">
-                            ({reserva.maquinaria_codigo})
-                          </small>
+                          <div className="text-start">
+                            <small className="text-muted">
+                              ({reserva.maquinaria_codigo})
+                            </small>
+                          </div>
                           {(reserva.maquinaria_marca || reserva.maquinaria_modelo) && (
                             <div>
                               <small className="text-muted">
