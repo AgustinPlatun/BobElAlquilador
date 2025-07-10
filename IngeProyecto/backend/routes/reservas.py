@@ -363,6 +363,28 @@ def reservas_futuras_maquinaria(maquinaria_id):
     except Exception as e:
         return jsonify({"message": "Error al obtener reservas futuras de la maquinaria", "error": str(e)}), 500
 
+@reservas_bp.route("/reservas-historial-maquinaria/<int:maquinaria_id>", methods=["GET"])
+def reservas_historial_maquinaria(maquinaria_id):
+    try:
+        reservas = Reserva.query.filter(
+            Reserva.maquinaria_id == maquinaria_id
+        ).join(Usuario).order_by(Reserva.fecha_inicio.desc()).all()
+        resultado = []
+        for reserva in reservas:
+            usuario = reserva.usuario
+            resultado.append({
+                "id": reserva.id,
+                "fecha_inicio": reserva.fecha_inicio.strftime("%Y-%m-%d"),
+                "fecha_fin": reserva.fecha_fin.strftime("%Y-%m-%d"),
+                "usuario_nombre": usuario.nombre,
+                "usuario_apellido": usuario.apellido,
+                "usuario_email": usuario.email,
+                "estado": reserva.estado
+            })
+        return jsonify(resultado), 200
+    except Exception as e:
+        return jsonify({"message": "Error al obtener el historial de reservas de la maquinaria", "error": str(e)}), 500
+
 @reservas_bp.route("/cancelar-reserva-empleado/<int:reserva_id>", methods=["PUT"])
 def cancelar_reserva_empleado(reserva_id):
     try:

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../../Components/NavBar/Navbar';
 import { FaSearch, FaBoxOpen } from 'react-icons/fa';
-import { Badge } from 'react-bootstrap';
+import { Badge, Button } from 'react-bootstrap';
 
 interface Maquinaria {
   id: number;
@@ -54,6 +54,7 @@ const HistorialReservas: React.FC = () => {
   const [error, setError] = useState('');
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [reservaACancelar, setReservaACancelar] = useState<Reserva | null>(null);
+  const [filtroReservas, setFiltroReservas] = useState<null | 'completo' | 'futuras'>(null);
 
   useEffect(() => {
     fetch('http://localhost:5000/maquinarias-todas')
@@ -64,9 +65,18 @@ const HistorialReservas: React.FC = () => {
 
   const handleSeleccionar = (maq: Maquinaria) => {
     setMaquinariaSeleccionada(maq);
+    setFiltroReservas(null);
+    setReservas([]);
+    setError('');
+  };
+
+  const fetchReservas = (tipo: 'completo' | 'futuras', maq: Maquinaria) => {
     setLoading(true);
     setError('');
-    fetch(`http://localhost:5000/reservas-futuras-maquinaria/${maq.id}`)
+    const endpoint = tipo === 'completo'
+      ? `http://localhost:5000/reservas-historial-maquinaria/${maq.id}`
+      : `http://localhost:5000/reservas-futuras-maquinaria/${maq.id}`;
+    fetch(endpoint)
       .then(res => res.json())
       .then(data => {
         setReservas(data);
@@ -117,8 +127,8 @@ const HistorialReservas: React.FC = () => {
             <FaBoxOpen size={36} style={{ color: rojoPrincipal }} className="me-2" />
           </div>
           <div className="col-auto">
-            <h2 className="fw-bold mb-0" style={{ color: rojoPrincipal }}>Historial de reservas de maquinaria</h2>
-            <div className="text-muted" style={{ fontSize: 16 }}>Consulta y gestiona las reservas futuras de cada equipo</div>
+            <h2 className="fw-bold mb-0" style={{ color: rojoPrincipal }}>Reservas y alquileres de maquinaria</h2>
+            <div className="text-muted" style={{ fontSize: 16 }}>Consulta y gestiona las reservas y el historial de alquileres de cada equipo</div>
           </div>
         </div>
         <div className="row g-4 justify-content-center">
@@ -243,46 +253,86 @@ const HistorialReservas: React.FC = () => {
                     </div>
                     <div className="mb-2"><strong>Descripción:</strong> {maquinariaSeleccionada.descripcion}</div>
                     <hr />
-                    <h6 className="fw-bold mb-3" style={{ color: rojoPrincipal }}>Reservas futuras</h6>
-                    {loading && <div className="text-primary">Cargando reservas...</div>}
-                    {error && <div className="alert alert-danger">{error}</div>}
-                    {reservasOrdenadas.length === 0 && !loading && <div className="text-muted">No hay reservas futuras.</div>}
-                    <ul className="list-group" style={{ maxHeight: 400, overflowY: 'auto' }}>
-                      {reservasOrdenadas.map((res, idx) => {
-                        const inicio = new Date(res.fecha_inicio);
-                        const fin = new Date(res.fecha_fin);
-                        const esActual = inicio <= hoy && hoy <= fin;
-                        return (
-                          <li key={res.id} className={`list-group-item d-flex align-items-center ${esActual ? 'list-group-item-warning' : ''}`} style={{ borderLeft: esActual ? `5px solid ${rojoSecundario}` : undefined }}>
-                            <div className="flex-grow-1">
-                              <div className="d-flex align-items-center mb-1">
-                                <span className="fw-bold me-2" style={{ fontSize: 16, color: rojoPrincipal }}>{esActual ? 'Reserva actual' : `Reserva #${idx + 1}`}</span>
-                                <Badge bg={colorEstado(res.estado)} className="ms-2 text-uppercase">{res.estado}</Badge>
-                              </div>
-                              <div style={{ fontSize: 15 }}>
-                                <span className="me-2"><strong>Desde:</strong> {res.fecha_inicio}</span>
-                                <span><strong>Hasta:</strong> {res.fecha_fin}</span>
-                              </div>
-                              <div style={{ fontSize: 15 }}>
-                                <span><strong>Cliente:</strong> {res.usuario_nombre} {res.usuario_apellido} ({res.usuario_email})</span>
-                              </div>
-                            </div>
-                            {/* Botón cancelar solo si es cancelable */}
-                            {puedeCancelarReserva(res) && (
-                              <button
-                                className="btn btn-danger btn-sm ms-3"
-                                onClick={() => {
-                                  setReservaACancelar(res);
-                                  setShowCancelModal(true);
-                                }}
-                              >
-                                Cancelar
-                              </button>
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
+                    <h6 className="fw-bold mb-3" style={{ color: rojoPrincipal }}>
+                      {filtroReservas === 'futuras' ? 'Reservas' : 'Historial de alquileres'}
+                    </h6>
+                    {maquinariaSeleccionada && (
+                      <div className="mb-4 d-flex flex-column align-items-center">
+                        <div className="mb-2" style={{fontWeight:600, color: rojoPrincipal, fontSize:'1.1rem'}}>¿Qué deseas ver?</div>
+                        <div className="d-flex gap-3">
+                          <Button
+                            variant={filtroReservas === 'futuras' ? 'danger' : 'outline-danger'}
+                            style={{minWidth:180, fontWeight:600, boxShadow:'0 1px 6px rgba(183,28,28,0.07)'}}
+                            onClick={() => {
+                              setFiltroReservas('futuras');
+                              fetchReservas('futuras', maquinariaSeleccionada);
+                            }}
+                          >
+                            Ver reservas
+                          </Button>
+                          <Button
+                            variant={filtroReservas === 'completo' ? 'danger' : 'outline-danger'}
+                            style={{minWidth:180, fontWeight:600, boxShadow:'0 1px 6px rgba(183,28,28,0.07)'}}
+                            onClick={() => {
+                              setFiltroReservas('completo');
+                              fetchReservas('completo', maquinariaSeleccionada);
+                            }}
+                          >
+                            Ver historial de alquileres
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    {maquinariaSeleccionada && filtroReservas && (
+                      <>
+                        <h6 className="fw-bold mb-3" style={{ color: rojoPrincipal }}>
+                          {filtroReservas === 'futuras' ? 'Reservas' : 'Historial de alquileres'}
+                        </h6>
+                        {loading && <div className="text-primary">Cargando...</div>}
+                        {error && <div className="alert alert-danger">{error}</div>}
+                        {reservasOrdenadas.length === 0 && !loading && (
+                          <div className="text-muted">
+                            {filtroReservas === 'futuras' ? 'No hay reservas.' : 'No hay historial de alquileres.'}
+                          </div>
+                        )}
+                        <ul className="list-group" style={{ maxHeight: 400, overflowY: 'auto' }}>
+                          {reservasOrdenadas.map((res, idx) => {
+                            const inicio = new Date(res.fecha_inicio);
+                            const fin = new Date(res.fecha_fin);
+                            const esActual = inicio <= hoy && hoy <= fin;
+                            return (
+                              <li key={res.id} className={`list-group-item d-flex align-items-center ${esActual ? 'list-group-item-warning' : ''}`} style={{ borderLeft: esActual ? `5px solid ${rojoSecundario}` : undefined }}>
+                                <div className="flex-grow-1">
+                                  <div className="d-flex align-items-center mb-1">
+                                    <span className="fw-bold me-2" style={{ fontSize: 16, color: rojoPrincipal }}>{esActual ? 'Reserva actual' : `Reserva #${idx + 1}`}</span>
+                                    <Badge bg={colorEstado(res.estado)} className="ms-2 text-uppercase">{res.estado}</Badge>
+                                  </div>
+                                  <div style={{ fontSize: 15 }}>
+                                    <span className="me-2"><strong>Desde:</strong> {res.fecha_inicio}</span>
+                                    <span><strong>Hasta:</strong> {res.fecha_fin}</span>
+                                  </div>
+                                  <div style={{ fontSize: 15 }}>
+                                    <span><strong>Cliente:</strong> {res.usuario_nombre} {res.usuario_apellido} ({res.usuario_email})</span>
+                                  </div>
+                                </div>
+                                {/* Botón cancelar solo si es cancelable */}
+                                {puedeCancelarReserva(res) && (
+                                  <button
+                                    className="btn btn-danger btn-sm ms-3"
+                                    onClick={() => {
+                                      setReservaACancelar(res);
+                                      setShowCancelModal(true);
+                                    }}
+                                  >
+                                    Cancelar
+                                  </button>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
