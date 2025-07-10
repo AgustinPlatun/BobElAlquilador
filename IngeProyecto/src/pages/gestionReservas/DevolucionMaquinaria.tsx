@@ -173,7 +173,7 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
         </div>
       )}
       <div className="text-center mb-4">
-        <h2 className="fw-bold mb-3">Gestión de Reservas</h2>
+        <h2 className="fw-bold mb-3">Gestión de reservas y alquileres</h2>
         <div className="btn-group mb-3">
           <button
             className="btn btn-outline-primary"
@@ -196,7 +196,7 @@ const DevolucionMaquinaria: React.FC<Props> = ({ onVistaChange }) => {
       <div className="card border-0 shadow-sm">
         <div className="card-header bg-primary text-white">
           <h5 className="mb-0">
-            Reservas Esperando Devolución ({reservas.length})
+            Esperando Devolución ({reservas.length})
           </h5>
         </div>
         <div className="card-body">

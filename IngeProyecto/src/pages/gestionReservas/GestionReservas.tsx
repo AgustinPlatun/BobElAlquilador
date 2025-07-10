@@ -17,7 +17,7 @@ const GestionReservas: React.FC = () => {
     if (!vista) {
       return (
         <div className="text-center">
-          <h2 className="fw-bold mb-3">Gestión de Reservas</h2>
+          <h2 className="fw-bold mb-3">Gestión de reservas y alquileres</h2>
           <p className="text-muted mb-4">Selecciona el tipo de gestión que deseas realizar para la fecha: {fechaHoy}</p>
           <div className="btn-group">
             <button className="btn btn-outline-primary" onClick={() => handleVistaChange('inicio')}>
