@@ -118,6 +118,11 @@ const HistorialReservas: React.FC = () => {
           m.codigo.toLowerCase().includes(busqueda.toLowerCase()))
     ) as { id: number; nombre: string; codigo: string; descripcion: string; foto?: string }[];
 
+  // Filtrado de reservas: ocultar canceladas solo en 'futuras'
+  const reservasFiltradas = filtroReservas === 'futuras'
+    ? reservasOrdenadas.filter(r => r.estado.toLowerCase() !== 'cancelada')
+    : reservasOrdenadas;
+
   return (
     <>
       <Navbar />
@@ -278,7 +283,7 @@ const HistorialReservas: React.FC = () => {
                               fetchReservas('completo', maquinariaSeleccionada);
                             }}
                           >
-                            Ver historial de alquileres
+                            Ver historial completo
                           </Button>
                         </div>
                       </div>
@@ -290,13 +295,13 @@ const HistorialReservas: React.FC = () => {
                         </h6>
                         {loading && <div className="text-primary">Cargando...</div>}
                         {error && <div className="alert alert-danger">{error}</div>}
-                        {reservasOrdenadas.length === 0 && !loading && (
+                        {reservasFiltradas.length === 0 && !loading && (
                           <div className="text-muted">
-                            {filtroReservas === 'futuras' ? 'No hay reservas.' : 'No hay historial de alquileres.'}
+                            No hay historial para esta maquinaria.
                           </div>
                         )}
                         <ul className="list-group" style={{ maxHeight: 400, overflowY: 'auto' }}>
-                          {reservasOrdenadas.map((res, idx) => {
+                          {reservasFiltradas.map((res, idx) => {
                             const inicio = new Date(res.fecha_inicio);
                             const fin = new Date(res.fecha_fin);
                             const esActual = inicio <= hoy && hoy <= fin;

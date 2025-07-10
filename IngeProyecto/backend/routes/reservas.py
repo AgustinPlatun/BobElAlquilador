@@ -47,6 +47,8 @@ def fechas_reservadas(codigo):
         return jsonify([])
 
     reservas = Reserva.query.filter_by(maquinaria_id=maquinaria.id).all()
+    # Solo considerar reservas que no estén canceladas (insensible a mayúsculas)
+    reservas = [r for r in reservas if r.estado.lower() != 'cancelada']
     fechas = []
     for reserva in reservas:
         dia = reserva.fecha_inicio

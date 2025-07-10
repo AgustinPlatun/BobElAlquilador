@@ -170,6 +170,7 @@ const MaquinariaCalendario: React.FC<Props> = ({
                     className="btn btn-secondary fw-bold"
                     style={{ fontSize: '1rem', padding: '8px 20px' }}
                     onClick={handleAbrirInputEmail}
+                    disabled={envio && direccion.trim() === ''}
                   >
                     Reservar para cliente
                   </button>
