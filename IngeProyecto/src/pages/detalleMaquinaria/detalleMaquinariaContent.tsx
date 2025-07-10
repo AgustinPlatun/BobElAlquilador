@@ -52,8 +52,9 @@ const DetalleMaquinariaContent: React.FC = () => {
   const handleAbrirCalificacion = () => {
     const usuarioId = sessionStorage.getItem('usuarioId');
     if (!usuarioId) {
-      // Redirigir a login con redirect a /servicios
-      navigate(`/login?redirect=/servicios`);
+      // Redirigir a login con redirect a la URL actual (incluyendo query params)
+      const currentPath = location.pathname + location.search;
+      navigate(`/login?redirect=${encodeURIComponent(currentPath)}`);
       return;
     }
     setShowCalificacionModal(true);
