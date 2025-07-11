@@ -265,7 +265,7 @@ const HistorialReservas: React.FC = () => {
                               fetchReservas('futuras', maquinariaSeleccionada);
                             }}
                           >
-                            Ver reservas
+                            Ver reservas pendientes
                           </Button>
                           <Button
                             variant={filtroReservas === 'completo' ? 'danger' : 'outline-danger'}
@@ -275,7 +275,7 @@ const HistorialReservas: React.FC = () => {
                               fetchReservas('completo', maquinariaSeleccionada);
                             }}
                           >
-                            Ver alquileres
+                            Ver historial
                           </Button>
                         </div>
                       </div>
