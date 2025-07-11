@@ -89,15 +89,12 @@ const HistorialReservas: React.FC = () => {
   };
 
   const hoy = new Date();
-  const reservasOrdenadas = reservas.slice().sort((a, b) => {
-    const inicioA = new Date(a.fecha_inicio);
-    const inicioB = new Date(b.fecha_inicio);
-    const esActualA = inicioA <= hoy && hoy <= new Date(a.fecha_fin);
-    const esActualB = inicioB <= hoy && hoy <= new Date(b.fecha_fin);
-    if (esActualA && !esActualB) return -1;
-    if (!esActualA && esActualB) return 1;
-    return inicioA.getTime() - inicioB.getTime();
-  });
+  // Ya que el backend devuelve la reserva actual primero y luego las pasadas ordenadas por fecha_fin descendente,
+  // solo asegúrate de mostrar reservasFiltradas en el orden recibido, sin reordenar en el frontend.
+  // Elimina cualquier sort extra en reservasOrdenadas o reservasFiltradas para 'completo'.
+  const reservasFiltradas: Reserva[] = filtroReservas === 'futuras'
+    ? reservas.filter(r => r.estado.toLowerCase() !== 'cancelada')
+    : reservas;
 
   // Función para saber si una reserva es cancelable por empleado
   const puedeCancelarReserva = (reserva: Reserva) => {
@@ -117,11 +114,6 @@ const HistorialReservas: React.FC = () => {
         (m.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
           m.codigo.toLowerCase().includes(busqueda.toLowerCase()))
     ) as { id: number; nombre: string; codigo: string; descripcion: string; foto?: string }[];
-
-  // Filtrado de reservas: ocultar canceladas solo en 'futuras'
-  const reservasFiltradas = filtroReservas === 'futuras'
-    ? reservasOrdenadas.filter(r => r.estado.toLowerCase() !== 'cancelada')
-    : reservasOrdenadas;
 
   return (
     <>
@@ -259,7 +251,7 @@ const HistorialReservas: React.FC = () => {
                     <div className="mb-2"><strong>Descripción:</strong> {maquinariaSeleccionada.descripcion}</div>
                     <hr />
                     <h6 className="fw-bold mb-3" style={{ color: rojoPrincipal }}>
-                      {filtroReservas === 'futuras' ? 'Reservas' : 'Historial de alquileres'}
+                      {filtroReservas === 'futuras' ? 'Reservas' : 'Alquileres'}
                     </h6>
                     {maquinariaSeleccionada && (
                       <div className="mb-4 d-flex flex-column align-items-center">
@@ -283,7 +275,7 @@ const HistorialReservas: React.FC = () => {
                               fetchReservas('completo', maquinariaSeleccionada);
                             }}
                           >
-                            Ver historial completo
+                            Ver alquileres
                           </Button>
                         </div>
                       </div>
@@ -291,7 +283,7 @@ const HistorialReservas: React.FC = () => {
                     {maquinariaSeleccionada && filtroReservas && (
                       <>
                         <h6 className="fw-bold mb-3" style={{ color: rojoPrincipal }}>
-                          {filtroReservas === 'futuras' ? 'Reservas' : 'Historial de alquileres'}
+                          {filtroReservas === 'futuras' ? 'Reservas' : 'Alquileres'}
                         </h6>
                         {loading && <div className="text-primary">Cargando...</div>}
                         {error && <div className="alert alert-danger">{error}</div>}
@@ -302,14 +294,22 @@ const HistorialReservas: React.FC = () => {
                         )}
                         <ul className="list-group" style={{ maxHeight: 400, overflowY: 'auto' }}>
                           {reservasFiltradas.map((res, idx) => {
-                            const inicio = new Date(res.fecha_inicio);
-                            const fin = new Date(res.fecha_fin);
-                            const esActual = inicio <= hoy && hoy <= fin;
+                            // Comparar solo fechas (sin horas)
+                            const hoyDate = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+                            const inicio = new Date(res.fecha_inicio + 'T00:00:00');
+                            const fin = new Date(res.fecha_fin + 'T00:00:00');
+                            const esActual = inicio <= hoyDate && hoyDate <= fin;
                             return (
-                              <li key={res.id} className={`list-group-item d-flex align-items-center ${esActual ? 'list-group-item-warning' : ''}`} style={{ borderLeft: esActual ? `5px solid ${rojoSecundario}` : undefined }}>
+                              <li
+                                key={res.id}
+                                className={`list-group-item d-flex align-items-center ${esActual ? 'list-group-item-success' : ''}`}
+                                style={esActual ? { borderLeft: '5px solid #28a745', backgroundColor: '#eafbe7' } : {}}
+                              >
                                 <div className="flex-grow-1">
                                   <div className="d-flex align-items-center mb-1">
-                                    <span className="fw-bold me-2" style={{ fontSize: 16, color: rojoPrincipal }}>{esActual ? 'Reserva actual' : `Reserva #${idx + 1}`}</span>
+                                    <span className="fw-bold me-2" style={{ fontSize: 16, color: esActual ? '#28a745' : rojoPrincipal }}>
+                                      {esActual ? 'Reserva actual' : `Reserva #${idx + 1}`}
+                                    </span>
                                     <Badge bg={colorEstado(res.estado)} className="ms-2 text-uppercase">{res.estado}</Badge>
                                   </div>
                                   <div style={{ fontSize: 15 }}>
