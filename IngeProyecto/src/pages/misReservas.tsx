@@ -304,7 +304,11 @@ const MisReservas: React.FC = () => {
                         />
                         <span 
                           className={`position-absolute top-0 end-0 m-3 badge ${
-                            reserva.estado === 'Activa' ? 'bg-success' : 'bg-secondary'
+                            reserva.estado === 'Activa' ? 'bg-success' : 
+                            reserva.estado === 'esperando_retiro' ? 'bg-primary' :
+                            reserva.estado === 'esperando_devolucion' ? 'bg-warning' :
+                            reserva.estado === 'terminada' ? 'bg-secondary' :
+                            reserva.estado === 'cancelada' ? 'bg-danger' : 'bg-secondary'
                           }`}
                           style={{ fontSize: '0.8rem' }}
                         >

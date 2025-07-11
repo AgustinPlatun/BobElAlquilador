@@ -23,10 +23,11 @@ interface Reserva {
 
 const colorEstado = (estado: string) => {
   switch (estado) {
-    case 'esperando_retiro': return 'warning';
+    case 'esperando_retiro': return 'primary';
     case 'Activa': return 'success';
     case 'cancelada': return 'danger';
-    case 'esperando_devolucion': return 'info';
+    case 'esperando_devolucion': return 'warning';
+    case 'terminada': return 'secondary';
     default: return 'secondary';
   }
 };
