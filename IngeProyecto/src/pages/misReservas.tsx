@@ -71,7 +71,10 @@ const MisReservas: React.FC = () => {
   };
 
   const formatearFecha = (fecha: string) => {
-    return new Date(fecha).toLocaleDateString('es-AR', {
+    // Parsear la fecha como YYYY-MM-DD para evitar problemas de zona horaria
+    const [year, month, day] = fecha.split('-');
+    const fechaLocal = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    return fechaLocal.toLocaleDateString('es-AR', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -80,8 +83,15 @@ const MisReservas: React.FC = () => {
 
   const puedeCancelarReserva = (fechaInicio: string) => {
     const hoy = new Date();
-    const fechaRetiro = new Date(fechaInicio);
-    const diferenciaDias = Math.ceil((fechaRetiro.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+    hoy.setHours(0, 0, 0, 0); // Resetear horas para comparar solo fechas
+    
+    // Parsear la fecha como YYYY-MM-DD para evitar problemas de zona horaria
+    const [year, month, day] = fechaInicio.split('-');
+    const fechaRetiro = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    fechaRetiro.setHours(0, 0, 0, 0);
+    
+    const diferenciaMilisegundos = fechaRetiro.getTime() - hoy.getTime();
+    const diferenciaDias = Math.ceil(diferenciaMilisegundos / (1000 * 60 * 60 * 24));
     return diferenciaDias > 1;
   };
 
