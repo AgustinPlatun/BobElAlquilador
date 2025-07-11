@@ -534,7 +534,7 @@ const DetalleMaquinariaContent: React.FC = () => {
               {maquinaria.calificaciones && maquinaria.calificaciones.calificaciones.length > 0 && (
                 <div className="shadow-sm rounded p-4 h-100 d-flex flex-column"
                   style={{ border: '2.5px solid #d32f2f', background: '#fff', color: '#222' }}>
-                  <h4>Comentarios</h4>
+                  <h4>Valoraciones</h4>
                   <div
                     className="mt-3 custom-scrollbar"
                     style={{
@@ -583,9 +583,9 @@ const DetalleMaquinariaContent: React.FC = () => {
                {(!maquinaria.calificaciones || !maquinaria.calificaciones.calificaciones.length) && (
                  <div className="shadow-sm rounded p-4 h-100 d-flex flex-column"
                    style={{ border: '2.5px solid #d32f2f', background: '#fff', color: '#222' }}>
-                   <h4>Comentarios</h4>
+                   <h4>Valoraciones</h4>
                    <div className="text-muted text-center py-3">
-                     No hay calificaciones aún.
+                     No hay valoraciones aún.
                    </div>
                  </div>
                )}

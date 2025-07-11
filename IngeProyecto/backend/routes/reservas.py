@@ -343,9 +343,11 @@ def reservas_futuras_maquinaria(maquinaria_id):
     try:
         from datetime import date
         hoy = date.today()
+        # Buscar reservas futuras (fecha_inicio > hoy, no canceladas)
         reservas = Reserva.query.filter(
             Reserva.maquinaria_id == maquinaria_id,
-            Reserva.fecha_fin >= hoy
+            Reserva.fecha_inicio > hoy,
+            Reserva.estado != 'cancelada'
         ).join(Usuario).order_by(Reserva.fecha_inicio.asc()).all()
         resultado = []
         for reserva in reservas:
@@ -366,11 +368,34 @@ def reservas_futuras_maquinaria(maquinaria_id):
 @reservas_bp.route("/reservas-historial-maquinaria/<int:maquinaria_id>", methods=["GET"])
 def reservas_historial_maquinaria(maquinaria_id):
     try:
-        reservas = Reserva.query.filter(
-            Reserva.maquinaria_id == maquinaria_id
-        ).join(Usuario).order_by(Reserva.fecha_inicio.desc()).all()
+        from datetime import date
+        hoy = date.today()
+        # Reserva actual (en curso hoy, no cancelada)
+        reserva_actual = Reserva.query.filter(
+            Reserva.maquinaria_id == maquinaria_id,
+            Reserva.fecha_inicio <= hoy,
+            Reserva.fecha_fin >= hoy,
+            Reserva.estado != 'cancelada'
+        ).join(Usuario).first()
+        # Reservas pasadas (ya terminaron, no canceladas)
+        reservas_pasadas = Reserva.query.filter(
+            Reserva.maquinaria_id == maquinaria_id,
+            Reserva.fecha_fin < hoy,
+            Reserva.estado != 'cancelada'
+        ).join(Usuario).order_by(Reserva.fecha_fin.desc()).all()
         resultado = []
-        for reserva in reservas:
+        if reserva_actual:
+            usuario = reserva_actual.usuario
+            resultado.append({
+                "id": reserva_actual.id,
+                "fecha_inicio": reserva_actual.fecha_inicio.strftime("%Y-%m-%d"),
+                "fecha_fin": reserva_actual.fecha_fin.strftime("%Y-%m-%d"),
+                "usuario_nombre": usuario.nombre,
+                "usuario_apellido": usuario.apellido,
+                "usuario_email": usuario.email,
+                "estado": reserva_actual.estado
+            })
+        for reserva in reservas_pasadas:
             usuario = reserva.usuario
             resultado.append({
                 "id": reserva.id,
